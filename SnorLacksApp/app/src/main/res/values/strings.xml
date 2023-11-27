@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">SnorLacksApp</string>
+    <string name="hello">Hello World, BioLibTestActivity!</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="menu_settings">Settings</string>
+    <string name="title_activity_search_device">SearchDeviceActivity</string>
 </resources>

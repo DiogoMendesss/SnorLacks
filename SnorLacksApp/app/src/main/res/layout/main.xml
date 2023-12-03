@@ -5,9 +5,22 @@
     android:orientation="vertical" >
 
     <RelativeLayout
+
+        android:padding="30dp"
+
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_weight="0.69" >
+
+        <Button
+            android:id="@+id/buttonGetSleepReport"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/textRadioEvent"
+            android:layout_centerHorizontal="true"
+            android:background="@color/colorAccent"
+            android:textColor="@color/white"
+            android:text="Get Sleep Report" />
 
         <Button
             android:id="@+id/buttonSetRTC"
@@ -212,6 +225,7 @@
             android:layout_alignLeft="@+id/buttonGetDeviceId"
             android:layout_alignRight="@+id/buttonGetDeviceId"
             android:text="Get ACC" />
+
 
     </RelativeLayout>
 

@@ -4,6 +4,8 @@
 
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
 
     <application
         android:allowBackup="true"
@@ -15,7 +17,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SnorLacksApp"
         tools:targetApi="31">
-
+        <activity
+            android:name=".SleepReportActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ReportActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ReportView"
+            android:exported="false" />
         <activity
             android:name=".BioLibTestActivity"
             android:exported="true">
@@ -25,17 +35,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".SearchDeviceActivity"
-            android:label="@string/title_activity_search_device"
-            android:exported="true">
+            android:exported="true"
+            android:label="@string/title_activity_search_device">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN1" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
     </application>
 
 </manifest>

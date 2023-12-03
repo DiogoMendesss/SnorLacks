@@ -1,3 +1,5 @@
+import com.mathworks.engine.MatlabExecutionException;
+import com.mathworks.engine.MatlabSyntaxException;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -5,178 +7,101 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
-import java.io.DataInputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.*;
+
+import com.mathworks.engine.EngineException;
+import com.mathworks.engine.MatlabEngine;
+
+import org.apache.commons.math3.analysis.function.Exp;
+import org.apache.commons.math3.analysis.function.Pow;
+import org.apache.commons.math3.complex.Complex;
+import org.apache.commons.math3.transform.DftNormalization;
+import org.apache.commons.math3.transform.FastFourierTransformer;
+import org.apache.commons.math3.transform.TransformType;
 
 public class Main {
 
     public static void main(String[] args) {
-        
-        short[] ecgData = new short[0];
+        Random random = new Random();
 
-        String datFilePath = "C:\\Users\\romeu\\Desktop\\SnorLacks\\EcgHandler\\assets\\ecg-id-database-1.0.0\\ecg-id-database-1.0.0\\Person_01\\rec_1.dat";
+        int[] bpmi = generateHeartRateArray(40, 50, 100);
 
-        try {
-            // Read ECG data from the .dat file
-            ecgData = readEcgData(datFilePath);
-
-            // Process or visualize the ECG data as needed
-            for (short value : ecgData) {
-                System.out.println("ECG Value: " + value);
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
+        for (int i = 10; i<20;i++){
+            bpmi[i] = random.nextInt(90 - 70 + 1) + 70;
         }
 
-        /*
-        // Assuming 3000 samples for ECG
-        int numSamples = 3000;
-
-        // Sample frequency of the data acquisition (Hz)
-        double sampleFrequency = 500.0;
-
-        // Create an array to store ECG samples
-        double[] ecg = generateEcgSamples(numSamples, sampleFrequency);
-
-        // Apply low-pass filter
-        double[] lowPassFilteredEcg = lowPassFilter(ecg, sampleFrequency, 50.0); // Cut frequency of 50 Hz
-
-        // Apply high-pass filter
-        double[] highPassFilteredEcg = highPassFilter(lowPassFilteredEcg, sampleFrequency, 0.5); // Cut frequency of 0.5 Hz
-
-        // Now you can process the filtered ECG data as needed
-        processEcgData(ecg);
-        
-         */
+        for (int i = 60; i<70;i++){
+            bpmi[i] = random.nextInt(90 - 70 + 1) + 70;
+        }
 
         // Create a graph for the filtered ECG data
-        createEcgGraph(ecgData);
+        createBpmGraph(bpmi);
+
+        if(checkThresholdExceeded(bpmi, 60, 15)){
+            System.out.println("Threshold exceeded");
+        }
+        else
+            System.out.println("Threshold not exceeded");
     }
 
-    // Method to read 12-bit ECG data from a .dat file
-    private static short[] readEcgData(String datFilePath) throws IOException {
-        // Open .dat file for reading
-        FileInputStream fis = new FileInputStream(datFilePath);
-        DataInputStream dis = new DataInputStream(fis);
-
-        // Read the raw ECG data
-        int dataSize = dis.available() * 8 / 12; // Assuming 12-bit data
-        short[] ecgData = new short[dataSize];
-
-        for (int i = 0; i < dataSize; i++) {
-            // Read the next 12-bit signed data point
-            // Combine two bytes into a 12-bit value
-            int firstByte = dis.readUnsignedByte();
-            int secondByte = dis.readUnsignedByte();
-            int twelveBitValue = (firstByte << 4) | (secondByte >> 4);
-
-            // Convert to signed representation (assuming 12-bit is signed)
-            ecgData[i] = (short) ((twelveBitValue << 4) >> 4);
+    public static int[] generateHeartRateArray(int minRate, int maxRate, int arraySize) {
+        if (minRate >= maxRate || arraySize <= 0) {
+            throw new IllegalArgumentException("Invalid parameters for heart rate array generation.");
         }
 
-        // Close the streams
-        dis.close();
-        fis.close();
+        int[] heartRateArray = new int[arraySize];
+        Random random = new Random();
 
-        return ecgData;
+        for (int i = 0; i < arraySize; i++) {
+            heartRateArray[i] = random.nextInt(maxRate - minRate + 1) + minRate;
+        }
+
+        return heartRateArray;
     }
 
+    public static boolean checkThresholdExceeded(int[] heartRateArray, int threshold, int consecutiveSamples) {
+        int consecutiveCount = 0;
 
-    // Method to generate and normalize ECG-like samples
-    private static double[] generateEcgSamples(int numSamples, double sampleFrequency) {
-        double[] ecgSamples = new double[numSamples];
-
-        // Generate an ECG-like signal using the sum of sinusoidal waves
-        double min = Double.MAX_VALUE;
-        double max = Double.MIN_VALUE;
-
-        for (int i = 0; i < numSamples; i++) {
-            double t = i / sampleFrequency;
-            double ecgValue = 0.5 * Math.sin(2 * Math.PI * 0.5 * t) +
-                    0.2 * Math.sin(2 * Math.PI * 10 * t) +
-                    0.1 * Math.sin(2 * Math.PI * 20 * t);
-
-            // Add noise (optional)
-            ecgValue += 0.02 * Math.random();
-
-            // Update min and max values
-            if (ecgValue < min) {
-                min = ecgValue;
+        for (int heartRate : heartRateArray) {
+            if (heartRate > threshold) {
+                consecutiveCount++;
+                if (consecutiveCount >= consecutiveSamples) {
+                    return true;
+                }
+            } else {
+                consecutiveCount = 0; // Reset count if heart rate falls below the threshold
             }
-            if (ecgValue > max) {
-                max = ecgValue;
-            }
-
-            ecgSamples[i] = ecgValue;
         }
 
-        // Normalize the values to the range [0, 240]
-        for (int i = 0; i < numSamples; i++) {
-            ecgSamples[i] = 240 * (ecgSamples[i] - min) / (max - min);
-        }
-
-        return ecgSamples;
+        return false;
     }
 
 
-    // Low-pass filter with cut frequency
-    private static double[] lowPassFilter(double[] input, double sampleFrequency, double cutFrequency) {
-        double alpha = 1.0 / (1.0 + Math.PI * cutFrequency / sampleFrequency);
-        double[] output = new double[input.length];
-
-        output[0] = input[0];
-
-        for (int i = 1; i < input.length; i++) {
-            output[i] = alpha * input[i] + (1 - alpha) * output[i - 1];
-        }
-
-        return output;
-    }
-
-    // High-pass filter with cut frequency
-    private static double[] highPassFilter(double[] input, double sampleFrequency, double cutFrequency) {
-        double alpha = 1.0 / (1.0 + Math.PI * cutFrequency / sampleFrequency);
-        double[] output = new double[input.length];
-
-        output[0] = input[0];
-
-        for (int i = 1; i < input.length; i++) {
-            output[i] = alpha * (output[i - 1] + input[i] - input[i - 1]);
-        }
-
-        return output;
-    }
 
 
-    // Placeholder method for processing ECG data
-    private static void processEcgData(double[] ecgSamples) {
-        // Replace this with your actual processing logic
-        System.out.println("ECG data processing logic goes here.");
-    }
-
-    // Method to create a graph for the ECG data
-    private static void createEcgGraph(short[] ecgSamples) {
+    // Method to create a graph for the BPM data
+    private static void createBpmGraph(int[] bpmSamples) {
         // Create a new XYSeries for the ECG data
-        XYSeries ecgSeries = new XYSeries("ECG Data");
+        XYSeries bpmSeries = new XYSeries("Heartrate Data");
 
         // Populate the series with the ECG samples
-        for (int i = 0; i < ecgSamples.length; i++) {
-            ecgSeries.add(i, ecgSamples[i]);
+        for (int i = 0; i < bpmSamples.length; i++) {
+            bpmSeries.add(i, bpmSamples[i]);
         }
 
         // Create a dataset and add the series to it
         XYSeriesCollection dataset = new XYSeriesCollection();
-        dataset.addSeries(ecgSeries);
+        dataset.addSeries(bpmSeries);
 
         // Create a chart based on the dataset
         JFreeChart chart = ChartFactory.createXYLineChart(
-                "Filtered ECG Data Chart", // Chart title
+                "Instant BPM Data Chart", // Chart title
                 "Sample Index",            // X-axis label
-                "ECG Value",               // Y-axis label
+                "Instant BPM Value",               // Y-axis label
                 dataset,                   // Dataset
                 PlotOrientation.VERTICAL,
                 true,                      // Include legend
@@ -189,10 +114,56 @@ public class Main {
         chartPanel.setPreferredSize(new java.awt.Dimension(800, 600));
 
         // Create a JFrame to hold the chart
-        JFrame frame = new JFrame("Filtered ECG Data Graph");
+        JFrame frame = new JFrame("BPM Data Graph");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().add(chartPanel);
         frame.pack();
         frame.setVisible(true);
     }
+
+
+
 }
+
+
+
+
+    /*
+            try {
+            ecgData1 = convertDatFileToJavaArray(datFilePath1);
+            ecgData2 = convertDatFileToJavaArray(datFilePath2);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("deu merda");
+        }
+
+
+    private static double[] convertDatFileToJavaArray(String datFilePath) throws FileNotFoundException {
+        System.out.println("entrou na funcao");
+        File file = new File(datFilePath);
+        Scanner scanner = new Scanner(file);
+        scanner.useDelimiter(","); // Set the delimiter to comma
+
+        List<Integer> ecgDataList = new ArrayList<>();
+
+        while (scanner.hasNextInt()) {
+            int value = scanner.nextInt();
+            ecgDataList.add(value);
+            System.out.println("peta");
+        }
+
+        // Convert List to array
+        double[] ecgData = new double[ecgDataList.size()];
+        for (int i = 0; i < ecgDataList.size(); i++) {
+            ecgData[i] = ecgDataList.get(i);
+        }
+
+        // Close the scanner
+        scanner.close();
+
+        return ecgData;
+    }
+
+     */
+

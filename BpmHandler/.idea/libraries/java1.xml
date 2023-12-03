@@ -1,0 +1,25 @@
+<component name="libraryTable">
+  <library name="java1">
+    <CLASSES />
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/libs/commons-math4-4.0-beta1-src.zip!/commons-math-4.0-beta1-src/commons-math-core/src/main/java" />
+      <root url="jar://$PROJECT_DIR$/libs/commons-math4-4.0-beta1-src.zip!/commons-math-4.0-beta1-src/commons-math-core/src/test/java" />
+      <root url="jar://$PROJECT_DIR$/libs/commons-math4-4.0-beta1-src.zip!/commons-math-4.0-beta1-src/commons-math-examples/examples-kmeans/image/src/main/java" />
+      <root url="jar://$PROJECT_DIR$/libs/commons-math4-4.0-beta1-src.zip!/commons-math-4.0-beta1-src/commons-math-examples/examples-sofm/chinese-rings/src/main/java" />
+      <root url="jar://$PROJECT_DIR$/libs/commons-math4-4.0-beta1-src.zip!/commons-math-4.0-beta1-src/commons-math-examples/examples-sofm/tsp/src/main/java" />
+      <root url="jar://$PROJECT_DIR$/libs/commons-math4-4.0-beta1-src.zip!/commons-math-4.0-beta1-src/commons-math-legacy-core/src/main/java" />
+      <root url="jar://$PROJECT_DIR$/libs/commons-math4-4.0-beta1-src.zip!/commons-math-4.0-beta1-src/commons-math-legacy-core/src/test/java" />
+      <root url="jar://$PROJECT_DIR$/libs/commons-math4-4.0-beta1-src.zip!/commons-math-4.0-beta1-src/commons-math-legacy-exception/src/main/java" />
+      <root url="jar://$PROJECT_DIR$/libs/commons-math4-4.0-beta1-src.zip!/commons-math-4.0-beta1-src/commons-math-legacy-exception/src/test/java" />
+      <root url="jar://$PROJECT_DIR$/libs/commons-math4-4.0-beta1-src.zip!/commons-math-4.0-beta1-src/commons-math-legacy/src/main/java" />
+      <root url="jar://$PROJECT_DIR$/libs/commons-math4-4.0-beta1-src.zip!/commons-math-4.0-beta1-src/commons-math-legacy/src/test/java" />
+      <root url="jar://$PROJECT_DIR$/libs/commons-math4-4.0-beta1-src.zip!/commons-math-4.0-beta1-src/commons-math-legacy/src/test/maxima/special/RealFunctionValidation" />
+      <root url="jar://$PROJECT_DIR$/libs/commons-math4-4.0-beta1-src.zip!/commons-math-4.0-beta1-src/commons-math-neuralnet/src/main/java" />
+      <root url="jar://$PROJECT_DIR$/libs/commons-math4-4.0-beta1-src.zip!/commons-math-4.0-beta1-src/commons-math-neuralnet/src/test/java" />
+      <root url="jar://$PROJECT_DIR$/libs/commons-math4-4.0-beta1-src.zip!/commons-math-4.0-beta1-src/commons-math-transform/src/main/java" />
+      <root url="jar://$PROJECT_DIR$/libs/commons-math4-4.0-beta1-src.zip!/commons-math-4.0-beta1-src/commons-math-transform/src/test/java" />
+      <root url="jar://$PROJECT_DIR$/libs/commons-math4-4.0-beta1-src.zip!/commons-math-4.0-beta1-src/src/userguide/java" />
+    </SOURCES>
+  </library>
+</component>

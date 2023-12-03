@@ -80,6 +80,14 @@ public class BioLibTestActivity extends Activity
 
 	private String accConf = "";
 
+
+	/** EDITED CODE STARTS HERE */
+	private static final int BPMI_NSAMPLES = 100; // number of bpm samples for each event
+	private int bpmi_nsamples = 0; // variable to store how many samples are stored in bpm array; when it overcomes the BPMI_NSAMPLES it is reset
+	private int[] bpmi = new int[BPMI_NSAMPLES]; //array that stores bpmi values
+
+	/** EDITED CODE ENDS HERE */
+
 	// _________________________
 
 	private Button buttonGetSleepReport;
@@ -615,6 +623,20 @@ public class BioLibTestActivity extends Activity
 	            	
 	            case BioLib.MESSAGE_PEAK_DETECTION:
 	            	BioLib.QRS qrs = (BioLib.QRS)msg.obj;
+
+					/** EDITED CODE STARTS HERE*/
+					if (bpmi_nsamples<BPMI_NSAMPLES){
+						bpmi[bpmi_nsamples] = qrs.bpmi;
+						bpmi_nsamples++;
+
+					}
+					else{
+						bpmi_nsamples = 0;
+						//classifyEvent(bpmi);  //a method to classify the event based on heart rate
+					}
+
+					/** EDITED CODE ENDS HERE*/
+
 	            	textHR.setText("PEAK: " + qrs.position + "  BPMi: " + qrs.bpmi + " bpm  BPM: " + qrs.bpm + " bpm  R-R: " + qrs.rr + " ms");
 	            	break;
 	            	

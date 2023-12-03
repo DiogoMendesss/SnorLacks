@@ -1,5 +1,6 @@
 package com.snorlacks.snorlacksapp;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -20,18 +21,19 @@ import java.util.Date;
 import Bio.Library.namespace.BioLib;
 
 // SDK v1.0.07 @MAR15
-public class BioLibTestActivity extends Activity 
-{	
+public class BioLibTestActivity extends Activity
+{
+
 	private BioLib lib = null;
-	
+
 	private String address = "";
 	private String macaddress = "";
 	private String mConnectedDeviceName = "";
 	private BluetoothDevice deviceToConnect;
-	
+
 	public static final String DEVICE_NAME = "device_name";
 	public static final String TOAST = "toast";
-	
+
 	private TextView text;
 	private TextView textRTC;
 	private TextView textPUSH;
@@ -45,7 +47,7 @@ public class BioLibTestActivity extends Activity
 	private TextView textDeviceId;
 	private TextView textRadioEvent;
 	private TextView textTimeSpan;
-	
+
 	private Button buttonConnect;
 	private Button buttonDisconnect;
 	private Button buttonGetRTC;
@@ -55,7 +57,7 @@ public class BioLibTestActivity extends Activity
 	private Button buttonSetLabel;
 	private Button buttonGetDeviceId;
 	private Button buttonGetAcc;
-	
+
 	private int BATTERY_LEVEL = 0;
 	private int PULSE = 0;
 	private Date DATETIME_PUSH_BUTTON = null;
@@ -70,22 +72,41 @@ public class BioLibTestActivity extends Activity
 	private byte typeRadioEvent = 0;
 	private byte[] infoRadioEvent = null;
 	private short countEvent = 0;
-	
+
 	private boolean isConn = false;
-	
+
 	private byte[][] ecg = null;
 	private int nBytes = 0;
-	
+
 	private String accConf = "";
-	
-	
-    /** Called when the activity is first created. */
+
+	// _________________________
+
+	private Button buttonGetSleepReport;
+
+
+	/** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) 
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        
+
+		// Get Sleep Report Button on Main Activity, goes to Sleep Report Activity
+		// USE SYSTEM CLOCK
+		Button buttonGetSleepReport = findViewById(R.id.buttonGetSleepReport);
+		buttonGetSleepReport.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				Toast.makeText(BioLibTestActivity.this, "Getting Sleep report", Toast.LENGTH_SHORT).show();
+
+				Intent intent = new Intent(BioLibTestActivity.this, SleepReportActivity.class);
+				startActivity(intent);
+			}
+		});
+
+		// __________________________________________
+
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -333,6 +354,8 @@ public class BioLibTestActivity extends Activity
         buttonSetLabel.setEnabled(false);
         buttonGetDeviceId.setEnabled(false);
         buttonGetAcc.setEnabled(false);
+
+
     }
     
     public void OnDestroy()
@@ -346,10 +369,14 @@ public class BioLibTestActivity extends Activity
     protected void onDestroy() 
 	{
         super.onDestroy();
-        
+
         if (lib.mBluetoothAdapter != null) 
-        {	
-        	lib.mBluetoothAdapter.cancelDiscovery();
+        {
+			try {
+				lib.mBluetoothAdapter.cancelDiscovery();
+			} catch (Exception e) {
+			System.out.println("PAM PAM");
+		}
         }
         
         lib = null;
@@ -687,5 +714,7 @@ public class BioLibTestActivity extends Activity
     			break;
         }
     }
-    
+
+
+
 }

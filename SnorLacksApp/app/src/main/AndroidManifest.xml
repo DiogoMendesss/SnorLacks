@@ -21,12 +21,6 @@
             android:name=".SleepReportActivity"
             android:exported="false" />
         <activity
-            android:name=".ReportActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ReportView"
-            android:exported="false" />
-        <activity
             android:name=".BioLibTestActivity"
             android:exported="true">
             <intent-filter>

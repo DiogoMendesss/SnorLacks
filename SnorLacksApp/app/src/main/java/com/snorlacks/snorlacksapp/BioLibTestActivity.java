@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
+import java.util.ArrayList;
 
 import Bio.Library.namespace.BioLib;
 
@@ -82,9 +83,14 @@ public class BioLibTestActivity extends Activity
 
 
 	/** EDITED CODE STARTS HERE */
+	private static final int APNEA_THRESHOLD = 80;
+	private static final int APNEA_CONSECUTIVE_SAMPLES = 10;
 	private static final int BPMI_NSAMPLES = 100; // number of bpm samples for each event
 	private int bpmi_nsamples = 0; // variable to store how many samples are stored in bpm array; when it overcomes the BPMI_NSAMPLES it is reset
-	private int[] bpmi = new int[BPMI_NSAMPLES]; //array that stores bpmi values
+	public int[] bpmi = new int[BPMI_NSAMPLES]; //array that stores bpmi values
+
+	public ArrayList<Boolean> apneaEvents = new ArrayList<Boolean>();
+
 
 	/** EDITED CODE ENDS HERE */
 
@@ -100,6 +106,12 @@ public class BioLibTestActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
+		apneaEvents.add(true);
+		apneaEvents.add(false);
+		apneaEvents.add(true);
+		apneaEvents.add(true);
+		apneaEvents.add(false);
+
 		// Get Sleep Report Button on Main Activity, goes to Sleep Report Activity
 		// USE SYSTEM CLOCK
 		Button buttonGetSleepReport = findViewById(R.id.buttonGetSleepReport);
@@ -109,6 +121,9 @@ public class BioLibTestActivity extends Activity
 				Toast.makeText(BioLibTestActivity.this, "Getting Sleep report", Toast.LENGTH_SHORT).show();
 
 				Intent intent = new Intent(BioLibTestActivity.this, SleepReportActivity.class);
+
+				intent.putExtra("apneaEventsNumber", apneaEvents.stream().filter(Boolean::booleanValue).count());
+
 				startActivity(intent);
 			}
 		});
@@ -630,7 +645,9 @@ public class BioLibTestActivity extends Activity
 						bpmi_nsamples++;
 
 					}
-					else{
+					else{ //bpmi array has all the samples for an event so it's ready to be classified
+
+						apneaEvents.add(classifyApneaEvent(bpmi, APNEA_THRESHOLD, APNEA_CONSECUTIVE_SAMPLES));
 						bpmi_nsamples = 0;
 						//classifyEvent(bpmi);  //a method to classify the event based on heart rate
 					}
@@ -736,6 +753,25 @@ public class BioLibTestActivity extends Activity
     			break;
         }
     }
+
+
+	//checkApneaEvent() returns true if for an event, a consecutive number of samples exceeds a threshold
+	public static boolean classifyApneaEvent(int[] heartRateArray, int threshold, int consecutiveSamples) {
+		int consecutiveCount = 0;
+
+		for (int heartRate : heartRateArray) {
+			if (heartRate > threshold) {
+				consecutiveCount++;
+				if (consecutiveCount >= consecutiveSamples) {
+					return true;
+				}
+			} else {
+				consecutiveCount = 0; // Reset count if heart rate falls below the threshold
+			}
+		}
+
+		return false;
+	}
 
 
 

@@ -30,6 +30,13 @@ public class Main {
 
         int[] bpmi = generateHeartRateArray(40, 50, 100);
 
+        ArrayList<Boolean> apneaEvents = new ArrayList<>();
+        apneaEvents.add(true);
+        apneaEvents.add(false);
+        apneaEvents.add(true);
+        apneaEvents.add(true);
+        apneaEvents.add(false);
+
         for (int i = 10; i<20;i++){
             bpmi[i] = random.nextInt(90 - 70 + 1) + 70;
         }
@@ -41,11 +48,15 @@ public class Main {
         // Create a graph for the filtered ECG data
         createBpmGraph(bpmi);
 
-        if(checkThresholdExceeded(bpmi, 60, 15)){
+        if(checkApneaEvent(bpmi, 60, 15)){
             System.out.println("Threshold exceeded");
         }
         else
             System.out.println("Threshold not exceeded");
+
+        long apneaEventsNumber = apneaEvents.stream().filter(Boolean::booleanValue).count();
+
+        System.out.println(apneaEvents.stream().filter(Boolean::booleanValue).count());
     }
 
     public static int[] generateHeartRateArray(int minRate, int maxRate, int arraySize) {
@@ -63,7 +74,8 @@ public class Main {
         return heartRateArray;
     }
 
-    public static boolean checkThresholdExceeded(int[] heartRateArray, int threshold, int consecutiveSamples) {
+    //checkApneaEvent() returns true if for an event, a consecutive number of samples exceeds a threshold
+    public static boolean checkApneaEvent(int[] heartRateArray, int threshold, int consecutiveSamples) {
         int consecutiveCount = 0;
 
         for (int heartRate : heartRateArray) {

@@ -16,6 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Collections;
 import java.util.Date;
 import java.util.ArrayList;
 
@@ -84,10 +85,10 @@ public class BioLibTestActivity extends Activity
 
 	/** EDITED CODE STARTS HERE */
 	private static final int APNEA_THRESHOLD = 80;
-	private static final int APNEA_CONSECUTIVE_SAMPLES = 10;
-	private static final int BPMI_NSAMPLES = 100; // number of bpm samples for each event
-	private int bpmi_nsamples = 0; // variable to store how many samples are stored in bpm array; when it overcomes the BPMI_NSAMPLES it is reset
-	public int[] bpmi = new int[BPMI_NSAMPLES]; //array that stores bpmi values
+	private static final int EVENT_SPAN = 60000; // duration of an event in ms
+	private int peak_number = 0; // variable to store how many beats happen in an event
+	private int event_span = 0; //variable to store the time of an event
+	public ArrayList<Double> bpm = new ArrayList<Double>(); //array that stores bpm values
 
 	public ArrayList<Boolean> apneaEvents = new ArrayList<Boolean>();
 
@@ -106,11 +107,6 @@ public class BioLibTestActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-		apneaEvents.add(true);
-		apneaEvents.add(false);
-		apneaEvents.add(true);
-		apneaEvents.add(true);
-		apneaEvents.add(false);
 
 		// Get Sleep Report Button on Main Activity, goes to Sleep Report Activity
 		// USE SYSTEM CLOCK
@@ -122,7 +118,7 @@ public class BioLibTestActivity extends Activity
 
 				Intent intent = new Intent(BioLibTestActivity.this, SleepReportActivity.class);
 
-				intent.putExtra("apneaEventsNumber", apneaEvents.stream().filter(Boolean::booleanValue).count());
+				intent.putExtra("bpmList", bpm);
 
 				startActivity(intent);
 			}
@@ -640,16 +636,14 @@ public class BioLibTestActivity extends Activity
 	            	BioLib.QRS qrs = (BioLib.QRS)msg.obj;
 
 					/** EDITED CODE STARTS HERE*/
-					if (bpmi_nsamples<BPMI_NSAMPLES){
-						bpmi[bpmi_nsamples] = qrs.bpmi;
-						bpmi_nsamples++;
-
+					if (event_span<EVENT_SPAN){ //checks if the duration of the event hasn't overcome the EVENT_SPAN
+						peak_number++;
+						event_span += qrs.rr;
 					}
-					else{ //bpmi array has all the samples for an event so it's ready to be classified
+					else{ //An event has completed and the mean bpm for that event is calculated (in minutes)
 
-						apneaEvents.add(classifyApneaEvent(bpmi, APNEA_THRESHOLD, APNEA_CONSECUTIVE_SAMPLES));
-						bpmi_nsamples = 0;
-						//classifyEvent(bpmi);  //a method to classify the event based on heart rate
+						bpm.add(peak_number/(EVENT_SPAN*1000.0*60));
+						event_span = 0;
 					}
 
 					/** EDITED CODE ENDS HERE*/
@@ -757,21 +751,59 @@ public class BioLibTestActivity extends Activity
 
 
 	//checkApneaEvent() returns true if for an event, a consecutive number of samples exceeds a threshold
-	public static boolean classifyApneaEvent(int[] heartRateArray, int threshold, int consecutiveSamples) {
-		int consecutiveCount = 0;
+	public static ArrayList<Boolean> checkApneaEvents(ArrayList<Double> bpmList, int threshold) {
 
-		for (int heartRate : heartRateArray) {
-			if (heartRate > threshold) {
-				consecutiveCount++;
-				if (consecutiveCount >= consecutiveSamples) {
-					return true;
-				}
-			} else {
-				consecutiveCount = 0; // Reset count if heart rate falls below the threshold
+		ArrayList<Boolean> apneaEvents = new ArrayList<Boolean>();
+		double median = calculateMedian(bpmList);
+		for (int i = 0; i < bpmList.size(); i++) {
+			if (bpmList.get(i) > median + threshold) {
+				apneaEvents.add(Boolean.TRUE);
 			}
+			else apneaEvents.add(Boolean.FALSE);
 		}
 
-		return false;
+		return apneaEvents;
+	}
+
+	public static void cropBpmArray(ArrayList<Double> bpmList){
+
+		double median = calculateMedian(bpmList);
+
+		// Remove the first values until a sample is lesser than the median
+		while (!bpmList.isEmpty() && bpmList.get(0) >= median) {
+			bpmList.remove(0);
+		}
+
+		// Remove the last values until a sample is lesser than the median
+		while (!bpmList.isEmpty() && bpmList.get(bpmList.size() - 1) >= median) {
+			bpmList.remove(bpmList.size() - 1);
+		}
+	}
+
+	public static double calculateMedian(ArrayList<Double> numbers) {
+		// Check for empty list
+		if (numbers == null || numbers.isEmpty()) {
+			throw new IllegalArgumentException("The list is empty");
+		}
+
+		// Sort the ArrayList
+		ArrayList<Double> sorted_numbers = new ArrayList<Double>(numbers);
+		Collections.sort(sorted_numbers);
+
+		int size = sorted_numbers.size();
+		double median;
+
+		if (size % 2 == 0) {
+			// If the size is even, average the two middle elements
+			double middle1 = sorted_numbers.get(size / 2 - 1);
+			double middle2 = sorted_numbers.get(size / 2);
+			median = (middle1 + middle2) / 2.0;
+		} else {
+			// If the size is odd, take the middle element
+			median = sorted_numbers.get(size / 2);
+		}
+
+		return median;
 	}
 
 

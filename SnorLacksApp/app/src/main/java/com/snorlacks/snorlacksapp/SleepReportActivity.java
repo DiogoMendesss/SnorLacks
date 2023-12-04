@@ -10,6 +10,8 @@ import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
+import java.util.ArrayList;
+
 public class SleepReportActivity extends AppCompatActivity {
 
     GraphView graphView;
@@ -19,7 +21,7 @@ public class SleepReportActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sleep_report);
-
+        ArrayList<Double> bpmList = (ArrayList<Double>) getIntent().getSerializableExtra("apneaEventsNumber");
         setSupportActionBar(findViewById(R.id.toolbar));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 

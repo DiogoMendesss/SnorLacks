@@ -91,7 +91,7 @@ public class BioLibTestActivity extends Activity {
 
 
 	/** EDITED CODE STARTS HERE */
-	private static final int APNEA_THRESHOLD = 80;
+	private static final int APNEA_THRESHOLD = 20;
 	private static final int EVENT_SPAN = 60000; // duration of an event in ms
 	private int peak_number = 0; // variable to store how many beats happen in an event
 	private int event_span = 0; //variable to store the time of an event
@@ -104,6 +104,7 @@ public class BioLibTestActivity extends Activity {
 	private Button buttonGetSleepReport;
 
 	private ToggleButton buttonMonitor;
+
 
 
 	/** EDITED CODE ENDS HERE */
@@ -125,6 +126,7 @@ public class BioLibTestActivity extends Activity {
 		buttonMonitor.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
+
 
 				Animation fadeIn = AnimationUtils.loadAnimation(BioLibTestActivity.this, R.anim.fade_in);
 				Animation fadeOut = AnimationUtils.loadAnimation(BioLibTestActivity.this, R.anim.fade_out);
@@ -162,7 +164,6 @@ public class BioLibTestActivity extends Activity {
 
 				isMonitoring = !isMonitoring;
 			}
-
 			private void startMonitoring() {
 				// TODO: Add code to start monitoring
 				// Example: Start a background service, initiate sensor readings, etc.
@@ -187,6 +188,7 @@ public class BioLibTestActivity extends Activity {
 				Intent intent = new Intent(BioLibTestActivity.this, SleepReportActivity.class);
 
 				intent.putExtra("bpmList", bpm);
+				intent.putExtra("apneaEvents", apneaEvents);
 
 				startActivity(intent);
 			}
@@ -499,6 +501,7 @@ public class BioLibTestActivity extends Activity {
 	{
 		try
 		{
+			/*
 			textBAT.setText("BAT: - - %");
 			textPULSE.setText("PULSE: - - bpm");
 			textPUSH.setText("PUSH-BUTTON: - - - ");
@@ -524,6 +527,8 @@ public class BioLibTestActivity extends Activity {
 			countEvent = 0;
 			accConf = "";
 			firmwareVersion = "";
+
+			 */
 		}
 		catch (Exception ex)
 		{
@@ -531,76 +536,94 @@ public class BioLibTestActivity extends Activity {
 		}
 	}
 
-	/**
-	 * The Handler that gets information back from the BioLib
-	 */
-	private final Handler mHandler = new Handler()
-	{
-		@Override
-		public void handleMessage(Message msg)
-		{
-			switch (msg.what)
-			{
-				case BioLib.MESSAGE_READ:
-					textDataReceived.setText("RECEIVED: " + msg.arg1);
-					break;
 
-				case BioLib.MESSAGE_DEVICE_NAME:
-					mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
-					Toast.makeText(getApplicationContext(), "Connected to " + mConnectedDeviceName, Toast.LENGTH_SHORT).show();
-					text.append("Connected to " + mConnectedDeviceName + " \n");
-					break;
+    /**
+     * The Handler that gets information back from the BioLib
+     */
+    private final Handler mHandler = new Handler()
+    {
+        @Override
+        public void handleMessage(Message msg)
+        {
+            switch (msg.what)
+            {
+	            case BioLib.MESSAGE_READ:
+	            	textDataReceived.setText("RECEIVED: " + msg.arg1);
+	                break;
 
-				case BioLib.MESSAGE_BLUETOOTH_NOT_SUPPORTED:
-					Toast.makeText(getApplicationContext(), "Bluetooth NOT supported. Aborting! ", Toast.LENGTH_SHORT).show();
-					text.append("Bluetooth NOT supported. Aborting! \n");
-					isConn = false;
-					break;
+	            case BioLib.MESSAGE_DEVICE_NAME:
+	                mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
+	                Toast.makeText(getApplicationContext(), "Connected to " + mConnectedDeviceName, Toast.LENGTH_SHORT).show();
+	                text.append("Connected to " + mConnectedDeviceName + " \n");
+	                break;
 
-				case BioLib.MESSAGE_BLUETOOTH_ENABLED:
-					Toast.makeText(getApplicationContext(), "Bluetooth is now enabled! ", Toast.LENGTH_SHORT).show();
-					text.append("Bluetooth is now enabled \n");
-					text.append("Macaddress selected: " + address + " \n");
-					buttonConnect.setEnabled(true);
-					//buttonRequest.setEnabled(true);
-					break;
+	            case BioLib.MESSAGE_BLUETOOTH_NOT_SUPPORTED:
+	            	Toast.makeText(getApplicationContext(), "Bluetooth NOT supported. Aborting! ", Toast.LENGTH_SHORT).show();
+	            	text.append("Bluetooth NOT supported. Aborting! \n");
+	            	isConn = false;
+	            	break;
 
-				case BioLib.MESSAGE_BLUETOOTH_NOT_ENABLED:
-					Toast.makeText(getApplicationContext(), "Bluetooth not enabled! ", Toast.LENGTH_SHORT).show();
-					text.append("Bluetooth not enabled \n");
-					isConn = false;
-					break;
+	            case BioLib.MESSAGE_BLUETOOTH_ENABLED:
+	            	Toast.makeText(getApplicationContext(), "Bluetooth is now enabled! ", Toast.LENGTH_SHORT).show();
+	            	text.append("Bluetooth is now enabled \n");
+	            	text.append("Macaddress selected: " + address + " \n");
+	            	buttonConnect.setEnabled(true);
+	            	//buttonRequest.setEnabled(true);
+	            	break;
 
-				case BioLib.REQUEST_ENABLE_BT:
-					Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-					startActivityForResult(enableIntent, BioLib.REQUEST_ENABLE_BT);
-					text.append("Request bluetooth enable \n");
-					break;
+	            case BioLib.MESSAGE_BLUETOOTH_NOT_ENABLED:
+	            	Toast.makeText(getApplicationContext(), "Bluetooth not enabled! ", Toast.LENGTH_SHORT).show();
+	            	text.append("Bluetooth not enabled \n");
+	            	isConn = false;
+	            	break;
 
-				case BioLib.STATE_CONNECTING:
-					text.append("   Connecting to device ... \n");
-					break;
+	            case BioLib.REQUEST_ENABLE_BT:
+	            	Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+	                startActivityForResult(enableIntent, BioLib.REQUEST_ENABLE_BT);
+	                text.append("Request bluetooth enable \n");
+	                break;
+	            	
+	            case BioLib.STATE_CONNECTING:
+                	text.append("   Connecting to device ... \n");
+	            	break;
+	                
+	            case BioLib.STATE_CONNECTED:
+	            	Toast.makeText(getApplicationContext(), "Connected to " + deviceToConnect.getName(), Toast.LENGTH_SHORT).show();
+                	text.append("   Connect to " + deviceToConnect.getName() + " \n");
+                	isConn = true;
+                	
+                	buttonConnect.setEnabled(false);
+                	//buttonRequest.setEnabled(false);
+	                buttonDisconnect.setEnabled(true);
+	                //buttonGetRTC.setEnabled(true);
+	                //buttonSetRTC.setEnabled(true);
+	                //buttonSetLabel.setEnabled(true);
+	                //buttonGetDeviceId.setEnabled(true);
+	                //buttonGetAcc.setEnabled(true);
+	                
+	            	break;
+	            	
+	            case BioLib.UNABLE_TO_CONNECT_DEVICE:
+	            	Toast.makeText(getApplicationContext(), "Unable to connect device! ", Toast.LENGTH_SHORT).show();
+	            	text.append("   Unable to connect device \n");
+	            	isConn = false;
+	            	
+	            	buttonConnect.setEnabled(true);
+	            	//buttonRequest.setEnabled(true);
+	                buttonDisconnect.setEnabled(false);
+	                //buttonGetRTC.setEnabled(false);
+	                //buttonSetRTC.setEnabled(false);
+	                //buttonSetLabel.setEnabled(false);
+	                //buttonGetDeviceId.setEnabled(false);
+	                //buttonGetAcc.setEnabled(false);
+	                
+	            	break;
+	            	
+	            case BioLib.MESSAGE_DISCONNECT_TO_DEVICE:
+	            	Toast.makeText(getApplicationContext(), "Device connection was lost", Toast.LENGTH_SHORT).show();
+                	text.append("   Disconnected from " + deviceToConnect.getName() + " \n");
+                	isConn = false;
 
-				case BioLib.STATE_CONNECTED:
-					Toast.makeText(getApplicationContext(), "Connected to " + deviceToConnect.getName(), Toast.LENGTH_SHORT).show();
-					text.append("   Connect to " + deviceToConnect.getName() + " \n");
-					isConn = true;
-
-					buttonConnect.setEnabled(false);
-					//buttonRequest.setEnabled(false);
-					buttonDisconnect.setEnabled(true);
-					//buttonGetRTC.setEnabled(true);
-					//buttonSetRTC.setEnabled(true);
-					//buttonSetLabel.setEnabled(true);
-					//buttonGetDeviceId.setEnabled(true);
-					//buttonGetAcc.setEnabled(true);
-
-					break;
-
-				case BioLib.UNABLE_TO_CONNECT_DEVICE:
-					Toast.makeText(getApplicationContext(), "Unable to connect device! ", Toast.LENGTH_SHORT).show();
-					text.append("   Unable to connect device \n");
-					isConn = false;
 
 					buttonConnect.setEnabled(true);
 					//buttonRequest.setEnabled(true);
@@ -610,50 +633,35 @@ public class BioLibTestActivity extends Activity {
 					//buttonSetLabel.setEnabled(false);
 					//buttonGetDeviceId.setEnabled(false);
 					//buttonGetAcc.setEnabled(false);
+                    
+	            	break;
+	            	
+	            case BioLib.MESSAGE_PUSH_BUTTON:
+	            	DATETIME_PUSH_BUTTON = (Date)msg.obj;
+	            	numOfPushButton = msg.arg1;
+	            	//textPUSH.setText("PUSH-BUTTON: [#" + numOfPushButton + "]" + DATETIME_PUSH_BUTTON.toString());
+	            	break;
+	            	
+	            case BioLib.MESSAGE_RTC:
+	            	DATETIME_RTC = (Date)msg.obj;
+	            	//textRTC.setText("RTC: " + DATETIME_RTC.toString());
+	            	break;
+	            	
+	            case BioLib.MESSAGE_TIMESPAN:
+	            	DATETIME_TIMESPAN = (Date)msg.obj;
+	            	//textTimeSpan.setText("SPAN: " + DATETIME_TIMESPAN.toString());
+	            	break;
+	            	
+	            case BioLib.MESSAGE_DATA_UPDATED:
+	            	BioLib.Output out = (BioLib.Output)msg.obj;
+	            	BATTERY_LEVEL = out.battery;
+	            	//textBAT.setText("BAT: " + BATTERY_LEVEL + " %");
+	            	PULSE = out.pulse;
+	            	//textPULSE.setText("HR: " + PULSE + " bpm     Nb. Leads: " + lib.GetNumberOfChannels());
+	            	break;
+	            	
+	            case BioLib.MESSAGE_SDCARD_STATE:
 
-					break;
-
-				case BioLib.MESSAGE_DISCONNECT_TO_DEVICE:
-					Toast.makeText(getApplicationContext(), "Device connection was lost", Toast.LENGTH_SHORT).show();
-					text.append("   Disconnected from " + deviceToConnect.getName() + " \n");
-					isConn = false;
-
-					buttonConnect.setEnabled(true);
-					//buttonRequest.setEnabled(true);
-					buttonDisconnect.setEnabled(false);
-					//buttonGetRTC.setEnabled(false);
-					//buttonSetRTC.setEnabled(false);
-					//buttonSetLabel.setEnabled(false);
-					//buttonGetDeviceId.setEnabled(false);
-					//buttonGetAcc.setEnabled(false);
-
-					break;
-
-				case BioLib.MESSAGE_PUSH_BUTTON:
-					DATETIME_PUSH_BUTTON = (Date)msg.obj;
-					numOfPushButton = msg.arg1;
-					//textPUSH.setText("PUSH-BUTTON: [#" + numOfPushButton + "]" + DATETIME_PUSH_BUTTON.toString());
-					break;
-
-				case BioLib.MESSAGE_RTC:
-					DATETIME_RTC = (Date)msg.obj;
-					//textRTC.setText("RTC: " + DATETIME_RTC.toString());
-					break;
-
-				case BioLib.MESSAGE_TIMESPAN:
-					DATETIME_TIMESPAN = (Date)msg.obj;
-					//textTimeSpan.setText("SPAN: " + DATETIME_TIMESPAN.toString());
-					break;
-
-				case BioLib.MESSAGE_DATA_UPDATED:
-					BioLib.Output out = (BioLib.Output)msg.obj;
-					BATTERY_LEVEL = out.battery;
-					//textBAT.setText("BAT: " + BATTERY_LEVEL + " %");
-					PULSE = out.pulse;
-					//textPULSE.setText("HR: " + PULSE + " bpm     Nb. Leads: " + lib.GetNumberOfChannels());
-					break;
-
-				case BioLib.MESSAGE_SDCARD_STATE:
 					/*
 	            	SDCARD_STATE = (int)msg.arg1;
 
@@ -663,11 +671,11 @@ public class BioLibTestActivity extends Activity {
 	            		textSDCARD.setText("SD CARD STATE: OFF");
 
 					 */
-					break;
-
-				case BioLib.MESSAGE_RADIO_EVENT:
+	            	break;
+	            	
+	            case BioLib.MESSAGE_RADIO_EVENT:
 	            	/*textRadioEvent.setText("Radio-event: received ... ");
-
+	            	
 	            	typeRadioEvent = (byte)msg.arg1;
 	            	infoRadioEvent = (byte[]) msg.obj;
 
@@ -680,25 +688,30 @@ public class BioLibTestActivity extends Activity {
 	            	textRadioEvent.setText("Radio-event: " + typeRadioEvent + "[" + str + "]");
 
 	            	 */
-					break;
 
-				case BioLib.MESSAGE_FIRMWARE_VERSION:
+	            	break;
+	            	
+	            case BioLib.MESSAGE_FIRMWARE_VERSION:
+
 					/*
 	            	// Show firmware version in device VitalJacket ...
 	            	firmwareVersion = (String)msg.obj;
 
 					 */
-					break;
+	            	break;
+	            	
+	            case BioLib.MESSAGE_DEVICE_ID:
 
-				case BioLib.MESSAGE_DEVICE_ID:
 					/*
 	            	deviceId = (String)msg.obj;
 	            	textDeviceId.setText("Device Id: " + deviceId);
 
 					 */
-					break;
 
-				case BioLib.MESSAGE_ACC_SENSIBILITY:
+	            	break;
+	            
+	            case BioLib.MESSAGE_ACC_SENSIBILITY:
+
 					/*
 	            	accSensibility = (byte)msg.arg1;
 	            	accConf = "4G";
@@ -716,10 +729,12 @@ public class BioLibTestActivity extends Activity {
 	            	textACC.setText("ACC [" + accConf + "]:  X: " + dataACC.X + "  Y: " + dataACC.Y + "  Z: " + dataACC.Z);
 
 					 */
-					break;
 
-				case BioLib.MESSAGE_PEAK_DETECTION:
-					BioLib.QRS qrs = (BioLib.QRS)msg.obj;
+	            	break;
+	            	
+	            case BioLib.MESSAGE_PEAK_DETECTION:
+	            	BioLib.QRS qrs = (BioLib.QRS)msg.obj;
+
 
 					/** EDITED CODE STARTS HERE*/
 					if (event_span<EVENT_SPAN){ //checks if the duration of the event hasn't overcome the EVENT_SPAN
@@ -734,10 +749,12 @@ public class BioLibTestActivity extends Activity {
 
 					/** EDITED CODE ENDS HERE*/
 
-					//textHR.setText("PEAK: " + qrs.position + "  BPMi: " + qrs.bpmi + " bpm  BPM: " + qrs.bpm + " bpm  R-R: " + qrs.rr + " ms");
-					break;
 
-				case BioLib.MESSAGE_ACC_UPDATED:
+	            	//textHR.setText("PEAK: " + qrs.position + "  BPMi: " + qrs.bpmi + " bpm  BPM: " + qrs.bpm + " bpm  R-R: " + qrs.rr + " ms");
+	            	break;
+	            	
+	            case BioLib.MESSAGE_ACC_UPDATED:
+
 					/*
 	            	dataACC = (BioLib.DataACC)msg.obj;
 
@@ -748,9 +765,11 @@ public class BioLibTestActivity extends Activity {
 
 					 */
 
-					break;
+	            	
+	            	break;
+	            	
+	            case BioLib.MESSAGE_ECG_STREAM:
 
-				case BioLib.MESSAGE_ECG_STREAM:
 					/*
 	            	try
 	            	{
@@ -767,28 +786,47 @@ public class BioLibTestActivity extends Activity {
 	            	}
 
 					 */
-					break;
 
-				case BioLib.MESSAGE_TOAST:
-					Toast.makeText(getApplicationContext(), msg.getData().getString(TOAST), Toast.LENGTH_SHORT).show();
-					break;
-			}
-		}
-	};
+	            	break;
+	            	
+	            case BioLib.MESSAGE_TOAST:
+	                Toast.makeText(getApplicationContext(), msg.getData().getString(TOAST), Toast.LENGTH_SHORT).show();
+	                break;
+            }
+        }
+    };
 
 
-	/*
-	 *
-	 */
-	public void onActivityResult(int requestCode, int resultCode, Intent data)
-	{
-		switch (requestCode)
-		{
-			case BioLib.REQUEST_ENABLE_BT:
-				if (resultCode == Activity.RESULT_OK)
-				{
-					Toast.makeText(getApplicationContext(), "Bluetooth is now enabled! ", Toast.LENGTH_SHORT).show();
-					text.append("Bluetooth is now enabled \n");
+    /*
+     * 
+     */
+    public void onActivityResult(int requestCode, int resultCode, Intent data) 
+    {	
+        switch (requestCode) 
+        {	
+	        case BioLib.REQUEST_ENABLE_BT:
+	            if (resultCode == Activity.RESULT_OK) 
+	            {
+	            	Toast.makeText(getApplicationContext(), "Bluetooth is now enabled! ", Toast.LENGTH_SHORT).show();
+	            	text.append("Bluetooth is now enabled \n");
+	            	
+	            	buttonConnect.setEnabled(true);
+	            	//buttonRequest.setEnabled(true);
+	                buttonDisconnect.setEnabled(false);
+	                //buttonGetRTC.setEnabled(false);
+	                //buttonSetRTC.setEnabled(false);
+	                //buttonSetLabel.setEnabled(false);
+	                //buttonGetDeviceId.setEnabled(false);
+	                //buttonGetAcc.setEnabled(false);
+	                
+	                text.append("Macaddress selected: " + address + " \n");
+	            } 
+	            else 
+	            {
+	            	Toast.makeText(getApplicationContext(), "Bluetooth not enabled! ", Toast.LENGTH_SHORT).show();
+	            	text.append("Bluetooth not enabled \n");
+	            	isConn = false;
+
 
 					buttonConnect.setEnabled(true);
 					//buttonRequest.setEnabled(true);
@@ -799,48 +837,33 @@ public class BioLibTestActivity extends Activity {
 					//buttonGetDeviceId.setEnabled(false);
 					//buttonGetAcc.setEnabled(false);
 
-					text.append("Macaddress selected: " + address + " \n");
-				}
-				else
-				{
-					Toast.makeText(getApplicationContext(), "Bluetooth not enabled! ", Toast.LENGTH_SHORT).show();
-					text.append("Bluetooth not enabled \n");
-					isConn = false;
+	            }
+	            break;
+	            
+	        case 0:
+	        	switch (resultCode)
+	        	{
+	        		case SearchDeviceActivity.CHANGE_MACADDRESS:
+	        			try
+	        			{
+	        				text.append("\nSelect new macaddress: ");
+	        				macaddress = data.getExtras().getString(SearchDeviceActivity.SELECT_DEVICE_ADDRESS);
+	        				Toast.makeText(getApplicationContext(), macaddress, Toast.LENGTH_SHORT).show();
+	        				
+	        				text.append(macaddress);
+	        				
+	        				address = macaddress;
+	        			}
+	        			catch (Exception ex)
+	        			{
+	        				Toast.makeText(getApplicationContext(), "ERROR: " + ex.getMessage(), Toast.LENGTH_SHORT).show();
+	        			}
+	        			break;
+	        	}
+    			break;
+        }
+    }
 
-					buttonConnect.setEnabled(true);
-					//buttonRequest.setEnabled(true);
-					buttonDisconnect.setEnabled(false);
-					//buttonGetRTC.setEnabled(false);
-					//buttonSetRTC.setEnabled(false);
-					//buttonSetLabel.setEnabled(false);
-					//buttonGetDeviceId.setEnabled(false);
-					//buttonGetAcc.setEnabled(false);
-				}
-				break;
-
-			case 0:
-				switch (resultCode)
-				{
-					case SearchDeviceActivity.CHANGE_MACADDRESS:
-						try
-						{
-							text.append("\nSelect new macaddress: ");
-							macaddress = data.getExtras().getString(SearchDeviceActivity.SELECT_DEVICE_ADDRESS);
-							Toast.makeText(getApplicationContext(), macaddress, Toast.LENGTH_SHORT).show();
-
-							text.append(macaddress);
-
-							address = macaddress;
-						}
-						catch (Exception ex)
-						{
-							Toast.makeText(getApplicationContext(), "ERROR: " + ex.getMessage(), Toast.LENGTH_SHORT).show();
-						}
-						break;
-				}
-				break;
-		}
-	}
 
 
 	//checkApneaEvent() returns true if for an event, a consecutive number of samples exceeds a threshold

@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -15,6 +16,8 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.core.app.ActivityCompat;
+
 import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 import java.util.Date;
@@ -23,8 +26,7 @@ import java.util.ArrayList;
 import Bio.Library.namespace.BioLib;
 
 // SDK v1.0.07 @MAR15
-public class BioLibTestActivity extends Activity
-{
+public class BioLibTestActivity extends Activity {
 
 	private BioLib lib = null;
 
@@ -60,6 +62,8 @@ public class BioLibTestActivity extends Activity
 	private Button buttonGetDeviceId;
 	private Button buttonGetAcc;
 
+	private Button buttonMonitor;
+
 	private int BATTERY_LEVEL = 0;
 	private int PULSE = 0;
 	private Date DATETIME_PUSH_BUTTON = null;
@@ -70,7 +74,7 @@ public class BioLibTestActivity extends Activity
 	private BioLib.DataACC dataACC = null;
 	private String deviceId = "";
 	private String firmwareVersion = "";
-	private byte accSensibility = 1;	// NOTE: 2G= 0, 4G= 1
+	private byte accSensibility = 1;    // NOTE: 2G= 0, 4G= 1
 	private byte typeRadioEvent = 0;
 	private byte[] infoRadioEvent = null;
 	private short countEvent = 0;
@@ -101,11 +105,25 @@ public class BioLibTestActivity extends Activity
 
 
 	/** Called when the activity is first created. */
-    @Override
-    public void onCreate(Bundle savedInstanceState) 
-    {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.main);
+
+		buttonMonitor = findViewById(R.id.btnMonitor);
+
+		buttonMonitor.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				Toast.makeText(BioLibTestActivity.this, "Getting Sleep report", Toast.LENGTH_SHORT).show();
+
+				Intent intent = new Intent(BioLibTestActivity.this, SleepReportActivity.class);
+
+				intent.putExtra("bpmList", bpm);
+
+				startActivity(intent);
+			}
+		});
 
 
 		// Get Sleep Report Button on Main Activity, goes to Sleep Report Activity
@@ -126,20 +144,22 @@ public class BioLibTestActivity extends Activity
 
 		// __________________________________________
 
-        this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        
-		
-        // ###################################################
-        // MACADDRESS:
-        address = "00:23:FE:00:0B:59";
-        // ###################################################
-        
-        
-        text = (TextView) findViewById(R.id.lblStatus);
-        text.setText("");
-        
+		this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+
+		// ###################################################
+		// MACADDRESS:
+		address = "00:23:FE:00:0B:59";
+		// ###################################################
+
+
+		text = (TextView) findViewById(R.id.lblStatus);
+		text.setText("");
+
+
+		/*
         textRTC = (TextView) findViewById(R.id.lblRTC);
     	textPUSH = (TextView) findViewById(R.id.lblButton);
     	textPULSE = (TextView) findViewById(R.id.lblPulse);
@@ -152,57 +172,50 @@ public class BioLibTestActivity extends Activity
     	textDeviceId = (TextView) findViewById(R.id.lblDeviceId);
     	textRadioEvent = (TextView) findViewById(R.id.textRadioEvent);
     	textTimeSpan  = (TextView) findViewById(R.id.lblTimeSpan);
-    	
-    	try 
-    	{
+
+		 */
+
+		try {
 			lib = new BioLib(this, mHandler);
 			text.append("Init BioLib \n");
-		} 
-    	catch (Exception e) 
-		{
+		} catch (Exception e) {
 			text.append("Error to init BioLib \n");
 			e.printStackTrace();
 		}
-    	
-        buttonConnect = (Button) findViewById(R.id.buttonConnect);
-        buttonConnect.setOnClickListener(new View.OnClickListener() 
-        {
-            public void onClick(View view) 
-            {
-            	Connect();
-            }
 
-            /***
-             * Connect to device.
-             */
-			private void Connect() 
-			{	
-				try 
-				{
-					deviceToConnect =  lib.mBluetoothAdapter.getRemoteDevice(address);
-					
+		buttonConnect = (Button) findViewById(R.id.buttonConnect);
+		buttonConnect.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View view) {
+				Connect();
+			}
+
+			/***
+			 * Connect to device.
+			 */
+			private void Connect() {
+				try {
+					deviceToConnect = lib.mBluetoothAdapter.getRemoteDevice(address);
+
 					Reset();
-					
+
 					text.setText("");
 					lib.Connect(address, 5);
-				} catch (Exception e) 
-				{
+				} catch (Exception e) {
 					text.setText("Error to connect device: " + address);
 					e.printStackTrace();
 				}
 			}
 
-        });
-        
-        buttonDisconnect = (Button) findViewById(R.id.buttonDisconnect);
-        buttonDisconnect.setOnClickListener(new View.OnClickListener() 
-        {
-            public void onClick(View view) 
-            {
-            	Disconnect();
-            }
-        });
-        
+		});
+
+		buttonDisconnect = (Button) findViewById(R.id.buttonDisconnect);
+		buttonDisconnect.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View view) {
+				Disconnect();
+			}
+		});
+
+		/*
         buttonSetRTC = (Button) findViewById(R.id.buttonSetRTC);
         buttonSetRTC.setOnClickListener(new View.OnClickListener() 
         {
@@ -260,32 +273,29 @@ public class BioLibTestActivity extends Activity
 				}
 			}
         });
-        
-        buttonSearch = (Button) findViewById(R.id.buttonSearch);
-        buttonSearch.setOnClickListener(new View.OnClickListener() 
-        {
-            public void onClick(View view) 
-            {
-            	Search(view);
-            }
 
-            /*
-             * Search for bluetooth devices.
-             */
-			private void Search(View view) 
-			{
-				try
-				{
+		 */
+
+		buttonSearch = (Button) findViewById(R.id.buttonSearch);
+		buttonSearch.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View view) {
+				Search(view);
+			}
+
+			/*
+			 * Search for bluetooth devices.
+			 */
+			private void Search(View view) {
+				try {
 					Intent myIntent = new Intent(view.getContext(), SearchDeviceActivity.class);
-	                startActivityForResult(myIntent, 0);
-				}
-				catch (Exception ex)
-				{
-					ex.printStackTrace();	
+					startActivityForResult(myIntent, 0);
+				} catch (Exception ex) {
+					ex.printStackTrace();
 				}
 			}
-        });
-        
+		});
+
+		/*
         buttonSetLabel = (Button) findViewById(R.id.buttonSetLabel);
         buttonSetLabel.setOnClickListener(new View.OnClickListener() 
         {
@@ -311,8 +321,10 @@ public class BioLibTestActivity extends Activity
 					}
 					else
 						textRadioEvent.setText("Error");
-					*/
-					
+
+		 */
+
+					/*
             		// SAMPLE 2: Sample of radio event: send string (10 char maximum)
 					byte type = 2;
 					String info = "5678";
@@ -332,7 +344,8 @@ public class BioLibTestActivity extends Activity
 				}
             }
         });
-        
+*/
+        /*
         buttonGetDeviceId = (Button) findViewById(R.id.buttonGetDeviceId);
         buttonGetDeviceId.setOnClickListener(new View.OnClickListener() 
         {
@@ -364,54 +377,62 @@ public class BioLibTestActivity extends Activity
 				}
             }
         });
-        
-        buttonConnect.setEnabled(false);
-        buttonRequest.setEnabled(false);
-        buttonDisconnect.setEnabled(false);
-        buttonGetRTC.setEnabled(false);
-        buttonSetRTC.setEnabled(false);
-        buttonSetLabel.setEnabled(false);
-        buttonGetDeviceId.setEnabled(false);
-        buttonGetAcc.setEnabled(false);
+
+         */
+
+		buttonConnect.setEnabled(false);
+		buttonRequest.setEnabled(false);
+		buttonDisconnect.setEnabled(false);
+		buttonGetRTC.setEnabled(false);
+		buttonSetRTC.setEnabled(false);
+		buttonSetLabel.setEnabled(false);
+		buttonGetDeviceId.setEnabled(false);
+		buttonGetAcc.setEnabled(false);
 
 
-    }
-    
-    public void OnDestroy()
-    {
-    	if (isConn)
-    	{
-    		Disconnect();
-    	}
-    }
-    
-    protected void onDestroy() 
-	{
-        super.onDestroy();
+	}
 
-        if (lib.mBluetoothAdapter != null) 
-        {
+	public void OnDestroy() {
+		if (isConn) {
+			Disconnect();
+		}
+	}
+
+	protected void onDestroy() {
+		super.onDestroy();
+
+		if (lib.mBluetoothAdapter != null) {
 			try {
+				if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
+					// TODO: Consider calling
+					//    ActivityCompat#requestPermissions
+					// here to request the missing permissions, and then overriding
+					//   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+					//                                          int[] grantResults)
+					// to handle the case where the user grants the permission. See the documentation
+					// for ActivityCompat#requestPermissions for more details.
+					return;
+				}
 				lib.mBluetoothAdapter.cancelDiscovery();
 			} catch (Exception e) {
 			System.out.println("PAM PAM");
 		}
         }
-        
+
         lib = null;
     }
-    
-    
+
+
     /***
      * Disconnect from device.
      */
     private void Disconnect()
 	{
-		try 
+		try
 		{
 			lib.Disconnect();
-		} 
-		catch (Exception e) 
+		}
+		catch (Exception e)
 		{
 			e.printStackTrace();
 		}
@@ -420,11 +441,11 @@ public class BioLibTestActivity extends Activity
 			Reset();
 		}
 	}
-    
+
     /***
      * Reset variables and UI.
      */
-    private void Reset() 
+    private void Reset()
     {
 		try
 		{
@@ -442,7 +463,7 @@ public class BioLibTestActivity extends Activity
         	textDeviceId.setText("Device Id: - - - - - - - - - -");
         	textRadioEvent.setText(".");
         	textTimeSpan.setText("SPAN: - - - ");
-        	
+
         	SDCARD_STATE = 0;
 			BATTERY_LEVEL = 0;
 			PULSE = 0;
@@ -459,33 +480,33 @@ public class BioLibTestActivity extends Activity
 			ex.printStackTrace();
 		}
 	}
-    
+
     /**
      * The Handler that gets information back from the BioLib
      */
-    private final Handler mHandler = new Handler() 
+    private final Handler mHandler = new Handler()
     {
         @Override
-        public void handleMessage(Message msg) 
-        {	
-            switch (msg.what) 
-            {	    
+        public void handleMessage(Message msg)
+        {
+            switch (msg.what)
+            {
 	            case BioLib.MESSAGE_READ:
 	            	textDataReceived.setText("RECEIVED: " + msg.arg1);
 	                break;
-	                
+
 	            case BioLib.MESSAGE_DEVICE_NAME:
 	                mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
 	                Toast.makeText(getApplicationContext(), "Connected to " + mConnectedDeviceName, Toast.LENGTH_SHORT).show();
 	                text.append("Connected to " + mConnectedDeviceName + " \n");
 	                break;
-	                
+
 	            case BioLib.MESSAGE_BLUETOOTH_NOT_SUPPORTED:
 	            	Toast.makeText(getApplicationContext(), "Bluetooth NOT supported. Aborting! ", Toast.LENGTH_SHORT).show();
 	            	text.append("Bluetooth NOT supported. Aborting! \n");
 	            	isConn = false;
 	            	break;
-	            
+
 	            case BioLib.MESSAGE_BLUETOOTH_ENABLED:
 	            	Toast.makeText(getApplicationContext(), "Bluetooth is now enabled! ", Toast.LENGTH_SHORT).show();
 	            	text.append("Bluetooth is now enabled \n");
@@ -493,13 +514,13 @@ public class BioLibTestActivity extends Activity
 	            	buttonConnect.setEnabled(true);
 	            	buttonRequest.setEnabled(true);
 	            	break;
-	            	
+
 	            case BioLib.MESSAGE_BLUETOOTH_NOT_ENABLED:
 	            	Toast.makeText(getApplicationContext(), "Bluetooth not enabled! ", Toast.LENGTH_SHORT).show();
 	            	text.append("Bluetooth not enabled \n");
 	            	isConn = false;
 	            	break;
-	            	
+
 	            case BioLib.REQUEST_ENABLE_BT:
 	            	Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
 	                startActivityForResult(enableIntent, BioLib.REQUEST_ENABLE_BT);

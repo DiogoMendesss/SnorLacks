@@ -7,6 +7,31 @@
     android:layout_height="fill_parent"
     android:orientation="vertical">
 
+    <FrameLayout
+        android:layout_width="450dp"
+        android:layout_height="450dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ToggleButton
+            android:id="@+id/btnMonitor"
+            android:layout_width="420dp"
+            android:layout_height="420dp"
+            android:layout_gravity="center"
+            android:background="@drawable/awake"
+            android:hapticFeedbackEnabled="true"
+            android:textOff=""
+            android:textOn="" />
+        <ImageView
+            android:id="@+id/imageClock"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:contentDescription="Background clock"
+            android:src="@drawable/clock"/>
+
+    </FrameLayout>
 
     <Button
         android:id="@+id/buttonGetSleepReport"
@@ -80,15 +105,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/lblStatus" />
 
-    <Button
-        android:id="@+id/btnMonitor"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="100dp"
-        android:text="Start Monitoring"
-        app:layout_constraintBottom_toTopOf="@+id/buttonGetSleepReport"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

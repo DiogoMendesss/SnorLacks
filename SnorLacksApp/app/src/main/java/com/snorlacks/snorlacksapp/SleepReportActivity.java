@@ -21,9 +21,13 @@ public class SleepReportActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sleep_report);
-        ArrayList<Double> bpmList = (ArrayList<Double>) getIntent().getSerializableExtra("apneaEventsNumber");
+
         setSupportActionBar(findViewById(R.id.toolbar));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        ArrayList<Double> bpmList = (ArrayList<Double>) getIntent().getSerializableExtra("bpmList");
+        ArrayList<Boolean> apneaEventsNumber = (ArrayList<Boolean>) getIntent().getSerializableExtra("apneaEventsNumber");
+
 
         // on below line we are initializing our graph view.
         graphView = findViewById(R.id.idGraphView);
@@ -32,6 +36,7 @@ public class SleepReportActivity extends AppCompatActivity {
         LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>(new DataPoint[]{
                 // on below line we are adding
                 // each point on our x and y axis.
+
                 new DataPoint(0, 1),
                 new DataPoint(1, 3),
                 new DataPoint(2, 4),

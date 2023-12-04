@@ -676,6 +676,7 @@ public class BioLibTestActivity extends Activity
 	            		nBytes = ecg[0].length;
 	            		textECG.setText("ECG stream: OK   nBytes: " + nBytes + "   nLeads: " + nLeads);
 	            	}
+
 	            	catch (Exception ex)
 	            	{
 	            		textECG.setText("ERROR in ecg stream");

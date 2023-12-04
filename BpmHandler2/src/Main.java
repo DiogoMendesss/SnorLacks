@@ -28,94 +28,81 @@ public class Main {
     public static void main(String[] args) {
         Random random = new Random();
 
-        ArrayList<Integer> bpmi = generateHeartRateArray(50, 60, 200);
+        int[] bpmi = generateHeartRateArray(40, 50, 100);
 
+        ArrayList<Boolean> apneaEvents = new ArrayList<>();
+        apneaEvents.add(true);
+        apneaEvents.add(false);
+        apneaEvents.add(true);
+        apneaEvents.add(true);
+        apneaEvents.add(false);
 
-
-        for (int i = 0; i<30;i++){
-            bpmi.set(i, (90-i+random.nextInt( 4) -2));
+        for (int i = 10; i<20;i++){
+            bpmi[i] = random.nextInt(90 - 70 + 1) + 70;
         }
 
-        for (int i = 170; i<200;i++){
-            bpmi.set(i, (90-(200-i)+random.nextInt( 4) -2));
+        for (int i = 60; i<70;i++){
+            bpmi[i] = random.nextInt(90 - 70 + 1) + 70;
         }
-
-        bpmi.set(70, 90);
-        bpmi.set(130, 100);
-        bpmi.set(160, 80);
-
-
-
-        System.out.println("Median value: " + calculateMedian(bpmi));
 
         // Create a graph for the filtered ECG data
         createBpmGraph(bpmi);
-        cropBpmArray(bpmi);
-        createBpmGraph(bpmi);
 
-        ArrayList<Boolean> apneaEvents = checkApneaEvents(bpmi, 20);
+        if(checkApneaEvent(bpmi, 60, 10)){
+            System.out.println("Threshold exceeded");
+        }
+        else
+            System.out.println("Threshold not exceeded");
 
         long apneaEventsNumber = apneaEvents.stream().filter(Boolean::booleanValue).count();
 
-        System.out.println("Number of apnea events: " + apneaEvents.stream().filter(Boolean::booleanValue).count());
+        System.out.println(apneaEvents.stream().filter(Boolean::booleanValue).count());
     }
 
-    public static void cropBpmArray(ArrayList<Integer> bpmList){
-
-        double median = calculateMedian(bpmList);
-
-        // Remove the first values until a sample is lesser than the median
-        while (!bpmList.isEmpty() && bpmList.get(0) >= median) {
-            bpmList.remove(0);
-        }
-
-        // Remove the last values until a sample is lesser than the median
-        while (!bpmList.isEmpty() && bpmList.get(bpmList.size() - 1) >= median) {
-            bpmList.remove(bpmList.size() - 1);
-        }
-    }
-
-    public static ArrayList<Integer> generateHeartRateArray(int minRate, int maxRate, int arraySize) {
+    public static int[] generateHeartRateArray(int minRate, int maxRate, int arraySize) {
         if (minRate >= maxRate || arraySize <= 0) {
             throw new IllegalArgumentException("Invalid parameters for heart rate array generation.");
         }
 
-        ArrayList<Integer> heartRateArray = new ArrayList<Integer>();
+        int[] heartRateArray = new int[arraySize];
         Random random = new Random();
 
         for (int i = 0; i < arraySize; i++) {
-            heartRateArray.add(random.nextInt(maxRate - minRate + 1) + minRate);
+            heartRateArray[i] = random.nextInt(maxRate - minRate + 1) + minRate;
         }
 
         return heartRateArray;
     }
 
-    //checkApneaEvent() returns true if for an event, the average bpm exceeds the median bpm of the night plus a threshold
-    public static ArrayList<Boolean> checkApneaEvents(ArrayList<Integer> bpmList, int threshold) {
+    //checkApneaEvent() returns true if for an event, a consecutive number of samples exceeds a threshold
+    public static boolean checkApneaEvent(int[] heartRateArray, int threshold, int consecutiveSamples) {
+        int consecutiveCount = 0;
 
-        ArrayList<Boolean> apneaEvents = new ArrayList<Boolean>();
-        double median = calculateMedian(bpmList);
-        for (int i = 0; i < bpmList.size(); i++) {
-            if (bpmList.get(i) > median + threshold) {
-               apneaEvents.add(Boolean.TRUE);
+        for (int heartRate : heartRateArray) {
+            if (heartRate > threshold) {
+                consecutiveCount++;
+                if (consecutiveCount >= consecutiveSamples) {
+                    return true;
+                }
+            } else {
+                consecutiveCount = 0; // Reset count if heart rate falls below the threshold
             }
-            else apneaEvents.add(Boolean.FALSE);
         }
 
-        return apneaEvents;
+        return false;
     }
 
 
 
 
     // Method to create a graph for the BPM data
-    private static void createBpmGraph(ArrayList<Integer> bpmSamples) {
+    private static void createBpmGraph(int[] bpmSamples) {
         // Create a new XYSeries for the ECG data
         XYSeries bpmSeries = new XYSeries("Heartrate Data");
 
         // Populate the series with the ECG samples
-        for (int i = 0; i < bpmSamples.size(); i++) {
-            bpmSeries.add(i, bpmSamples.get(i));
+        for (int i = 0; i < bpmSamples.length; i++) {
+            bpmSeries.add(i, bpmSamples[i]);
         }
 
         // Create a dataset and add the series to it
@@ -146,31 +133,6 @@ public class Main {
         frame.setVisible(true);
     }
 
-    public static double calculateMedian(ArrayList<Integer> numbers) {
-        // Check for empty list
-        if (numbers == null || numbers.isEmpty()) {
-            throw new IllegalArgumentException("The list is empty");
-        }
-
-        // Sort the ArrayList
-        ArrayList<Integer> sorted_numbers = new ArrayList<Integer>(numbers);
-        Collections.sort(sorted_numbers);
-
-        int size = sorted_numbers.size();
-        double median;
-
-        if (size % 2 == 0) {
-            // If the size is even, average the two middle elements
-            int middle1 = sorted_numbers.get(size / 2 - 1);
-            int middle2 = sorted_numbers.get(size / 2);
-            median = (middle1 + middle2) / 2.0;
-        } else {
-            // If the size is odd, take the middle element
-            median = sorted_numbers.get(size / 2);
-        }
-
-        return median;
-    }
 
 
 }

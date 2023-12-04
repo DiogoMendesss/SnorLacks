@@ -12,9 +12,12 @@ import android.os.Handler;
 import android.os.Message;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import androidx.core.app.ActivityCompat;
 
@@ -100,7 +103,8 @@ public class BioLibTestActivity extends Activity {
 
 	private Button buttonGetSleepReport;
 
-	private Button buttonMonitor;
+	private ToggleButton buttonMonitor;
+
 
 
 	/** EDITED CODE ENDS HERE */
@@ -124,36 +128,42 @@ public class BioLibTestActivity extends Activity {
 			public void onClick(View view) {
 
 
+				Animation fadeIn = AnimationUtils.loadAnimation(BioLibTestActivity.this, R.anim.fade_in);
+				Animation fadeOut = AnimationUtils.loadAnimation(BioLibTestActivity.this, R.anim.fade_out);
+
 				if (isMonitoring) {
 					// Stop Monitoring
 					stopMonitoring();
-					buttonMonitor.setText("Start Monitoring");
+					//buttonMonitor.setText("Start Monitoring");
+					// Change to "sleep" when the button is checked
+					buttonMonitor.startAnimation(fadeOut);
+					buttonMonitor.setBackgroundResource(R.drawable.sleep);
+					buttonMonitor.startAnimation(fadeIn);
 
-					//when the monitoring stops, the asleeping and awakening phases are cropped and the events are classified
-					cropBpmArray(bpm);
-					apneaEvents=checkApneaEvents(bpm, APNEA_THRESHOLD);
 
 					buttonDisconnect.setEnabled(true);
 					buttonSearch.setEnabled(true);
 					buttonGetSleepReport.setEnabled(true);
 
-					Toast.makeText(BioLibTestActivity.this, "Sleep monitoring stopped", Toast.LENGTH_SHORT).show();
+					Toast.makeText(BioLibTestActivity.this, "Sleep monitoring started", Toast.LENGTH_SHORT).show();
 				} else {
 					// Start Monitoring
 					startMonitoring();
-
-					buttonMonitor.setText("Stop Monitoring");
+					//buttonMonitor.setText("Stop Monitoring");
+					// Change to "awake" when the button is checked
+					buttonMonitor.startAnimation(fadeOut);
+					buttonMonitor.setBackgroundResource(R.drawable.awake);
+					buttonMonitor.startAnimation(fadeIn);
 
 					buttonDisconnect.setEnabled(false);
 					buttonSearch.setEnabled(false);
 					buttonGetSleepReport.setEnabled(false);
 
-					Toast.makeText(BioLibTestActivity.this, "Sleep monitoring started", Toast.LENGTH_SHORT).show();
+					Toast.makeText(BioLibTestActivity.this, "Sleep monitoring stopped", Toast.LENGTH_SHORT).show();
 				}
 
 				isMonitoring = !isMonitoring;
 			}
-
 			private void startMonitoring() {
 				// TODO: Add code to start monitoring
 				// Example: Start a background service, initiate sensor readings, etc.
@@ -259,59 +269,59 @@ public class BioLibTestActivity extends Activity {
 
 		/*
         buttonSetRTC = (Button) findViewById(R.id.buttonSetRTC);
-        buttonSetRTC.setOnClickListener(new View.OnClickListener() 
+        buttonSetRTC.setOnClickListener(new View.OnClickListener()
         {
-            public void onClick(View view) 
+            public void onClick(View view)
             {
-            	try 
+            	try
             	{
             		Date date = new Date();
 					lib.SetRTC(date);
-				} 
-            	catch (Exception e) 
+				}
+            	catch (Exception e)
 				{
 					e.printStackTrace();
 				}
             }
         });
-        
+
         buttonGetRTC = (Button) findViewById(R.id.buttonGetRTC);
-        buttonGetRTC.setOnClickListener(new View.OnClickListener() 
+        buttonGetRTC.setOnClickListener(new View.OnClickListener()
         {
-            public void onClick(View view) 
+            public void onClick(View view)
             {
-            	try 
+            	try
             	{
 					lib.GetRTC();
-				} 
-            	catch (Exception e) 
+				}
+            	catch (Exception e)
 				{
 					e.printStackTrace();
 				}
             }
         });
-        
+
         buttonRequest = (Button) findViewById(R.id.buttonRequestData);
-        buttonRequest.setOnClickListener(new View.OnClickListener() 
+        buttonRequest.setOnClickListener(new View.OnClickListener()
         {
-            public void onClick(View view) 
+            public void onClick(View view)
             {
             	RequestData();
             }
 
-			private void RequestData() 
+			private void RequestData()
 			{
 				try
 				{
 					deviceToConnect =  lib.mBluetoothAdapter.getRemoteDevice(address);
-				    
+
 					Reset();
 					text.setText("");
 					lib.Request(address, 30);
 				}
 				catch (Exception ex)
 				{
-					ex.printStackTrace();	
+					ex.printStackTrace();
 				}
 			}
         });
@@ -339,11 +349,11 @@ public class BioLibTestActivity extends Activity {
 
 		/*
         buttonSetLabel = (Button) findViewById(R.id.buttonSetLabel);
-        buttonSetLabel.setOnClickListener(new View.OnClickListener() 
+        buttonSetLabel.setOnClickListener(new View.OnClickListener()
         {
-            public void onClick(View view) 
+            public void onClick(View view)
             {
-            	try 
+            	try
             	{
             		/*
             		// SAMPLE 1: Sample of radio event: send array of bytes (10Bytes maximum)
@@ -354,7 +364,7 @@ public class BioLibTestActivity extends Activity {
             		info[1] = 0x32; // 2 ascii table
             		info[2] = 0x33; // 3 ascii table
             		info[3] = 0x34; // 4 ascii table
-            		
+
             		textRadioEvent.setText("Start send");
 					if (lib.SetBytesToRadioEvent(type, info))
 					{
@@ -378,9 +388,9 @@ public class BioLibTestActivity extends Activity {
 					}
 					else
 						textRadioEvent.setText("Error");
-					
-				} 
-            	catch (Exception e) 
+
+				}
+            	catch (Exception e)
 				{
 					e.printStackTrace();
 				}
@@ -389,31 +399,31 @@ public class BioLibTestActivity extends Activity {
 */
         /*
         buttonGetDeviceId = (Button) findViewById(R.id.buttonGetDeviceId);
-        buttonGetDeviceId.setOnClickListener(new View.OnClickListener() 
+        buttonGetDeviceId.setOnClickListener(new View.OnClickListener()
         {
-            public void onClick(View view) 
+            public void onClick(View view)
             {
-            	try 
+            	try
             	{
 					lib.GetDeviceId();
-				} 
-            	catch (Exception e) 
+				}
+            	catch (Exception e)
 				{
 					e.printStackTrace();
 				}
             }
         });
-        
+
         buttonGetAcc = (Button) findViewById(R.id.buttonGetAcc);
-        buttonGetAcc.setOnClickListener(new View.OnClickListener() 
+        buttonGetAcc.setOnClickListener(new View.OnClickListener()
         {
-            public void onClick(View view) 
+            public void onClick(View view)
             {
-            	try 
+            	try
             	{
 					lib.GetAccSensibility();
-				} 
-            	catch (Exception e) 
+				}
+            	catch (Exception e)
 				{
 					e.printStackTrace();
 				}
@@ -457,18 +467,18 @@ public class BioLibTestActivity extends Activity {
 				}
 				lib.mBluetoothAdapter.cancelDiscovery();
 			} catch (Exception e) {
-			System.out.println("PAM PAM");
+				System.out.println("PAM PAM");
+			}
 		}
-        }
 
-        lib = null;
-    }
+		lib = null;
+	}
 
 
-    /***
-     * Disconnect from device.
-     */
-    private void Disconnect()
+	/***
+	 * Disconnect from device.
+	 */
+	private void Disconnect()
 	{
 		try
 		{
@@ -484,30 +494,30 @@ public class BioLibTestActivity extends Activity {
 		}
 	}
 
-    /***
-     * Reset variables and UI.
-     */
-    private void Reset()
-    {
+	/***
+	 * Reset variables and UI.
+	 */
+	private void Reset()
+	{
 		try
 		{
 			/*
 			textBAT.setText("BAT: - - %");
-	    	textPULSE.setText("PULSE: - - bpm");
-	    	textPUSH.setText("PUSH-BUTTON: - - - ");
-        	textRTC.setText("RTC: - - - ");
-        	textDataReceived.setText("RECEIVED: - - - ");
-        	textACC.setText("ACC:  X: - -  Y: - -  Z: - -");
-        	textSDCARD.setText("SD CARD STATUS: - - ");
-        	textECG.setText("Ecg stream: -- ");
-        	textHR.setText("PEAK: --  BPMi: -- bpm  BPM: -- bpm  R-R: -- ms");
-        	textBAT.setText("BAT: -- %");
-        	textPULSE.setText("HR: -- bpm     Nb. Leads: -- ");
-        	textDeviceId.setText("Device Id: - - - - - - - - - -");
-        	textRadioEvent.setText(".");
-        	textTimeSpan.setText("SPAN: - - - ");
+			textPULSE.setText("PULSE: - - bpm");
+			textPUSH.setText("PUSH-BUTTON: - - - ");
+			textRTC.setText("RTC: - - - ");
+			textDataReceived.setText("RECEIVED: - - - ");
+			textACC.setText("ACC:  X: - -  Y: - -  Z: - -");
+			textSDCARD.setText("SD CARD STATUS: - - ");
+			textECG.setText("Ecg stream: -- ");
+			textHR.setText("PEAK: --  BPMi: -- bpm  BPM: -- bpm  R-R: -- ms");
+			textBAT.setText("BAT: -- %");
+			textPULSE.setText("HR: -- bpm     Nb. Leads: -- ");
+			textDeviceId.setText("Device Id: - - - - - - - - - -");
+			textRadioEvent.setText(".");
+			textTimeSpan.setText("SPAN: - - - ");
 
-        	SDCARD_STATE = 0;
+			SDCARD_STATE = 0;
 			BATTERY_LEVEL = 0;
 			PULSE = 0;
 			DATETIME_PUSH_BUTTON = null;
@@ -525,6 +535,7 @@ public class BioLibTestActivity extends Activity {
 			ex.printStackTrace();
 		}
 	}
+
 
     /**
      * The Handler that gets information back from the BioLib
@@ -613,6 +624,7 @@ public class BioLibTestActivity extends Activity {
                 	text.append("   Disconnected from " + deviceToConnect.getName() + " \n");
                 	isConn = false;
 
+
 					buttonConnect.setEnabled(true);
 					//buttonRequest.setEnabled(true);
 					buttonDisconnect.setEnabled(false);
@@ -649,6 +661,7 @@ public class BioLibTestActivity extends Activity {
 	            	break;
 	            	
 	            case BioLib.MESSAGE_SDCARD_STATE:
+
 					/*
 	            	SDCARD_STATE = (int)msg.arg1;
 
@@ -665,7 +678,7 @@ public class BioLibTestActivity extends Activity {
 	            	
 	            	typeRadioEvent = (byte)msg.arg1;
 	            	infoRadioEvent = (byte[]) msg.obj;
-	            	
+
 	            	String str = "";
 					try {
 						str = new String(infoRadioEvent, "UTF8");
@@ -675,9 +688,11 @@ public class BioLibTestActivity extends Activity {
 	            	textRadioEvent.setText("Radio-event: " + typeRadioEvent + "[" + str + "]");
 
 	            	 */
+
 	            	break;
 	            	
 	            case BioLib.MESSAGE_FIRMWARE_VERSION:
+
 					/*
 	            	// Show firmware version in device VitalJacket ...
 	            	firmwareVersion = (String)msg.obj;
@@ -686,14 +701,17 @@ public class BioLibTestActivity extends Activity {
 	            	break;
 	            	
 	            case BioLib.MESSAGE_DEVICE_ID:
+
 					/*
 	            	deviceId = (String)msg.obj;
 	            	textDeviceId.setText("Device Id: " + deviceId);
 
 					 */
+
 	            	break;
 	            
 	            case BioLib.MESSAGE_ACC_SENSIBILITY:
+
 					/*
 	            	accSensibility = (byte)msg.arg1;
 	            	accConf = "4G";
@@ -702,19 +720,21 @@ public class BioLibTestActivity extends Activity {
 	            		case 0:
 	            			accConf = "2G";
 	            			break;
-	            			
+
 	            		case 1:
 	            			accConf = "4G";
 	            			break;
 	            	}
-	            	
+
 	            	textACC.setText("ACC [" + accConf + "]:  X: " + dataACC.X + "  Y: " + dataACC.Y + "  Z: " + dataACC.Z);
 
 					 */
+
 	            	break;
 	            	
 	            case BioLib.MESSAGE_PEAK_DETECTION:
 	            	BioLib.QRS qrs = (BioLib.QRS)msg.obj;
+
 
 					/** EDITED CODE STARTS HERE*/
 					if (event_span<EVENT_SPAN){ //checks if the duration of the event hasn't overcome the EVENT_SPAN
@@ -729,23 +749,27 @@ public class BioLibTestActivity extends Activity {
 
 					/** EDITED CODE ENDS HERE*/
 
+
 	            	//textHR.setText("PEAK: " + qrs.position + "  BPMi: " + qrs.bpmi + " bpm  BPM: " + qrs.bpm + " bpm  R-R: " + qrs.rr + " ms");
 	            	break;
 	            	
 	            case BioLib.MESSAGE_ACC_UPDATED:
+
 					/*
 	            	dataACC = (BioLib.DataACC)msg.obj;
-	            	
+
 	            	if (accConf == "")
 	            		textACC.setText("ACC:  X: " + dataACC.X + "  Y: " + dataACC.Y + "  Z: " + dataACC.Z);
 	            	else
 	            		textACC.setText("ACC [" + accConf + "]:  X: " + dataACC.X + "  Y: " + dataACC.Y + "  Z: " + dataACC.Z);
 
 					 */
+
 	            	
 	            	break;
 	            	
 	            case BioLib.MESSAGE_ECG_STREAM:
+
 					/*
 	            	try
 	            	{
@@ -762,6 +786,7 @@ public class BioLibTestActivity extends Activity {
 	            	}
 
 					 */
+
 	            	break;
 	            	
 	            case BioLib.MESSAGE_TOAST:
@@ -802,6 +827,7 @@ public class BioLibTestActivity extends Activity {
 	            	text.append("Bluetooth not enabled \n");
 	            	isConn = false;
 
+
 					buttonConnect.setEnabled(true);
 					//buttonRequest.setEnabled(true);
 					buttonDisconnect.setEnabled(false);
@@ -810,6 +836,7 @@ public class BioLibTestActivity extends Activity {
 					//buttonSetLabel.setEnabled(false);
 					//buttonGetDeviceId.setEnabled(false);
 					//buttonGetAcc.setEnabled(false);
+
 	            }
 	            break;
 	            
@@ -836,6 +863,7 @@ public class BioLibTestActivity extends Activity {
     			break;
         }
     }
+
 
 
 	//checkApneaEvent() returns true if for an event, a consecutive number of samples exceeds a threshold

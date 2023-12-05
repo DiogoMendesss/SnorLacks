@@ -2,5 +2,9 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="colorAccent">#673AB7</color>
+    <color name="colorAccent">#5F37A6</color>
+    <color name="colorDay">#F3D783</color>
+    <color name="colorDay2">#94C5EC</color>
+    <color name="colorAccent2">#1164A6</color>
+
 </resources>

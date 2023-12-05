@@ -7,6 +7,9 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.AnimationDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.TransitionDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -15,11 +18,14 @@ import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
@@ -118,7 +124,6 @@ public class BioLibTestActivity extends Activity {
 	SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 
 
-
 	/** EDITED CODE ENDS HERE */
 
 	// _________________________
@@ -132,6 +137,21 @@ public class BioLibTestActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
+		// used for gradient animation
+		ConstraintLayout mainLayout = findViewById(R.id.mainLayout);
+		ImageView animationView = findViewById(R.id.animationView);
+
+		Animation fadeIn = AnimationUtils.loadAnimation(BioLibTestActivity.this, R.anim.fade_in);
+		Animation fadeOut = AnimationUtils.loadAnimation(BioLibTestActivity.this, R.anim.fade_out);
+		TransitionDrawable sleep_to_awake = new TransitionDrawable(new Drawable[]{
+				ContextCompat.getDrawable(BioLibTestActivity.this, R.drawable.sleep_background),
+				ContextCompat.getDrawable(BioLibTestActivity.this, R.drawable.awake_background)
+		});
+		TransitionDrawable awake_to_sleep = new TransitionDrawable(new Drawable[]{
+				ContextCompat.getDrawable(BioLibTestActivity.this, R.drawable.awake_background),
+				ContextCompat.getDrawable(BioLibTestActivity.this, R.drawable.sleep_background)
+		});
+
 		buttonMonitor = findViewById(R.id.btnMonitor);
 		buttonGetSleepReport = findViewById(R.id.buttonGetSleepReport);
 
@@ -139,27 +159,29 @@ public class BioLibTestActivity extends Activity {
 			@Override
 			public void onClick(View view) {
 
-
-				Animation fadeIn = AnimationUtils.loadAnimation(BioLibTestActivity.this, R.anim.fade_in);
-				Animation fadeOut = AnimationUtils.loadAnimation(BioLibTestActivity.this, R.anim.fade_out);
-
 				if (isMonitoring) {
 					endCalendar = Calendar.getInstance();
 					endDate = dateFormat.format(startCalendar.getTime());
 					// Stop Monitoring
 					stopMonitoring();
 					//buttonMonitor.setText("Start Monitoring");
+
+					// sleep to awake background animation
+					animationView.setImageDrawable(sleep_to_awake);
+					sleep_to_awake.startTransition(2500);
+
 					// Change to "sleep" when the button is checked
 					buttonMonitor.startAnimation(fadeOut);
 					buttonMonitor.setBackgroundResource(R.drawable.awake);
 					buttonMonitor.startAnimation(fadeIn);
 
-
 					buttonDisconnect.setEnabled(true);
 					buttonSearch.setEnabled(true);
 					buttonGetSleepReport.setEnabled(true);
 
-					Toast.makeText(BioLibTestActivity.this, "Sleep monitoring stopped at " + endDate, Toast.LENGTH_SHORT).show();
+
+					Toast.makeText(BioLibTestActivity.this, "Sleep monitoring stopped", Toast.LENGTH_SHORT).show();
+
 				} else {
 
 					startCalendar = Calendar.getInstance();
@@ -167,6 +189,11 @@ public class BioLibTestActivity extends Activity {
 					// Start Monitoring
 					startMonitoring();
 					//buttonMonitor.setText("Stop Monitoring");
+
+					// awake to sleep background animation
+					animationView.setImageDrawable(awake_to_sleep);
+					awake_to_sleep.startTransition(2500);
+
 					// Change to "awake" when the button is checked
 					buttonMonitor.startAnimation(fadeOut);
 					buttonMonitor.setBackgroundResource(R.drawable.sleep);
@@ -176,7 +203,9 @@ public class BioLibTestActivity extends Activity {
 					buttonSearch.setEnabled(false);
 					buttonGetSleepReport.setEnabled(false);
 
-					Toast.makeText(BioLibTestActivity.this, "Sleep monitoring started at " + startDate, Toast.LENGTH_SHORT).show();
+
+					Toast.makeText(BioLibTestActivity.this, "Sleep monitoring started", Toast.LENGTH_SHORT).show();
+
 				}
 
 				isMonitoring = !isMonitoring;

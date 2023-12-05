@@ -10,6 +10,7 @@ import android.content.pm.PackageManager;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
+import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -37,6 +38,9 @@ import java.util.ArrayList;
 import java.util.GregorianCalendar;
 
 import Bio.Library.namespace.BioLib;
+
+import android.content.IntentFilter;
+
 
 // SDK v1.0.07 @MAR15
 public class BioLibTestActivity extends Activity {
@@ -75,9 +79,15 @@ public class BioLibTestActivity extends Activity {
 	private Button buttonGetDeviceId;
 	private Button buttonGetAcc;
 
+	//Battery
+	private ImageView iv_battery;
+	private TextView tv_battery;
+	Handler handler;
+	Runnable runnable;
 
 
-	private int BATTERY_LEVEL = 0;
+
+	private int BATTERY_LEVEL = 65;
 	private int PULSE = 0;
 	private Date DATETIME_PUSH_BUTTON = null;
 	private Date DATETIME_RTC = null;
@@ -152,6 +162,12 @@ public class BioLibTestActivity extends Activity {
 				ContextCompat.getDrawable(BioLibTestActivity.this, R.drawable.sleep_background)
 		});
 
+		//Battery_Animation
+		//ImageView imageView = (ImageView) findViewById(R.id.battery);
+		//imageView.setBackgroundResource(R.drawable.batanimation);
+		//Batanimation = (AnimationDrawable) imageView.getBackground();
+
+
 		buttonMonitor = findViewById(R.id.btnMonitor);
 		buttonGetSleepReport = findViewById(R.id.buttonGetSleepReport);
 
@@ -210,6 +226,7 @@ public class BioLibTestActivity extends Activity {
 
 				isMonitoring = !isMonitoring;
 			}
+
 			private void startMonitoring() {
 				// TODO: Add code to start monitoring
 				// Example: Start a background service, initiate sensor readings, etc.
@@ -489,8 +506,46 @@ public class BioLibTestActivity extends Activity {
 		//buttonGetDeviceId.setEnabled(false);
 		//buttonGetAcc.setEnabled(false);
 
+		//Battery
+		iv_battery = (ImageView) findViewById(R.id.iv_battery);
+		tv_battery = (TextView) findViewById(R.id.tv_battery);
+
+		runnable = new Runnable() {
+			@Override
+			public void run() {
+				tv_battery.setText(BATTERY_LEVEL + "%");
+				if (BATTERY_LEVEL == 100) {
+					iv_battery.setImageResource(R.drawable.baseline_battery_full);
+				}
+				if (BATTERY_LEVEL > 75 && BATTERY_LEVEL <= 99) {
+					iv_battery.setImageResource(R.drawable.baseline_battery_2);
+				}
+				if (BATTERY_LEVEL > 50 && BATTERY_LEVEL <= 75) {
+					iv_battery.setImageResource(R.drawable.baseline_battery_3);
+				}
+				if (BATTERY_LEVEL == 50) {
+					iv_battery.setImageResource(R.drawable.baseline_battery_5);
+				}
+				if (BATTERY_LEVEL > 25 && BATTERY_LEVEL < 50) {
+					iv_battery.setImageResource(R.drawable.baseline_battery_5);
+				}
+				if (BATTERY_LEVEL > 5 && BATTERY_LEVEL <= 25) {
+					iv_battery.setImageResource(R.drawable.baseline_battery_6);
+				}
+				if (BATTERY_LEVEL <= 5) {
+					iv_battery.setImageResource(R.drawable.baseline_battery_7);
+				}
+				if (BATTERY_LEVEL == 0) {
+					iv_battery.setImageResource(R.drawable.baseline_battery_7);
+				}
+				handler.postDelayed(runnable, 5000);
+			};
+		};
+		handler = new Handler();
+		handler.postDelayed(runnable, 0);
 
 	}
+
 
 	public void OnDestroy() {
 		if (isConn) {
@@ -577,6 +632,7 @@ public class BioLibTestActivity extends Activity {
 			firmwareVersion = "";
 
 			 */
+			;
 		}
 		catch (Exception ex)
 		{
@@ -703,7 +759,7 @@ public class BioLibTestActivity extends Activity {
 	            case BioLib.MESSAGE_DATA_UPDATED:
 	            	BioLib.Output out = (BioLib.Output)msg.obj;
 	            	BATTERY_LEVEL = out.battery;
-	            	//textBAT.setText("BAT: " + BATTERY_LEVEL + " %");
+	            	//texttv_battery.setText( BATTERY_LEVEL + " %");
 	            	PULSE = out.pulse;
 	            	//textPULSE.setText("HR: " + PULSE + " bpm     Nb. Leads: " + lib.GetNumberOfChannels());
 	            	break;

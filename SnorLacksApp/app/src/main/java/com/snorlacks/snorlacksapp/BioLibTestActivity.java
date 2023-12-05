@@ -28,9 +28,13 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import java.io.UnsupportedEncodingException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.ArrayList;
+import java.util.GregorianCalendar;
 
 import Bio.Library.namespace.BioLib;
 
@@ -111,6 +115,14 @@ public class BioLibTestActivity extends Activity {
 
 	private ToggleButton buttonMonitor;
 
+	public Calendar startCalendar;
+	public Calendar endCalendar;
+
+	String startDate;
+	String endDate;
+
+	SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+
 
 	/** EDITED CODE ENDS HERE */
 
@@ -148,6 +160,8 @@ public class BioLibTestActivity extends Activity {
 			public void onClick(View view) {
 
 				if (isMonitoring) {
+					endCalendar = Calendar.getInstance();
+					endDate = dateFormat.format(startCalendar.getTime());
 					// Stop Monitoring
 					stopMonitoring();
 					//buttonMonitor.setText("Start Monitoring");
@@ -165,8 +179,13 @@ public class BioLibTestActivity extends Activity {
 					buttonSearch.setEnabled(true);
 					buttonGetSleepReport.setEnabled(true);
 
+
 					Toast.makeText(BioLibTestActivity.this, "Sleep monitoring stopped", Toast.LENGTH_SHORT).show();
+
 				} else {
+
+					startCalendar = Calendar.getInstance();
+					startDate = dateFormat.format(startCalendar.getTime());
 					// Start Monitoring
 					startMonitoring();
 					//buttonMonitor.setText("Stop Monitoring");
@@ -184,7 +203,9 @@ public class BioLibTestActivity extends Activity {
 					buttonSearch.setEnabled(false);
 					buttonGetSleepReport.setEnabled(false);
 
+
 					Toast.makeText(BioLibTestActivity.this, "Sleep monitoring started", Toast.LENGTH_SHORT).show();
+
 				}
 
 				isMonitoring = !isMonitoring;
@@ -214,6 +235,8 @@ public class BioLibTestActivity extends Activity {
 
 				intent.putExtra("bpmList", bpm);
 				intent.putExtra("apneaEvents", apneaEvents);
+				intent.putExtra("startDate", startCalendar);
+				intent.putExtra("endDate", endCalendar);
 
 				startActivity(intent);
 			}

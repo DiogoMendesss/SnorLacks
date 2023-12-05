@@ -10,12 +10,17 @@ import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class SleepReportActivity extends AppCompatActivity {
 
     GraphView graphView;
     TextView textViewApneaEvents;
+    TextView textViewNightDate;
+
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +32,9 @@ public class SleepReportActivity extends AppCompatActivity {
 
         ArrayList<Double> bpmList = (ArrayList<Double>) getIntent().getSerializableExtra("bpmList");
         ArrayList<Boolean> apneaEventsNumber = (ArrayList<Boolean>) getIntent().getSerializableExtra("apneaEventsNumber");
+
+        Calendar startDate = (Calendar) getIntent().getSerializableExtra("startDate");
+        Calendar endDate = (Calendar) getIntent().getSerializableExtra("endDate");
 
 
         // on below line we are initializing our graph view.
@@ -68,6 +76,10 @@ public class SleepReportActivity extends AppCompatActivity {
         textViewApneaEvents = findViewById(R.id.txtViewApneaEvents);
         long numberApneaEvents = getIntent().getLongExtra("apneaEventsNumber", -1);
         textViewApneaEvents.setText("Number of Apnea Events: " + Long.toString(numberApneaEvents));
+
+        textViewNightDate = findViewById((R.id.txtNightDate));
+        textViewApneaEvents.setText("Sleep started at " + dateFormat.format(startDate.getTime()) + " and ended at: " + dateFormat.format(startDate.getTime()));
+
 
     }
 }

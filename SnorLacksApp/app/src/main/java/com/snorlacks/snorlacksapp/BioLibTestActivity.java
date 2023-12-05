@@ -115,7 +115,7 @@ public class BioLibTestActivity extends Activity {
 	String startDate;
 	String endDate;
 
-	SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+	SimpleDateFormat dateFormat = new SimpleDateFormat("h:mm a");
 
 
 
@@ -203,6 +203,39 @@ public class BioLibTestActivity extends Activity {
 				Toast.makeText(BioLibTestActivity.this, "Getting Sleep report", Toast.LENGTH_SHORT).show();
 
 				Intent intent = new Intent(BioLibTestActivity.this, SleepReportActivity.class);
+
+				// ========= Simulate Data - Apnea Night ======================
+				ArrayList<Double> mockBpm = new ArrayList<Double>();
+				ArrayList<Boolean> mockApneaEvents = new ArrayList<Boolean>();
+				for (int i=0;i<(60*8+2);i++) {
+					if ((i>60 & i<65))
+						mockBpm.add(10.0+0.5*(i-60));
+					else if (i>=65 & i<70)
+						mockBpm.add(12.5-0.5*(i-65));
+					else if ((i>200 & i<205))
+						mockBpm.add(10.0+0.5*(i-200));
+					else if (i>=205 & i<210)
+						mockBpm.add(12.5-0.5*(i-205));
+					else mockBpm.add(10.0);
+				}
+				for (double bpmEvent : mockBpm){
+					if (bpmEvent > 10.0)
+						mockApneaEvents.add(true);
+					else mockApneaEvents.add(false);
+				}
+
+				// =============================================
+				// ========= Simulate Data - Non Apnea Night ======================
+				ArrayList<Double> noApneaBpm = new ArrayList<Double>();
+				ArrayList<Boolean> noApneaEvents = new ArrayList<Boolean>();
+				for (int i=0;i<(60*8+2);i++){
+					noApneaBpm.add(10.0);
+					noApneaEvents.add(false);
+				}
+				// ================================================================
+
+				bpm = mockBpm;
+				apneaEvents = mockApneaEvents;
 
 				intent.putExtra("bpmList", bpm);
 				intent.putExtra("apneaEvents", apneaEvents);

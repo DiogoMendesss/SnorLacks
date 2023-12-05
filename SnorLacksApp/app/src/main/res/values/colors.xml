@@ -3,4 +3,8 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="colorAccent">#673AB7</color>
+    <color name="badSleepBar">#FFF38686</color>
+    <color name="goodSleepBar">#FF7C9DEF</color>
+    <color name="goodSleepText">#0E2255</color>
+    <color name="badSleepText">#5E0808</color>
 </resources>

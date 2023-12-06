@@ -1,11 +1,14 @@
 package com.snorlacks.snorlacksapp;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
+import android.content.Context;
 import android.os.Bundle;
-import android.view.ViewDebug;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.jjoe64.graphview.DefaultLabelFormatter;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
@@ -13,53 +16,78 @@ import com.jjoe64.graphview.series.LineGraphSeries;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 public class SleepReportActivity extends AppCompatActivity {
 
     GraphView graphView;
     TextView textViewApneaEvents;
-    TextView textViewNightDate;
+    TextView textViewSleepStamps;
+    TextView textViewSleepQuality;
+    ImageView imageViewSleepQuality;
+    ConstraintLayout constraintLayout;
 
-    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+    SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMM d, ''yy");
+    SimpleDateFormat timeStampFormat = new SimpleDateFormat("h:mm a");
+
+    // Create a list to store DataPoint objects
+    ArrayList<DataPoint> bpmDataPoints = new ArrayList<>();
+    ArrayList<Calendar> timeStamps = new ArrayList<Calendar>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sleep_report);
 
+        constraintLayout = findViewById(R.id.constraintLayout);
+        textViewApneaEvents = findViewById(R.id.txtApneaEvents);
+        graphView = findViewById(R.id.idGraphView);
+        textViewApneaEvents = findViewById(R.id.txtApneaEvents);
+        textViewSleepStamps = findViewById((R.id.txtSleepStamps));
+        textViewSleepQuality = findViewById((R.id.txtSleepQuality));
+        imageViewSleepQuality = findViewById((R.id.imgSleepQuality));
+
         setSupportActionBar(findViewById(R.id.toolbar));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         ArrayList<Double> bpmList = (ArrayList<Double>) getIntent().getSerializableExtra("bpmList");
-        ArrayList<Boolean> apneaEventsNumber = (ArrayList<Boolean>) getIntent().getSerializableExtra("apneaEventsNumber");
+        ArrayList<Boolean> apneaEvents = (ArrayList<Boolean>) getIntent().getSerializableExtra("apneaEvents");
+
+        int numberApneaEvents = 0;
+        Boolean currentEvent = false;
+        for (boolean event : apneaEvents) {
+            if (event & !currentEvent) {
+                numberApneaEvents++;
+                currentEvent = true;
+            } else if (!event & currentEvent)
+                currentEvent = false;
+        }
 
         Calendar startDate = (Calendar) getIntent().getSerializableExtra("startDate");
         Calendar endDate = (Calendar) getIntent().getSerializableExtra("endDate");
 
+        //populate timeStamps array list, assuming that the datapoints are distanced 1 minute
+        for (int i = 0; i < bpmList.size(); i++) {
+            Calendar minIncrement = (Calendar) startDate.clone();
+            minIncrement.add(Calendar.MINUTE,i);
+            timeStamps.add(minIncrement);
+        }
 
-        // on below line we are initializing our graph view.
-        graphView = findViewById(R.id.idGraphView);
+        for (int i = 0; i < bpmList.size(); i++) {
+            Date xValue = timeStamps.get(i).getTime(); // Convert Calendar to millis
+            double yValue = bpmList.get(i);
+            bpmDataPoints.add(new DataPoint(xValue, yValue));
+        }
+
 
         // on below line we are adding data to our graph view.
-        LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>(new DataPoint[]{
-                // on below line we are adding
-                // each point on our x and y axis.
-
-                new DataPoint(0, 1),
-                new DataPoint(1, 3),
-                new DataPoint(2, 4),
-                new DataPoint(3, 9),
-                new DataPoint(4, 6),
-                new DataPoint(5, 3),
-                new DataPoint(6, 6),
-                new DataPoint(7, 1),
-                new DataPoint(8, 2)
-        });
+        LineGraphSeries<DataPoint> series = new LineGraphSeries<>(bpmDataPoints.toArray(new DataPoint[0]));
 
         // after adding data to our line graph series.
         // on below line we are setting
         // title for our graph view.
-        graphView.setTitle("My Graph View");
+        graphView.setTitle("Sleep Report from " + dateFormat.format(startDate.getTime()));
 
         // on below line we are setting
         // text color to our graph view.
@@ -67,19 +95,73 @@ public class SleepReportActivity extends AppCompatActivity {
 
         // on below line we are setting
         // our title text size.
-        graphView.setTitleTextSize(18);
+        graphView.setTitleTextSize(40);
 
         // on below line we are adding
         // data series to our graph view.
         graphView.addSeries(series);
 
-        textViewApneaEvents = findViewById(R.id.txtViewApneaEvents);
-        long numberApneaEvents = getIntent().getLongExtra("apneaEventsNumber", -1);
-        textViewApneaEvents.setText("Number of Apnea Events: " + Long.toString(numberApneaEvents));
+        // Customize graph properties if needed
+        graphView.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(this)); // Format X-axis as date
+        graphView.getGridLabelRenderer().setNumHorizontalLabels(timeStamps.size()/60); // Adjust the number of horizontal labels
 
-        textViewNightDate = findViewById((R.id.txtNightDate));
-        textViewApneaEvents.setText("Sleep started at " + dateFormat.format(startDate.getTime()) + " and ended at: " + dateFormat.format(startDate.getTime()));
+        // Adjustments for overlapping labels
+        graphView.getGridLabelRenderer().setTextSize(24f); // Set text size
+        graphView.getGridLabelRenderer().setHumanRounding(false); // Disable rounding of labels
+        graphView.getGridLabelRenderer().setHorizontalLabelsAngle(45); // Rotate labels for better visibility
+
+
+        // Refresh graph
+        graphView.invalidate();
+
+        textViewApneaEvents.setText("No. suspected Apnea Events: " + Integer.toString(numberApneaEvents));
+
+        textViewSleepStamps.setText("Sleep started at " + timeStampFormat.format(startDate.getTime()) +
+                " and ended at: " + timeStampFormat.format(endDate.getTime()));
+
+        if (numberApneaEvents==0){
+            textViewSleepQuality.setText("Looks like you had a night well rested!!");
+            imageViewSleepQuality.setImageResource(R.drawable.drowsy_doodle);
+            constraintLayout.setBackgroundResource(R.drawable.good_sleep_report_background);
+            getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.color.goodSleepBar));
+            textViewApneaEvents.setTextColor(getResources().getColor(R.color.goodSleepText));
+            textViewSleepQuality.setTextColor(getResources().getColor(R.color.goodSleepText));
+            series.setColor(getResources().getColor(R.color.goodSleepText));
+        }
+        else {
+            textViewSleepQuality.setText("It seems you had a rough nigh...");
+            imageViewSleepQuality.setImageResource(R.drawable.confuse_doodle);
+            constraintLayout.setBackgroundResource(R.drawable.bad_sleep_report_background);
+            getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.color.badSleepBar));
+            textViewApneaEvents.setTextColor(getResources().getColor(R.color.badSleepText));
+            textViewSleepQuality.setTextColor(getResources().getColor(R.color.badSleepText));
+            series.setColor(getResources().getColor(R.color.badSleepText));
+
+        }
 
 
     }
+
+    // Custom Date formatter for the x-axis
+    private static class DateAsXAxisLabelFormatter extends DefaultLabelFormatter {
+        private final SimpleDateFormat dateFormat;
+        private final Context context;
+
+        // Constructor with Context argument
+        public DateAsXAxisLabelFormatter(Context context) {
+            this.context = context;
+            this.dateFormat = new SimpleDateFormat("h:mm a", Locale.getDefault());
+        }
+
+        @Override
+        public String formatLabel(double value, boolean isValueX) {
+            if (isValueX) {
+                // Convert Date to formatted date string
+                return dateFormat.format(new Date((long) value));
+            } else {
+                return super.formatLabel(value, isValueX);
+            }
+        }
+    }
 }
+

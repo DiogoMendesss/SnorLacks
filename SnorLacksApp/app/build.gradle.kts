@@ -4,7 +4,7 @@ plugins {
 
 android {
     namespace = "com.snorlacks.snorlacksapp"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.snorlacks.snorlacksapp"

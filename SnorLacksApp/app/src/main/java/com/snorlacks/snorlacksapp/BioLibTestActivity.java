@@ -102,10 +102,11 @@ public class BioLibTestActivity extends Activity {
 
 	/** EDITED CODE STARTS HERE */
 	private static final int APNEA_THRESHOLD = 20;
-	private static final int EVENT_SPAN = 60000; // duration of an event in ms
+	private static final int EVENT_SPAN = 5000; // duration of an event in ms
 	private int peak_number = 0; // variable to store how many beats happen in an event
 	private int event_span = 0; //variable to store the time of an event
 	public ArrayList<Double> bpm = new ArrayList<Double>(); //array that stores bpm values
+	public ArrayList<Double> bpmMonitored = new ArrayList<Double>(); //array that stores bpm values
 
 	public ArrayList<Boolean> apneaEvents = new ArrayList<Boolean>();
 
@@ -179,6 +180,11 @@ public class BioLibTestActivity extends Activity {
 					buttonSearch.setEnabled(true);
 					buttonGetSleepReport.setEnabled(true);
 
+					bpmMonitored=bpm;
+					cropBpmArray(bpmMonitored);
+					apneaEvents=checkApneaEvents(bpmMonitored, APNEA_THRESHOLD);
+
+
 
 					Toast.makeText(BioLibTestActivity.this, "Sleep monitoring stopped", Toast.LENGTH_SHORT).show();
 
@@ -202,6 +208,8 @@ public class BioLibTestActivity extends Activity {
 					buttonDisconnect.setEnabled(false);
 					buttonSearch.setEnabled(false);
 					buttonGetSleepReport.setEnabled(false);
+
+					bpm.clear();
 
 
 					Toast.makeText(BioLibTestActivity.this, "Sleep monitoring started", Toast.LENGTH_SHORT).show();
@@ -233,6 +241,7 @@ public class BioLibTestActivity extends Activity {
 
 				Intent intent = new Intent(BioLibTestActivity.this, SleepReportActivity.class);
 
+				/*
 				// ========= Simulate Data - Apnea Night ======================
 				ArrayList<Double> mockBpm = new ArrayList<Double>();
 				ArrayList<Boolean> mockApneaEvents = new ArrayList<Boolean>();
@@ -266,7 +275,9 @@ public class BioLibTestActivity extends Activity {
 				bpm = mockBpm;
 				apneaEvents = mockApneaEvents;
 
-				intent.putExtra("bpmList", bpm);
+				 */
+
+				intent.putExtra("bpmList", bpmMonitored);
 				intent.putExtra("apneaEvents", apneaEvents);
 				intent.putExtra("startDate", startCalendar);
 				intent.putExtra("endDate", endCalendar);
@@ -629,7 +640,7 @@ public class BioLibTestActivity extends Activity {
             switch (msg.what)
             {
 	            case BioLib.MESSAGE_READ:
-	            	textDataReceived.setText("RECEIVED: " + msg.arg1);
+	            	//textDataReceived.setText("RECEIVED: " + msg.arg1);
 	                break;
 
 	            case BioLib.MESSAGE_DEVICE_NAME:

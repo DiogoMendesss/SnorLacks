@@ -64,6 +64,7 @@ public class BioLibTestActivity extends Activity {
 	private TextView textDeviceId;
 	private TextView textRadioEvent;
 	private TextView textTimeSpan;
+	private TextView textViewTestBPM;
 
 	private Button buttonConnect;
 	private Button buttonDisconnect;
@@ -102,11 +103,12 @@ public class BioLibTestActivity extends Activity {
 
 	/** EDITED CODE STARTS HERE */
 	private static final int APNEA_THRESHOLD = 20;
-	private static final int EVENT_SPAN = 5000; // duration of an event in ms
+	private static final int EVENT_SPAN = 10000; // duration of an event in ms
 	private int peak_number = 0; // variable to store how many beats happen in an event
 	private int event_span = 0; //variable to store the time of an event
 	public ArrayList<Double> bpm = new ArrayList<Double>(); //array that stores bpm values
 	public ArrayList<Double> bpmMonitored = new ArrayList<Double>(); //array that stores bpm values
+	public ArrayList<Integer> eventBpmi = new ArrayList<Integer>(); //array that stores bpm values
 
 	public ArrayList<Boolean> apneaEvents = new ArrayList<Boolean>();
 
@@ -137,6 +139,8 @@ public class BioLibTestActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
+
+		textViewTestBPM=findViewById(R.id.txtViewTestBPM);
 
 		// used for gradient animation
 		ConstraintLayout mainLayout = findViewById(R.id.mainLayout);
@@ -180,13 +184,17 @@ public class BioLibTestActivity extends Activity {
 					buttonSearch.setEnabled(true);
 					buttonGetSleepReport.setEnabled(true);
 
-					bpmMonitored=bpm;
-					cropBpmArray(bpmMonitored);
-					apneaEvents=checkApneaEvents(bpmMonitored, APNEA_THRESHOLD);
+					if(!bpm.isEmpty()) {
+						bpmMonitored = bpm;
+						cropBpmArray(bpmMonitored);
+						apneaEvents = checkApneaEvents(bpmMonitored, APNEA_THRESHOLD);
+						Toast.makeText(BioLibTestActivity.this, "Sleep monitoring stopped", Toast.LENGTH_SHORT).show();
+					}
+					else Toast.makeText(BioLibTestActivity.this, "Empty bpm array", Toast.LENGTH_SHORT).show();
 
 
 
-					Toast.makeText(BioLibTestActivity.this, "Sleep monitoring stopped", Toast.LENGTH_SHORT).show();
+
 
 				} else {
 
@@ -830,14 +838,21 @@ public class BioLibTestActivity extends Activity {
 
 					/** EDITED CODE STARTS HERE*/
 					if (event_span<EVENT_SPAN){ //checks if the duration of the event hasn't overcome the EVENT_SPAN
+						eventBpmi.add(qrs.bpmi);
 						peak_number++;
 						event_span += qrs.rr;
 					}
 					else{ //An event has completed and the mean bpm for that event is calculated (in minutes)
 
-						bpm.add(peak_number/(EVENT_SPAN*1000.0*60));
+						bpm.add(calculateMean(eventBpmi));
 						event_span = 0;
+						peak_number=0;
+						eventBpmi.clear();
+						Toast.makeText(BioLibTestActivity.this, Double.toString(peak_number/(EVENT_SPAN*1000.0*60)), Toast.LENGTH_SHORT).show();
 					}
+
+					//textViewTestBPM.setText("Peak number: " + peak_number + "; Event duration: " + event_span);
+					textViewTestBPM.setText("PEAK: " + qrs.position + "  BPMi: " + qrs.bpmi + " bpm  BPM: " + qrs.bpm + " bpm  R-R: " + qrs.rr + " ms; Array size: " + bpm.size());
 
 					/** EDITED CODE ENDS HERE*/
 
@@ -889,6 +904,19 @@ public class BioLibTestActivity extends Activity {
     };
 
 
+
+	public static double calculateMean(ArrayList<Integer> arrayList) {
+		if (arrayList == null || arrayList.isEmpty()) {
+			throw new IllegalArgumentException("Input ArrayList is null or empty");
+		}
+
+		int sum = 0;
+		for (int number : arrayList) {
+			sum += number;
+		}
+
+		return (double) sum / arrayList.size();
+	}
     /*
      * 
      */

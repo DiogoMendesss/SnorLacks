@@ -21,6 +21,7 @@
         />
 
     <FrameLayout
+        android:id="@+id/frameLayout"
         android:layout_width="450dp"
         android:layout_height="450dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -36,13 +37,14 @@
             android:hapticFeedbackEnabled="true"
             android:textOff=""
             android:textOn="" />
+
         <ImageView
             android:id="@+id/imageClock"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center"
             android:contentDescription="Background clock"
-            android:src="@drawable/clock"/>
+            android:src="@drawable/clock" />
 
     </FrameLayout>
 
@@ -118,7 +120,15 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/lblStatus" />
 
-
+    <TextView
+        android:id="@+id/txtViewTestBPM"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="8dp"
+        android:text="TextView"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

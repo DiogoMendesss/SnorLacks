@@ -52,22 +52,6 @@ public class SleepReportActivity extends AppCompatActivity {
         textViewSleepQuality = findViewById((R.id.txtSleepQuality));
         imageViewSleepQuality = findViewById((R.id.imgSleepQuality));
 
-        NavigationBarView bottomNavigation = findViewById(R.id.bottomNavigation);
-
-        // Load the default fragment (SleepReport)
-        bottomNavigation.setOnItemReselectedListener(new NavigationBarView.OnItemReselectedListener() {
-            @Override
-            public void onNavigationItemReselected(@NonNull MenuItem item) {
-
-                if (item.getItemId() == R.id.reportsMenu) {
-                    startActivity(new Intent(SleepReportActivity.this, SleepReportActivity.class));
-                } else if (item.getItemId() == R.id.monitorMenu) {
-                    startActivity(new Intent(SleepReportActivity.this, BioLibTestActivity.class));
-                } else if (item.getItemId() == R.id.settingsMenu) {
-                    startActivity(new Intent(SleepReportActivity.this, SettingsActivity.class));
-                }
-            }
-        });
 
         setSupportActionBar(findViewById(R.id.toolbar));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);

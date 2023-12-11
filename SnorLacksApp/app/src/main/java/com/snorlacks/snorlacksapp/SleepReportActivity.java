@@ -1,13 +1,17 @@
 package com.snorlacks.snorlacksapp;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.material.navigation.NavigationBarView;
 import com.jjoe64.graphview.DefaultLabelFormatter;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
@@ -47,6 +51,23 @@ public class SleepReportActivity extends AppCompatActivity {
         textViewSleepStamps = findViewById((R.id.txtSleepStamps));
         textViewSleepQuality = findViewById((R.id.txtSleepQuality));
         imageViewSleepQuality = findViewById((R.id.imgSleepQuality));
+
+        NavigationBarView bottomNavigation = findViewById(R.id.bottomNavigation);
+
+        // Load the default fragment (SleepReport)
+        bottomNavigation.setOnItemReselectedListener(new NavigationBarView.OnItemReselectedListener() {
+            @Override
+            public void onNavigationItemReselected(@NonNull MenuItem item) {
+
+                if (item.getItemId() == R.id.reportsMenu) {
+                    startActivity(new Intent(SleepReportActivity.this, SleepReportActivity.class));
+                } else if (item.getItemId() == R.id.monitorMenu) {
+                    startActivity(new Intent(SleepReportActivity.this, BioLibTestActivity.class));
+                } else if (item.getItemId() == R.id.settingsMenu) {
+                    startActivity(new Intent(SleepReportActivity.this, SettingsActivity.class));
+                }
+            }
+        });
 
         setSupportActionBar(findViewById(R.id.toolbar));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);

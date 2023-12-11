@@ -3,4 +3,6 @@
     <dimen name="clock_size">350dp</dimen>
     <dimen name="sleep_to_awake">1500</dimen>
     <dimen name="awake_to_sleep">2500</dimen>
+    <integer name="fade_time_slow">500</integer>
+    <integer name="fade_time_fast">2000</integer>
 </resources>

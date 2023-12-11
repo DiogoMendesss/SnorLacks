@@ -11,6 +11,7 @@ import android.graphics.drawable.TransitionDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.Animation;
@@ -21,9 +22,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import androidx.fragment.app.Fragment;
+import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.appcompat.app.AppCompatActivity;
+import android.view.MenuItem;
+
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationBarView;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -34,7 +46,7 @@ import java.util.ArrayList;
 import Bio.Library.namespace.BioLib;
 
 // SDK v1.0.07 @MAR15
-public class BioLibTestActivity extends Activity {
+public class BioLibTestActivity extends AppCompatActivity {
 
 	private BioLib lib = null;
 
@@ -70,8 +82,6 @@ public class BioLibTestActivity extends Activity {
 	private Button buttonSetLabel;
 	private Button buttonGetDeviceId;
 	private Button buttonGetAcc;
-
-
 
 	private int BATTERY_LEVEL = 0;
 	private int PULSE = 0;
@@ -124,13 +134,6 @@ public class BioLibTestActivity extends Activity {
 	SimpleDateFormat dateFormat = new SimpleDateFormat("h:mm a");
 
 
-	/** EDITED CODE ENDS HERE */
-
-	// _________________________
-
-
-
-
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -143,8 +146,6 @@ public class BioLibTestActivity extends Activity {
 		ConstraintLayout mainLayout = findViewById(R.id.mainLayout);
 		ImageView animationView = findViewById(R.id.animationView);
 
-		Animation fadeIn = AnimationUtils.loadAnimation(BioLibTestActivity.this, R.anim.fade_in);
-		Animation fadeOut = AnimationUtils.loadAnimation(BioLibTestActivity.this, R.anim.fade_out);
 		TransitionDrawable sleep_to_awake = new TransitionDrawable(new Drawable[]{
 				ContextCompat.getDrawable(BioLibTestActivity.this, R.drawable.sleep_background),
 				ContextCompat.getDrawable(BioLibTestActivity.this, R.drawable.awake_background)
@@ -163,6 +164,7 @@ public class BioLibTestActivity extends Activity {
 			public void onClick(View view) {
 
 				if (isMonitoring) {
+
 					endCalendar = Calendar.getInstance();
 					endDate = dateFormat.format(startCalendar.getTime());
 					// Stop Monitoring
@@ -170,17 +172,19 @@ public class BioLibTestActivity extends Activity {
 					//buttonMonitor.setText("Start Monitoring");
 
 					// sleep to awake background animation
-					int sleepToAwakeTime = 1500;
+					int sleepToAwakeTime = 1000;
 					animationView.setImageDrawable(sleep_to_awake);
 					sleep_to_awake.startTransition(sleepToAwakeTime);
 
 					// Change to "awake" when the button is checked
-					clockBackground.startAnimation(fadeOut);
-					buttonMonitor.startAnimation(fadeOut);
+					// 1 is fast, 2 is slow
+					fadeOutAnimation(clockBackground, 1);
+					fadeOutAnimation(buttonConnect, 1);
+					zoomInAnimation(view);
 					clockBackground.setBackgroundResource(R.drawable.clock_background_awake);
 					buttonMonitor.setBackgroundResource(R.drawable.awake);
-					buttonMonitor.startAnimation(fadeIn);
-					clockBackground.startAnimation(fadeIn);
+					fadeInAnimation(clockBackground, 1);
+					fadeInAnimation(buttonConnect, 1);
 
 					buttonDisconnect.setEnabled(true);
 					buttonSearch.setEnabled(true);
@@ -195,7 +199,7 @@ public class BioLibTestActivity extends Activity {
 					else Toast.makeText(BioLibTestActivity.this, "Empty bpm array", Toast.LENGTH_SHORT).show();
 
 				} else {
-
+					zoomInAnimation(view);
 					startCalendar = Calendar.getInstance();
 					startDate = dateFormat.format(startCalendar.getTime());
 					// Start Monitoring
@@ -203,17 +207,20 @@ public class BioLibTestActivity extends Activity {
 					//buttonMonitor.setText("Stop Monitoring");
 
 					// awake to sleep background animation
-					int awakeToSleepTime = 2000;
+					Animation fadeInSlow = AnimationUtils.loadAnimation(BioLibTestActivity.this, R.anim.fade_in_slow);
+					Animation fadeOutSlow = AnimationUtils.loadAnimation(BioLibTestActivity.this, R.anim.fade_out_slow);
+					int awakeToSleepTime = 1500;
 					animationView.setImageDrawable(awake_to_sleep);
 					awake_to_sleep.startTransition(awakeToSleepTime);
 
 					// Change to "sleep" when the button is checked
-					buttonMonitor.startAnimation(fadeOut);
-					clockBackground.startAnimation(fadeOut);
+					fadeOutAnimation(clockBackground, 2);
+					fadeOutAnimation(buttonConnect, 2);
+					zoomInAnimation(view);
 					clockBackground.setBackgroundResource(R.drawable.clock_background_sleep);
 					buttonMonitor.setBackgroundResource(R.drawable.sleep);
-					clockBackground.startAnimation(fadeIn);
-					buttonMonitor.startAnimation(fadeIn);
+					fadeInAnimation(clockBackground, 2);
+					fadeInAnimation(buttonConnect, 2);
 
 					buttonDisconnect.setEnabled(false);
 					buttonSearch.setEnabled(false);
@@ -227,6 +234,7 @@ public class BioLibTestActivity extends Activity {
 				}
 
 				isMonitoring = !isMonitoring;
+
 			}
 			private void startMonitoring() {
 				// TODO: Add code to start monitoring
@@ -237,9 +245,50 @@ public class BioLibTestActivity extends Activity {
 				// TODO: Add code to stop monitoring
 				// Example: Stop the background service, close sensor connections, etc.
 			}
+			private void zoomInAnimation(View view) {
+				Animation zoomIn = AnimationUtils.loadAnimation(BioLibTestActivity.this, R.anim.zoomy);
+				view.startAnimation(zoomIn);
+			}
+			private void fadeInAnimation(View view, int time) {
+				// time = 1 is fast, time = 2 is slow
+				Animation fadeIn;
+				switch (time) {
+					case 1:
+						fadeIn = AnimationUtils.loadAnimation(BioLibTestActivity.this, R.anim.fade_in_fast);
+						break;
+					case 2:
+						fadeIn = AnimationUtils.loadAnimation(BioLibTestActivity.this, R.anim.fade_in_slow);
+						break;
+					default:
+						fadeIn = AnimationUtils.loadAnimation(BioLibTestActivity.this, R.anim.fade_in_fast);
+				}
+				view.startAnimation(fadeIn);
+			}
+			private void fadeOutAnimation(View view, int time) {
+				// time = 1 is fast, time = 2 is slow
+				Animation fadeIn;
+				switch (time) {
+					case 1:
+						fadeIn = AnimationUtils.loadAnimation(BioLibTestActivity.this, R.anim.fade_out_fast);
+						break;
+					case 2:
+						fadeIn = AnimationUtils.loadAnimation(BioLibTestActivity.this, R.anim.fade_out_slow);
+						break;
+					default:
+						fadeIn = AnimationUtils.loadAnimation(BioLibTestActivity.this, R.anim.fade_out_fast);
+				}
+				view.startAnimation(fadeIn);
+			}
 
 		});
 
+		BottomNavigationView bottomNavigation = findViewById(R.id.bottomNavigation);
+		bottomNavigation.setOnItemSelectedListener(navListener);
+
+		// Load the default fragment
+		getSupportFragmentManager().beginTransaction()
+				.replace(R.id.fragmentContainer, new MonitorFragment())
+				.commit();
 
 		// Get Sleep Report Button on Main Activity, goes to Sleep Report Activity
 		// USE SYSTEM CLOCK
@@ -546,6 +595,30 @@ public class BioLibTestActivity extends Activity {
 
 	}
 
+	// Load the default fragment (Biolib)
+	private BottomNavigationView.OnItemSelectedListener navListener =
+			new BottomNavigationView.OnItemSelectedListener() {
+				@Override
+				public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+					Fragment selectedFragment = null;
+
+					if (item.getItemId() == R.id.reportsMenu)
+						selectedFragment = new ReportsFragment();
+					else if (item.getItemId() == R.id.monitorMenu)
+						selectedFragment = new MonitorFragment();
+					else if (item.getItemId() == R.id.settingsMenu)
+						selectedFragment = new SettingsFragment();
+
+					if (selectedFragment != null) {
+						getSupportFragmentManager().beginTransaction()
+								.replace(R.id.fragmentContainer, selectedFragment)
+								.commit();
+					}
+
+					return true;
+				}
+			};
+
 	public void OnDestroy() {
 		if (isConn) {
 			Disconnect();
@@ -575,8 +648,6 @@ public class BioLibTestActivity extends Activity {
 
 		lib = null;
 	}
-
-
 	/***
 	 * Disconnect from device.
 	 */

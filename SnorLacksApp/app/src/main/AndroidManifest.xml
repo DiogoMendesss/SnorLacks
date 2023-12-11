@@ -18,9 +18,12 @@
         android:theme="@style/Theme.SnorLacksApp"
         tools:targetApi="31">
         <activity
+            android:name=".SettingsActivity"
+            android:exported="false" />
+        <activity
             android:name=".SleepReportActivity"
             android:exported="false"
-            android:parentActivityName=".BioLibTestActivity"/>
+            android:parentActivityName=".BioLibTestActivity" />
         <activity
             android:name=".BioLibTestActivity"
             android:exported="true">

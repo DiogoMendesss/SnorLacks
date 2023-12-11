@@ -126,6 +126,9 @@ public class BioLibTestActivity extends Activity {
 
 	SimpleDateFormat dateFormat = new SimpleDateFormat("h:mm a");
 
+    Night night;
+    Event event;
+
 
 	/** EDITED CODE ENDS HERE */
 

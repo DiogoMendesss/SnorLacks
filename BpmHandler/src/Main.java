@@ -48,16 +48,48 @@ public class Main {
 
         System.out.println("Median value: " + calculateMedian(bpmi));
 
+        /*
         // Create a graph for the filtered ECG data
         createBpmGraph(bpmi);
         cropBpmArray(bpmi);
         createBpmGraph(bpmi);
 
-        ArrayList<Boolean> apneaEvents = checkApneaEvents(bpmi, 20);
+         */
+
+        ArrayList<Boolean> apneaEvents = checkBpmApneaEvents(bpmi, 20);
 
         long apneaEventsNumber = apneaEvents.stream().filter(Boolean::booleanValue).count();
 
         System.out.println("Number of apnea events: " + apneaEvents.stream().filter(Boolean::booleanValue).count());
+
+        ArrayList<Event> events = new ArrayList<Event>(); //array that stores event instances
+        //Event event = new Event();
+
+        events.add(new Event(90, "some date", 2));
+        events.add(new Event(80, "some date", 2));
+        events.add(new Event(70, "some date", 2));
+        events.add(new Event(60, "some date", 2));
+        events.add(new Event(60, "some date", 2));
+        events.add(new Event(60, "some date", 2));
+        events.add(new Event(60, "some date", 2));
+        events.add(new Event(85, "some date", 2));
+        events.add(new Event(60, "some date", 2));
+        events.add(new Event(60, "some date", 2));
+        events.add(new Event(60, "some date", 2));
+        events.add(new Event(70, "some date", 2));
+        events.add(new Event(90, "some date", 2));
+
+        System.out.println(calculateEventBpmMedian(events));
+        cropEventArray(events);
+        System.out.println(checkApneaEvents(events, 20));
+
+        Night night1 = new Night("2023-12-08 22:53", "2023-12-09 8:26", "a lot", 3);
+        Night night2 = new Night("2023-12-09 23:45", "2023-12-10 10:34", "a lottt", 4);
+        night1.calculateSleepTime();
+        night2.calculateSleepTime();
+
+        System.out.println("Sleep time night1: " + night1.getSleep_time());
+        System.out.println("Sleep time night2: " + night2.getSleep_time());
     }
 
     public static void cropBpmArray(ArrayList<Integer> bpmList){
@@ -91,7 +123,7 @@ public class Main {
     }
 
     //checkApneaEvent() returns true if for an event, the average bpm exceeds the median bpm of the night plus a threshold
-    public static ArrayList<Boolean> checkApneaEvents(ArrayList<Integer> bpmList, int threshold) {
+    public static ArrayList<Boolean> checkBpmApneaEvents(ArrayList<Integer> bpmList, int threshold) {
 
         ArrayList<Boolean> apneaEvents = new ArrayList<Boolean>();
         double median = calculateMedian(bpmList);
@@ -170,6 +202,68 @@ public class Main {
         }
 
         return median;
+    }
+
+    public static double calculateEventBpmMedian(ArrayList<Event> events) {
+        // Check for empty list
+        if (events == null || events.isEmpty()) {
+            throw new IllegalArgumentException("The list is empty");
+        }
+
+        // Sort the ArrayList
+        ArrayList<Event> sortedEvents = new ArrayList<>(events);
+        sortedEvents.sort((e1, e2) -> Double.compare(e1.getBpm(), e2.getBpm()));
+
+        int size = sortedEvents.size();
+        double median;
+
+        if (size % 2 == 0) {
+            // If the size is even, average the two middle elements
+            double middle1 = sortedEvents.get(size / 2 - 1).getBpm();
+            double middle2 = sortedEvents.get(size / 2).getBpm();
+            median = (middle1 + middle2) / 2.0;
+        } else {
+            // If the size is odd, take the middle element
+            median = sortedEvents.get(size / 2).getBpm();
+        }
+
+        return median;
+    }
+
+    public static void cropEventArray(ArrayList<Event> bpmList){
+
+        double median = calculateEventBpmMedian(bpmList);
+        int i = 0;
+        // Remove the first values until a sample is lesser than the median
+        while (bpmList.get(i).getBpm() >= median + 1) {
+
+            bpmList.get(i).setType("Falling asleep");
+            i++;
+            System.out.println("bpm: " + bpmList.get(i).getBpm()+ " i = " + i);
+        }
+
+        i=0;
+        // Remove the last values until a sample is lesser than the median
+        while (bpmList.get(bpmList.size() - 1 - i).getBpm() >= median + 1) {
+            bpmList.get(bpmList.size() - 1 - i).setType("Awakening");
+            i++;
+        }
+    }
+
+    public static int checkApneaEvents(ArrayList<Event> bpmList, int threshold) {
+
+        int apneaEventsNumber = 0;
+        ArrayList<Boolean> apneaEvents = new ArrayList<Boolean>();
+        double median = calculateEventBpmMedian(bpmList);
+        for (int i = 0; i < bpmList.size(); i++) {
+            if (bpmList.get(i).getType() == null) {
+                if (bpmList.get(i).getBpm() > median + threshold) {
+                    bpmList.get(i).setType("apnea");
+                    apneaEventsNumber++;
+                } else bpmList.get(i).setType("normal");
+            }
+        }
+        return apneaEventsNumber;
     }
 
 

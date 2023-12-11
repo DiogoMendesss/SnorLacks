@@ -1,13 +1,11 @@
 package com.snorlacks.snorlacksapp;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Bundle;
@@ -27,14 +25,11 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import java.io.UnsupportedEncodingException;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.ArrayList;
-import java.util.GregorianCalendar;
 
 import Bio.Library.namespace.BioLib;
 
@@ -106,9 +101,11 @@ public class BioLibTestActivity extends Activity {
 	private static final int EVENT_SPAN = 10000; // duration of an event in ms
 	private int peak_number = 0; // variable to store how many beats happen in an event
 	private int event_span = 0; //variable to store the time of an event
+	private double meanBpm;
 	public ArrayList<Double> bpm = new ArrayList<Double>(); //array that stores bpm values
 	public ArrayList<Double> bpmMonitored = new ArrayList<Double>(); //array that stores bpm values
 	public ArrayList<Integer> eventBpmi = new ArrayList<Integer>(); //array that stores bpm values
+	public ArrayList<Event> events = new ArrayList<Event>(); //array that stores event instances
 
 	public ArrayList<Boolean> apneaEvents = new ArrayList<Boolean>();
 
@@ -118,16 +115,21 @@ public class BioLibTestActivity extends Activity {
 
 	private ToggleButton buttonMonitor;
 
-	public Calendar startCalendar;
+	public Calendar nightStartCalendar;
+	public Calendar eventStartCalendar;
 	public Calendar endCalendar;
 
-	String startDate;
-	String endDate;
+	private String nightStartDate;
+	private String eventStartDate;
+	private String nightEndDate;
 
-	SimpleDateFormat dateFormat = new SimpleDateFormat("h:mm a");
+	private SimpleDateFormat nightDateFormat = new SimpleDateFormat("h:mm a");
+	private SimpleDateFormat fullDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+	private SimpleDateFormat eventDateFormat = new SimpleDateFormat("HH:mm:ss");
 
-    Night night;
-    Event event;
+    private Night night = new Night();
+	private int lastNightID;
+    private Event event = new Event();
 
 
 	/** EDITED CODE ENDS HERE */
@@ -145,12 +147,38 @@ public class BioLibTestActivity extends Activity {
 
 		DBHandler dbHandler = new DBHandler(BioLibTestActivity.this);
 
-		dbHandler.addNight("10:53 PM", "8:53 AM", "a lot");
-		dbHandler.addNight("11:45 PM", "10:34 AM", "a lottt");
-
 		textViewTestBPM=findViewById(R.id.txtViewTestBPM);
 		textViewTestBPM.setText("Last night ID: " + dbHandler.getLastNightID());
 
+		Night night1 = new Night("2023-12-08 10:53", "2023-12-09 8:53", "a lot", 3);
+		Night night2 = new Night("2023-12-09 11:45", "2023-12-10 10:34", "a lottt", 4);
+
+		dbHandler.addNight(night1);
+		dbHandler.addNight(night2);
+
+
+
+		events.add(new Event(90, "some date", "2023-12-12 11:45"));
+		events.add(new Event(80, "some date", "2023-12-12 11:45"));
+		events.add(new Event(70, "some date", "2023-12-12 11:45"));
+		events.add(new Event(60, "some date", "2023-12-12 11:45"));
+		events.add(new Event(60, "some date", "2023-12-12 11:45"));
+		events.add(new Event(60, "some date", "2023-12-12 11:45"));
+		events.add(new Event(60, "some date", "2023-12-12 11:45"));
+		events.add(new Event(85, "some date", "2023-12-12 11:45"));
+		events.add(new Event(60, "some date", "2023-12-12 11:45"));
+		events.add(new Event(60, "some date", "2023-12-12 11:45"));
+		events.add(new Event(60, "some date", "2023-12-12 11:45"));
+		events.add(new Event(70, "some date", "2023-12-12 11:45"));
+		events.add(new Event(85, "some date", "2023-12-12 11:45"));
+
+		Toast.makeText(BioLibTestActivity.this, "Apnea events at 2023-12-08 10:53: " + dbHandler.getApneaEventsForNight("2023-12-08 10:53"), Toast.LENGTH_SHORT).show();
+
+		bpmMonitored = dbHandler.getBpmValuesForNight("2023-12-12 11:45");
+		if(!bpmMonitored.isEmpty()) {
+			textViewTestBPM.setText("Array size: " + bpmMonitored.size() + "First value: " + bpmMonitored.get(0) + "Last value: " + bpmMonitored.get(bpmMonitored.size() - 1));
+		}
+		else textViewTestBPM.setText("empty array");
 		// used for gradient animation
 		ConstraintLayout mainLayout = findViewById(R.id.mainLayout);
 		ImageView animationView = findViewById(R.id.animationView);
@@ -174,11 +202,14 @@ public class BioLibTestActivity extends Activity {
 			public void onClick(View view) {
 
 				if (isMonitoring) {
+					/** STOP MONITORING ACTION */
+
 					endCalendar = Calendar.getInstance();
-					endDate = dateFormat.format(startCalendar.getTime());
-					// Stop Monitoring
-					stopMonitoring();
-					//buttonMonitor.setText("Start Monitoring");
+					nightEndDate = fullDateFormat.format(endCalendar.getTime());
+					night.setEnd_date(nightEndDate);
+					night.calculateSleepTime();
+
+					//night.reset();
 
 					// sleep to awake background animation
 					animationView.setImageDrawable(sleep_to_awake);
@@ -193,24 +224,42 @@ public class BioLibTestActivity extends Activity {
 					buttonSearch.setEnabled(true);
 					buttonGetSleepReport.setEnabled(true);
 
-					if(!bpm.isEmpty()) {
+					if(!events.isEmpty()) {
+						/*
 						bpmMonitored = bpm;
 						cropBpmArray(bpmMonitored);
 						apneaEvents = checkApneaEvents(bpmMonitored, APNEA_THRESHOLD);
-						Toast.makeText(BioLibTestActivity.this, "Sleep monitoring stopped at " + endDate, Toast.LENGTH_SHORT).show();
+
+						 */
+
+						cropEventArray(events);
+						night.setApneaEventsNumber(checkApneaEvents(events, 20));
+
+						for (Event event : events){
+							//Toast.makeText(BioLibTestActivity.this, "entrou no for " + nightEndDate, Toast.LENGTH_SHORT).show();
+							dbHandler.addEvent(event);
+						}
+
+						dbHandler.addNight(night);
+
+
+						Toast.makeText(BioLibTestActivity.this, "Sleep monitoring stopped at " + nightEndDate, Toast.LENGTH_SHORT).show();
 					}
-					else Toast.makeText(BioLibTestActivity.this, "Empty bpm array", Toast.LENGTH_SHORT).show();
+					else Toast.makeText(BioLibTestActivity.this, "Empty array", Toast.LENGTH_SHORT).show();
 
 
 
 
 
 				} else {
+					/** START MONITORING ACTION */
 
-					startCalendar = Calendar.getInstance();
-					startDate = dateFormat.format(startCalendar.getTime());
-					// Start Monitoring
-					startMonitoring();
+					nightStartCalendar = Calendar.getInstance();
+					nightStartDate = fullDateFormat.format(nightStartCalendar.getTime());
+					night.setStart_date(nightStartDate);
+					lastNightID = dbHandler.getLastNightID();
+
+
 					//buttonMonitor.setText("Stop Monitoring");
 
 					// awake to sleep background animation
@@ -229,7 +278,7 @@ public class BioLibTestActivity extends Activity {
 					bpm.clear();
 
 
-					Toast.makeText(BioLibTestActivity.this, "Sleep monitoring started at " + startDate, Toast.LENGTH_SHORT).show();
+					Toast.makeText(BioLibTestActivity.this, "Sleep monitoring started at " + nightStartDate, Toast.LENGTH_SHORT).show();
 
 				}
 
@@ -296,7 +345,7 @@ public class BioLibTestActivity extends Activity {
 
 				intent.putExtra("bpmList", bpmMonitored);
 				intent.putExtra("apneaEvents", apneaEvents);
-				intent.putExtra("startDate", startCalendar);
+				intent.putExtra("startDate", nightStartCalendar);
 				intent.putExtra("endDate", endCalendar);
 
 				startActivity(intent);
@@ -847,17 +896,22 @@ public class BioLibTestActivity extends Activity {
 
 					/** EDITED CODE STARTS HERE*/
 					if (event_span<EVENT_SPAN){ //checks if the duration of the event hasn't overcome the EVENT_SPAN
+						eventStartCalendar = Calendar.getInstance();
+						eventStartDate = eventDateFormat.format(eventStartCalendar.getTime());
 						eventBpmi.add(qrs.bpmi);
 						peak_number++;
 						event_span += qrs.rr;
 					}
 					else{ //An event has completed and the mean bpm for that event is calculated (in minutes)
-
-						bpm.add(calculateMean(eventBpmi));
+						meanBpm = calculateMean(eventBpmi);
+						bpm.add(meanBpm);
 						event_span = 0;
 						peak_number=0;
 						eventBpmi.clear();
 						Toast.makeText(BioLibTestActivity.this, Double.toString(peak_number/(EVENT_SPAN*1000.0*60)), Toast.LENGTH_SHORT).show();
+
+						event = new Event(meanBpm, eventStartDate, nightStartDate);
+						events.add(event);
 					}
 
 					//textViewTestBPM.setText("Peak number: " + peak_number + "; Event duration: " + event_span);
@@ -996,7 +1050,7 @@ public class BioLibTestActivity extends Activity {
 
 
 	//checkApneaEvent() returns true if for an event, a consecutive number of samples exceeds a threshold
-	public static ArrayList<Boolean> checkApneaEvents(ArrayList<Double> bpmList, int threshold) {
+	public static ArrayList<Boolean> checkBpmApneaEvents(ArrayList<Double> bpmList, int threshold) {
 
 		ArrayList<Boolean> apneaEvents = new ArrayList<Boolean>();
 		double median = calculateMedian(bpmList);
@@ -1009,6 +1063,25 @@ public class BioLibTestActivity extends Activity {
 
 		return apneaEvents;
 	}
+
+
+
+	public static int checkApneaEvents(ArrayList<Event> bpmList, int threshold) {
+
+		int apneaEventsNumber = 0;
+		ArrayList<Boolean> apneaEvents = new ArrayList<Boolean>();
+		double median = calculateEventBpmMedian(bpmList);
+		for (int i = 0; i < bpmList.size(); i++) {
+			if (bpmList.get(i).getType() == null) {
+				if (bpmList.get(i).getBpm() > median + threshold) {
+					bpmList.get(i).setType("apnea");
+					apneaEventsNumber++;
+				} else bpmList.get(i).setType("normal");
+			}
+		}
+		return apneaEventsNumber;
+	}
+
 
 	public static void cropBpmArray(ArrayList<Double> bpmList){
 
@@ -1024,6 +1097,27 @@ public class BioLibTestActivity extends Activity {
 			bpmList.remove(bpmList.size() - 1);
 		}
 	}
+
+
+
+	public static void cropEventArray(ArrayList<Event> bpmList){
+
+		double median = calculateEventBpmMedian(bpmList);
+		int i = 0;
+		// Remove the first values until a sample is lesser than the median
+		while (bpmList.get(i).getBpm() > median) {
+			bpmList.get(i).setType("Falling asleep");
+			i++;
+		}
+
+		i=0;
+		// Remove the last values until a sample is lesser than the median
+		while (bpmList.get(bpmList.size() - 1 - i).getBpm() > median) {
+			bpmList.get(bpmList.size() - 1 - i).setType("Awakening");
+			i++;
+		}
+	}
+
 
 	public static double calculateMedian(ArrayList<Double> numbers) {
 		// Check for empty list
@@ -1046,6 +1140,34 @@ public class BioLibTestActivity extends Activity {
 		} else {
 			// If the size is odd, take the middle element
 			median = sorted_numbers.get(size / 2);
+		}
+
+		return median;
+	}
+
+
+
+	public static double calculateEventBpmMedian(ArrayList<Event> events) {
+		// Check for empty list
+		if (events == null || events.isEmpty()) {
+			throw new IllegalArgumentException("The list is empty");
+		}
+
+		// Sort the ArrayList
+		ArrayList<Event> sortedEvents = new ArrayList<>(events);
+		sortedEvents.sort((e1, e2) -> Double.compare(e1.getBpm(), e2.getBpm()));
+
+		int size = sortedEvents.size();
+		double median;
+
+		if (size % 2 == 0) {
+			// If the size is even, average the two middle elements
+			double middle1 = sortedEvents.get(size / 2 - 1).getBpm();
+			double middle2 = sortedEvents.get(size / 2).getBpm();
+			median = (middle1 + middle2) / 2.0;
+		} else {
+			// If the size is odd, take the middle element
+			median = sortedEvents.get(size / 2).getBpm();
 		}
 
 		return median;

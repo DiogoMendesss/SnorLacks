@@ -1,13 +1,11 @@
-package com.snorlacks.snorlacksapp;
-
 public class Event {
     //private int id;
     private double bpm;
     private String date;
     private String type;
-    private String night;
+    private int night;
 
-    public Event(int id, double bpm, String date, String type, String night) {
+    public Event(int id, double bpm, String date, String type, int night) {
         //this.id = id;
         this.bpm = bpm;
         this.date = date;
@@ -15,14 +13,14 @@ public class Event {
         this.night = night;
     }
 
-    public Event(double bpm, String date, String type, String night) {
+    public Event(double bpm, String date, String type, int night) {
         this.bpm = bpm;
         this.date = date;
         this.type = type;
         this.night = night;
     }
 
-    public Event(double bpm, String date, String night) {
+    public Event(double bpm, String date, int night) {
         this.bpm = bpm;
         this.date = date;
         this.type = null;
@@ -34,7 +32,7 @@ public class Event {
         this.bpm = -1;
         this.date = null;
         this.type = null;
-        this.night = null;
+        this.night = -1;
     }
 
     public void reset(){
@@ -42,7 +40,7 @@ public class Event {
         this.bpm = -1;
         this.date = null;
         this.type = null;
-        this.night = null;
+        this.night = -1;
     }
 
 
@@ -70,11 +68,11 @@ public class Event {
         this.type = type;
     }
 
-    public String getNight() {
+    public int getNight() {
         return night;
     }
 
-    public void setNight(String night) {
+    public void setNight(int night) {
         this.night = night;
     }
 

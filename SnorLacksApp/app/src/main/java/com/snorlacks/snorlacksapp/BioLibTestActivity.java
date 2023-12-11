@@ -143,7 +143,13 @@ public class BioLibTestActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
+		DBHandler dbHandler = new DBHandler(BioLibTestActivity.this);
+
+		dbHandler.addNight("10:53 PM", "8:53 AM", "a lot");
+		dbHandler.addNight("11:45 PM", "10:34 AM", "a lottt");
+
 		textViewTestBPM=findViewById(R.id.txtViewTestBPM);
+		textViewTestBPM.setText("Last night ID: " + dbHandler.getLastNightID());
 
 		// used for gradient animation
 		ConstraintLayout mainLayout = findViewById(R.id.mainLayout);
@@ -191,7 +197,7 @@ public class BioLibTestActivity extends Activity {
 						bpmMonitored = bpm;
 						cropBpmArray(bpmMonitored);
 						apneaEvents = checkApneaEvents(bpmMonitored, APNEA_THRESHOLD);
-						Toast.makeText(BioLibTestActivity.this, "Sleep monitoring stopped", Toast.LENGTH_SHORT).show();
+						Toast.makeText(BioLibTestActivity.this, "Sleep monitoring stopped at " + endDate, Toast.LENGTH_SHORT).show();
 					}
 					else Toast.makeText(BioLibTestActivity.this, "Empty bpm array", Toast.LENGTH_SHORT).show();
 
@@ -223,7 +229,7 @@ public class BioLibTestActivity extends Activity {
 					bpm.clear();
 
 
-					Toast.makeText(BioLibTestActivity.this, "Sleep monitoring started", Toast.LENGTH_SHORT).show();
+					Toast.makeText(BioLibTestActivity.this, "Sleep monitoring started at " + startDate, Toast.LENGTH_SHORT).show();
 
 				}
 

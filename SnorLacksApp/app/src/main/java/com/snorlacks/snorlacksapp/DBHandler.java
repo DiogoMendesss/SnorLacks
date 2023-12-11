@@ -118,5 +118,30 @@ public class DBHandler extends SQLiteOpenHelper {
             Toast.makeText(context, "EVENT insert failed", Toast.LENGTH_SHORT).show();
         }else Toast.makeText(context, "EVENT insert succeeded", Toast.LENGTH_SHORT).show();
     }
+
+    public int getLastNightID(){
+        int lastNightID = -1;
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT " + NIGHT_ID_COL + " FROM " + NIGHT_TABLE_NAME +
+                " ORDER BY " + NIGHT_ID_COL + " DESC LIMIT 1";
+
+        Cursor cursor = db.rawQuery(query, null);
+
+        if (cursor.moveToFirst()) {
+            int columnIndex = cursor.getColumnIndex(NIGHT_ID_COL);
+
+            // Check if the column exists in the result set
+            if (columnIndex != -1) {
+                lastNightID = cursor.getInt(columnIndex);
+            } else {
+                // Handle the case where the column is not found
+                Log.e("Last Night ID", "Column not found: " + NIGHT_ID_COL);
+            }
+        }
+
+        cursor.close();
+        return lastNightID;
+    }
 }
 

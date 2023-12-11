@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="clock_size">350dp</dimen>
+    <dimen name="sleep_to_awake">1500</dimen>
+    <dimen name="awake_to_sleep">2500</dimen>
 </resources>

@@ -1,13 +1,11 @@
 package com.snorlacks.snorlacksapp;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Bundle;
@@ -27,14 +25,11 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import java.io.UnsupportedEncodingException;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.ArrayList;
-import java.util.GregorianCalendar;
 
 import Bio.Library.namespace.BioLib;
 
@@ -118,6 +113,8 @@ public class BioLibTestActivity extends Activity {
 
 	private ToggleButton buttonMonitor;
 
+	private View clockBackground;
+
 	public Calendar startCalendar;
 	public Calendar endCalendar;
 
@@ -159,6 +156,7 @@ public class BioLibTestActivity extends Activity {
 
 		buttonMonitor = findViewById(R.id.btnMonitor);
 		buttonGetSleepReport = findViewById(R.id.buttonGetSleepReport);
+		clockBackground = findViewById(R.id.clockBackground);
 
 		buttonMonitor.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -172,13 +170,17 @@ public class BioLibTestActivity extends Activity {
 					//buttonMonitor.setText("Start Monitoring");
 
 					// sleep to awake background animation
+					int sleepToAwakeTime = 1500;
 					animationView.setImageDrawable(sleep_to_awake);
-					sleep_to_awake.startTransition(2500);
+					sleep_to_awake.startTransition(sleepToAwakeTime);
 
-					// Change to "sleep" when the button is checked
+					// Change to "awake" when the button is checked
+					clockBackground.startAnimation(fadeOut);
 					buttonMonitor.startAnimation(fadeOut);
+					clockBackground.setBackgroundResource(R.drawable.clock_background_awake);
 					buttonMonitor.setBackgroundResource(R.drawable.awake);
 					buttonMonitor.startAnimation(fadeIn);
+					clockBackground.startAnimation(fadeIn);
 
 					buttonDisconnect.setEnabled(true);
 					buttonSearch.setEnabled(true);
@@ -192,10 +194,6 @@ public class BioLibTestActivity extends Activity {
 					}
 					else Toast.makeText(BioLibTestActivity.this, "Empty bpm array", Toast.LENGTH_SHORT).show();
 
-
-
-
-
 				} else {
 
 					startCalendar = Calendar.getInstance();
@@ -205,12 +203,16 @@ public class BioLibTestActivity extends Activity {
 					//buttonMonitor.setText("Stop Monitoring");
 
 					// awake to sleep background animation
+					int awakeToSleepTime = 2000;
 					animationView.setImageDrawable(awake_to_sleep);
-					awake_to_sleep.startTransition(2500);
+					awake_to_sleep.startTransition(awakeToSleepTime);
 
-					// Change to "awake" when the button is checked
+					// Change to "sleep" when the button is checked
 					buttonMonitor.startAnimation(fadeOut);
+					clockBackground.startAnimation(fadeOut);
+					clockBackground.setBackgroundResource(R.drawable.clock_background_sleep);
 					buttonMonitor.setBackgroundResource(R.drawable.sleep);
+					clockBackground.startAnimation(fadeIn);
 					buttonMonitor.startAnimation(fadeIn);
 
 					buttonDisconnect.setEnabled(false);
@@ -983,8 +985,6 @@ public class BioLibTestActivity extends Activity {
     			break;
         }
     }
-
-
 
 	//checkApneaEvent() returns true if for an event, a consecutive number of samples exceeds a threshold
 	public static ArrayList<Boolean> checkApneaEvents(ArrayList<Double> bpmList, int threshold) {

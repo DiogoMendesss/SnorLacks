@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Background color when pressed -->
+    <item>
+        <shape android:shape="oval">
+            <gradient android:type="radial"
+                android:startColor="@color/badSleepText"
+                android:centerColor="#4A0E2255"
+                android:endColor="@android:color/transparent"
+                android:gradientRadius="@dimen/clock_size"/>
+        </shape>
+    </item>
+</selector>

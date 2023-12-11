@@ -39,19 +39,20 @@
             android:textOff=""
             android:textOn="" />
 
-        <ImageView
-            android:id="@+id/imageClock"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:contentDescription="Background clock"
-            android:background="@drawable/clock" />
-
         <View
             android:id="@+id/clockBackground"
-            android:layout_height="match_parent"
             android:layout_width="match_parent"
-            android:background="@drawable/clock_background"/>
+            android:layout_height="match_parent"
+            android:background="@drawable/clock_background_awake" />
+
+        <ImageView
+            android:id="@+id/imageClock"
+            android:layout_width="300dp"
+            android:layout_height="300dp"
+            android:layout_gravity="center"
+            android:contentDescription="Background clock"
+            android:background="@drawable/clock"
+            android:visibility="visible"/>
 
     </FrameLayout>
 

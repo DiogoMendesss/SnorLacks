@@ -12,26 +12,27 @@
         android:id="@+id/animationView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
         android:contentDescription="Animation View"
         android:src="@drawable/awake_background"
-        />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <FrameLayout
         android:id="@+id/frameLayout"
-        android:layout_width="450dp"
-        android:layout_height="450dp"
+        android:layout_width="@dimen/clock_size"
+        android:layout_height="@dimen/clock_size"
+        android:layout_marginTop="100dp"
+        android:layout_marginHorizontal="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <ToggleButton
             android:id="@+id/btnMonitor"
-            android:layout_width="420dp"
-            android:layout_height="420dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:background="@drawable/awake"
             android:hapticFeedbackEnabled="true"
@@ -44,7 +45,13 @@
             android:layout_height="match_parent"
             android:layout_gravity="center"
             android:contentDescription="Background clock"
-            android:src="@drawable/clock" />
+            android:background="@drawable/clock" />
+
+        <View
+            android:id="@+id/clockBackground"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:background="@drawable/clock_background"/>
 
     </FrameLayout>
 

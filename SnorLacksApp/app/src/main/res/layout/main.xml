@@ -18,9 +18,13 @@
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="30dp"
+        android:layout_marginBottom="10dp"
         android:layout_alignParentBottom="true"
         app:layout_constraintBottom_toBottomOf="@+id/fragmentContainer"
-        app:menu="@menu/bottom_navigation" />
+        app:menu="@menu/bottom_navigation"
+        android:background="@drawable/navigation_background"
+        />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

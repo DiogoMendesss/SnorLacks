@@ -19,6 +19,7 @@ import androidx.fragment.app.Fragment;
 
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,8 +39,6 @@ import java.util.Collections;
 import java.util.Date;
 
 import Bio.Library.namespace.BioLib;
-
-
 
 /**
  * A simple {@link Fragment} subclass.
@@ -185,10 +184,11 @@ public class MonitorFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_monitor, container, false);
 
-//        textViewTestBPM = view.findViewById(R.id.txtViewTestBPM);
+        textViewTestBPM = view.findViewById(R.id.txtViewTestBPM);
 
         buttonMonitor = view.findViewById(R.id.btnMonitor);
         buttonGetSleepReport = view.findViewById(R.id.buttonGetSleepReport);
+
         clockBackground = view.findViewById(R.id.clockBackground);
 
         // used for gradient animation
@@ -203,7 +203,8 @@ public class MonitorFragment extends Fragment {
                 ContextCompat.getDrawable(fragmentContext, R.drawable.awake_background),
                 ContextCompat.getDrawable(fragmentContext, R.drawable.sleep_background)
         });
-
+        if (view == null)
+            Toast.makeText(fragmentContext, "BUTTON IS NULL", Toast.LENGTH_SHORT).show();
         // main button to start and stop sleep monitoring
         buttonMonitor.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -280,7 +281,7 @@ public class MonitorFragment extends Fragment {
                 }
 
                 isMonitoring = !isMonitoring;
-
+                Log.d("YourTag", "ToggleButton clicked!");
             }
             private void startMonitoring() {
                 // TODO: Add code to start monitoring
@@ -630,7 +631,7 @@ public class MonitorFragment extends Fragment {
         //buttonGetAcc.setEnabled(false);
 
 
-        return inflater.inflate(R.layout.fragment_monitor, container, false);
+        return view;
     }
 
     /***

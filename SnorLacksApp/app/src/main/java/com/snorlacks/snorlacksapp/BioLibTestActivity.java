@@ -1,7 +1,9 @@
 package com.snorlacks.snorlacksapp;
 
 import android.app.Activity;
+import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothSocket;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -10,7 +12,9 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
+import android.os.PowerManager;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.Animation;
@@ -20,16 +24,20 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
+import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.ArrayList;
+import java.util.UUID;
 
 import Bio.Library.namespace.BioLib;
 
@@ -287,6 +295,73 @@ public class BioLibTestActivity extends Activity {
 			private void startMonitoring() {
 				// TODO: Add code to start monitoring
 				// Example: Start a background service, initiate sensor readings, etc.
+				//Bluetooth_Service
+				public class BluetoothService extends Service {
+					private static final String TAG = "BluetoothService";
+					private BluetoothAdapter bluetoothAdapter;
+					private BluetoothSocket bluetoothSocket;
+					private PowerManager.WakeLock wakeLock;
+					private String deviceAddressToConnect;
+				}
+
+				@Override
+				public IBinder onBind(Intent intent){
+					return null;
+				}
+
+				@Override
+				public int onStartCommand(Intent intent, int flags, int startId) {
+					if (intent != null){
+						deviceAdressToConnect = intent.getStringExtra("device_adress");
+						startBluetoothService();
+					}
+					return START_STICKY;
+				}
+
+				private void startBluetoothService() {
+					bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+					if (bluetoothAdapter == null) {
+						Log.e(TAG, "Bluetooth not supported on this device");
+						stopSelf();
+						return;
+					}
+
+					PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+					wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
+					wakeLock.acquire();
+
+					connectToDevice(deviceAddressToConnect);
+				}
+
+				private void connectToDevice (String address) {
+					BluetoothDevice deviceToConnect = bluetoothAdapter.getRemoteDevice (address);
+					UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+					try {
+						bluetoothSocket =deviceToConnect.createRfcommSocketToServiceRecord(uuid);
+						bluetoothSocket.connect;
+
+
+						// logic for reading data goes here
+						// You may need to use InputStream from bluetoothSocket.getInputStream()
+
+						// For example, assuming lib has a method for reading data
+
+						lib.ReadData(bluetoothSocket.getInputStream());
+
+					} catch (IOException e) {
+						Log.e(TAG, "Error connecting to Bluetooth device", e);
+					}
+				}
+
+				@Override
+				public void onDestroy(){
+					super.onDestroy();
+					if (wakeLock != null && wakeLock.isHeld()) {
+						wakeLock.release();
+					}
+				}
+
 			}
 
 			private void stopMonitoring() {
@@ -493,7 +568,7 @@ public class BioLibTestActivity extends Activity {
 			}
 
 			/*
-			 * Search for bluetooth devices.
+			 * Search for bluetooth devices.on
 			 */
 			private void Search(View view) {
 				try {
@@ -630,10 +705,12 @@ public class BioLibTestActivity extends Activity {
 		}
 
 		lib = null;
-	}
+
+	};
 
 
-	/***
+
+		/***
 	 * Disconnect from device.
 	 */
 	private void Disconnect()

@@ -33,6 +33,7 @@ public class DBHandler extends SQLiteOpenHelper {
     // below variable is for night start date column
     private static final String NIGHT_START_DATE_COL = "start_date";
 
+
     // below variable is for night end date column.
     private static final String NIGHT_END_DATE_COL = "end_date";
 
@@ -59,14 +60,22 @@ public class DBHandler extends SQLiteOpenHelper {
 
     // below variable is for event night column.
     private static final String EVENT_NIGHT_COL = "night";
+    private static DBHandler instance;
 
     private SimpleDateFormat fullDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 
 
     // creating a constructor for our database handler.
-    public DBHandler(Context context) {
+    private DBHandler(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
         this.context = context;
+    }
+
+    public static synchronized DBHandler getInstance(Context context) {
+        if (instance == null) {
+            instance = new DBHandler(context.getApplicationContext());
+        }
+        return instance;
     }
 
     // below method is for creating a database by running a sqlite query
@@ -94,6 +103,7 @@ public class DBHandler extends SQLiteOpenHelper {
         // method to execute above sql query
         db.execSQL(create_night_table);
         db.execSQL(create_event_table);
+
     }
 
     @Override
@@ -110,6 +120,7 @@ public class DBHandler extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
 
+        cv.put(NIGHT_START_DATE_COL, night.getStart_date());
         cv.put(NIGHT_START_DATE_COL, night.getStart_date());
         cv.put(NIGHT_END_DATE_COL, night.getEnd_date());
         cv.put(SLEEP_TIME_COL, night.getSleep_time());
@@ -167,16 +178,16 @@ public class DBHandler extends SQLiteOpenHelper {
         int apneaEvents = -1;
 
         // Check if the input string adheres to the expected format
-        try {
+        /*try {
             Date parsedDate = fullDateFormat.parse(startDateTime);
         } catch (ParseException e) {
             Log.e("Date Format", "Invalid date format: " + startDateTime);
             return apneaEvents; // or throw an exception, depending on your requirements
-        }
+        }*/
 
         SQLiteDatabase db = this.getReadableDatabase();
         String query = "SELECT " + APNEA_EVENTS_COL + " FROM " + NIGHT_TABLE_NAME +
-                " WHERE " + NIGHT_START_DATE_COL + " = ?";
+                " WHERE strftime('%Y-%m-%d', " + NIGHT_START_DATE_COL + ") = ?";
 
         Cursor cursor = db.rawQuery(query, new String[]{startDateTime});
 

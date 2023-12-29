@@ -112,6 +112,7 @@ public class BioLibTestActivity extends Activity {
 	private boolean isMonitoring = false;
 
 	private Button buttonGetSleepReport;
+	private Button buttonOpenCalendar;
 
 	private ToggleButton buttonMonitor;
 
@@ -145,18 +146,18 @@ public class BioLibTestActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
-		DBHandler dbHandler = new DBHandler(BioLibTestActivity.this);
+		DBHandler dbHandler = DBHandler.getInstance(BioLibTestActivity.this);
 
 		textViewTestBPM=findViewById(R.id.txtViewTestBPM);
 		textViewTestBPM.setText("Last night ID: " + dbHandler.getLastNightID());
 
-		Night night1 = new Night("2023-12-08 10:53", "2023-12-09 8:53", "a lot", 3);
-		Night night2 = new Night("2023-12-09 11:45", "2023-12-10 10:34", "a lottt", 4);
+		Night night1 = new Night("2023-12-08 22:53", "2023-12-09 8:53", "a lot", 3);
+		Night night2 = new Night("2023-12-14 23:45", "2023-12-15 10:34", "a lottt", 4);
+		Night night3 = new Night("2023-12-20 23:45", "2023-12-21 10:34", "a lottt", 0);
 
 		dbHandler.addNight(night1);
 		dbHandler.addNight(night2);
-
-
+		dbHandler.addNight(night3);
 
 		events.add(new Event(90, "some date", "2023-12-12 11:45"));
 		events.add(new Event(80, "some date", "2023-12-12 11:45"));
@@ -296,6 +297,14 @@ public class BioLibTestActivity extends Activity {
 
 		});
 
+		buttonOpenCalendar = findViewById(R.id.buttonOpenCalendar);
+		buttonOpenCalendar.setOnClickListener( new View.OnClickListener() {
+			@Override
+			public void onClick(View view){
+				Intent intent = new Intent(BioLibTestActivity.this, CalendarActivity.class);
+				startActivity(intent);
+			}
+		});
 
 		// Get Sleep Report Button on Main Activity, goes to Sleep Report Activity
 		// USE SYSTEM CLOCK

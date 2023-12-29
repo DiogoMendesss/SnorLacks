@@ -40,6 +40,18 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".CalendarActivity"
+            android:exported="true"
+            android:label="Calendar Activity"
+            android:parentActivityName=".BioLibTestActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN1" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

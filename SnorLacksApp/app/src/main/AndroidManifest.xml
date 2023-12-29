@@ -20,7 +20,7 @@
         <activity
             android:name=".SleepReportActivity"
             android:exported="false"
-            android:parentActivityName=".BioLibTestActivity"/>
+            android:parentActivityName=".BioLibTestActivity" />
         <activity
             android:name=".BioLibTestActivity"
             android:exported="true">

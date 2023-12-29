@@ -1,13 +1,17 @@
 package com.snorlacks.snorlacksapp;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.material.navigation.NavigationBarView;
 import com.jjoe64.graphview.DefaultLabelFormatter;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
@@ -47,6 +51,7 @@ public class SleepReportActivity extends AppCompatActivity {
         textViewSleepStamps = findViewById((R.id.txtSleepStamps));
         textViewSleepQuality = findViewById((R.id.txtSleepQuality));
         imageViewSleepQuality = findViewById((R.id.imgSleepQuality));
+
 
         setSupportActionBar(findViewById(R.id.toolbar));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);

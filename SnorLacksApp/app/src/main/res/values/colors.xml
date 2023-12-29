@@ -3,13 +3,14 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <color name="colorAccent">#673AB7</color>
+    <color name="colorAccent">#0E2255</color>
+    <color name="colorSleep2">#1164A6</color>
     <color name="badSleepBar">#FFF38686</color>
     <color name="goodSleepBar">#FF7C9DEF</color>
     <color name="goodSleepText">#0E2255</color>
     <color name="badSleepText">#5E0808</color>
-    <color name="colorDay">#F3D783</color>
-    <color name="colorDay2">#94C5EC</color>
-    <color name="colorAccent2">#1164A6</color>
+    <color name="colorDay">#ECBE9F</color>
+    <color name="colorDay2">#E8DBCF</color>
+
 
 </resources>

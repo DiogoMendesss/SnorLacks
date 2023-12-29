@@ -34,6 +34,11 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.MenuItem;
+import androidx.fragment.app.FragmentManager;
+
+
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 
 import java.io.UnsupportedEncodingException;
@@ -48,7 +53,7 @@ import java.util.GregorianCalendar;
 import Bio.Library.namespace.BioLib;
 
 // SDK v1.0.07 @MAR15
-public class BioLibTestActivity extends Activity {
+public class BioLibTestActivity extends AppCompatActivity {
 
 	private BioLib lib = null;
 
@@ -152,6 +157,7 @@ public class BioLibTestActivity extends Activity {
     private Event event = new Event();
 
 
+
 	/**
 	 * Called when the activity is first created.
 	 */
@@ -160,173 +166,12 @@ public class BioLibTestActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
-		DBHandler dbHandler = DBHandler.getInstance(BioLibTestActivity.this);
+		this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-		textViewTestBPM=findViewById(R.id.txtViewTestBPM);
-		textViewTestBPM.setText("Last night ID: " + dbHandler.getLastNightID());
-
-		Night night1 = new Night("2023-12-08 22:53", "2023-12-09 8:53", "a lot", 3);
-		Night night2 = new Night("2023-12-14 23:45", "2023-12-15 10:34", "a lottt", 4);
-		Night night3 = new Night("2023-12-20 23:45", "2023-12-21 10:34", "a lottt", 0);
-
-		dbHandler.addNight(night1);
-		dbHandler.addNight(night2);
-		dbHandler.addNight(night3);
-
-		events.add(new Event(90, "some date", "2023-12-12 11:45"));
-		events.add(new Event(80, "some date", "2023-12-12 11:45"));
-		events.add(new Event(70, "some date", "2023-12-12 11:45"));
-		events.add(new Event(60, "some date", "2023-12-12 11:45"));
-		events.add(new Event(60, "some date", "2023-12-12 11:45"));
-		events.add(new Event(60, "some date", "2023-12-12 11:45"));
-		events.add(new Event(60, "some date", "2023-12-12 11:45"));
-		events.add(new Event(85, "some date", "2023-12-12 11:45"));
-		events.add(new Event(60, "some date", "2023-12-12 11:45"));
-		events.add(new Event(60, "some date", "2023-12-12 11:45"));
-		events.add(new Event(60, "some date", "2023-12-12 11:45"));
-		events.add(new Event(70, "some date", "2023-12-12 11:45"));
-		events.add(new Event(85, "some date", "2023-12-12 11:45"));
-
-		Toast.makeText(BioLibTestActivity.this, "Apnea events at 2023-12-08 10:53: " + dbHandler.getApneaEventsForNight("2023-12-08 10:53"), Toast.LENGTH_SHORT).show();
-
-		bpmMonitored = dbHandler.getBpmValuesForNight("2023-12-12 11:45");
-		if(!bpmMonitored.isEmpty()) {
-			textViewTestBPM.setText("Array size: " + bpmMonitored.size() + "First value: " + bpmMonitored.get(0) + "Last value: " + bpmMonitored.get(bpmMonitored.size() - 1));
-		}
-		else textViewTestBPM.setText("empty array");
-		// used for gradient animation
-		ConstraintLayout mainLayout = findViewById(R.id.mainLayout);
-		ImageView animationView = findViewById(R.id.animationView);
-
-		Animation fadeIn = AnimationUtils.loadAnimation(BioLibTestActivity.this, R.anim.fade_in);
-		Animation fadeOut = AnimationUtils.loadAnimation(BioLibTestActivity.this, R.anim.fade_out);
-		TransitionDrawable sleep_to_awake = new TransitionDrawable(new Drawable[]{
-				ContextCompat.getDrawable(BioLibTestActivity.this, R.drawable.sleep_background),
-				ContextCompat.getDrawable(BioLibTestActivity.this, R.drawable.awake_background)
-		});
-		TransitionDrawable awake_to_sleep = new TransitionDrawable(new Drawable[]{
-				ContextCompat.getDrawable(BioLibTestActivity.this, R.drawable.awake_background),
-				ContextCompat.getDrawable(BioLibTestActivity.this, R.drawable.sleep_background)
-		});
-
-		buttonMonitor = findViewById(R.id.btnMonitor);
-		buttonGetSleepReport = findViewById(R.id.buttonGetSleepReport);
-
-		buttonMonitor.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-
-				if (isMonitoring) {
-					/** STOP MONITORING ACTION */
-
-					endCalendar = Calendar.getInstance();
-					nightEndDate = fullDateFormat.format(endCalendar.getTime());
-					night.setEnd_date(nightEndDate);
-					night.calculateSleepTime();
-
-					//night.reset();
-
-					// sleep to awake background animation
-					animationView.setImageDrawable(sleep_to_awake);
-					sleep_to_awake.startTransition(2500);
-
-					// Change to "sleep" when the button is checked
-					buttonMonitor.startAnimation(fadeOut);
-					buttonMonitor.setBackgroundResource(R.drawable.awake);
-					buttonMonitor.startAnimation(fadeIn);
-
-					buttonDisconnect.setEnabled(true);
-					buttonSearch.setEnabled(true);
-					buttonGetSleepReport.setEnabled(true);
-
-					if(!events.isEmpty()) {
-						/*
-						bpmMonitored = bpm;
-						cropBpmArray(bpmMonitored);
-						apneaEvents = checkApneaEvents(bpmMonitored, APNEA_THRESHOLD);
-
-						 */
-
-						cropEventArray(events);
-						night.setApneaEventsNumber(checkApneaEvents(events, 20));
-
-						for (Event event : events){
-							//Toast.makeText(BioLibTestActivity.this, "entrou no for " + nightEndDate, Toast.LENGTH_SHORT).show();
-							dbHandler.addEvent(event);
-						}
-
-						dbHandler.addNight(night);
-
-
-						Toast.makeText(BioLibTestActivity.this, "Sleep monitoring stopped at " + nightEndDate, Toast.LENGTH_SHORT).show();
-					}
-					else Toast.makeText(BioLibTestActivity.this, "Empty array", Toast.LENGTH_SHORT).show();
-
-
-
-
-
-				} else {
-					/** START MONITORING ACTION */
-
-					nightStartCalendar = Calendar.getInstance();
-					nightStartDate = fullDateFormat.format(nightStartCalendar.getTime());
-					night.setStart_date(nightStartDate);
-					lastNightID = dbHandler.getLastNightID();
-
-
-					//buttonMonitor.setText("Stop Monitoring");
-
-					// awake to sleep background animation
-					animationView.setImageDrawable(awake_to_sleep);
-					awake_to_sleep.startTransition(2500);
-
-					// Change to "awake" when the button is checked
-					buttonMonitor.startAnimation(fadeOut);
-					buttonMonitor.setBackgroundResource(R.drawable.sleep);
-					buttonMonitor.startAnimation(fadeIn);
-
-					buttonDisconnect.setEnabled(false);
-					buttonSearch.setEnabled(false);
-					buttonGetSleepReport.setEnabled(false);
-
-					bpm.clear();
-
-
-					Toast.makeText(BioLibTestActivity.this, "Sleep monitoring started at " + nightStartDate, Toast.LENGTH_SHORT).show();
-
-				}
-
-				isMonitoring = !isMonitoring;
-			}
-			private void startMonitoring() {
-				// TODO: Add code to start monitoring
-				// Example: Start a background service, initiate sensor readings, etc.
-			}
-
-			private void stopMonitoring() {
-				// TODO: Add code to stop monitoring
-				// Example: Stop the background service, close sensor connections, etc.
-			}
-
-		});
-
-		buttonOpenCalendar = findViewById(R.id.buttonOpenCalendar);
-		buttonOpenCalendar.setOnClickListener( new View.OnClickListener() {
-			@Override
-			public void onClick(View view){
-				Intent intent = new Intent(BioLibTestActivity.this, CalendarActivity.class);
-				startActivity(intent);
-			}
-		});
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
 		// Get Sleep Report Button on Main Activity, goes to Sleep Report Activity
 		// USE SYSTEM CLOCK
-
-		buttonGetSleepReport.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				Toast.makeText(BioLibTestActivity.this, "Getting Sleep report", Toast.LENGTH_SHORT).show();
 		BottomNavigationView bottomNavigation = findViewById(R.id.bottomNavigation);
 		bottomNavigation.setOnItemSelectedListener(navListener);
 		// Load the default fragment
@@ -334,299 +179,151 @@ public class BioLibTestActivity extends Activity {
 				.replace(R.id.fragmentContainer, new MonitorFragment())
 				.commit();
 
-				Intent intent = new Intent(BioLibTestActivity.this, SleepReportActivity.class);
-
-				/*
-				// ========= Simulate Data - Apnea Night ======================
-				ArrayList<Double> mockBpm = new ArrayList<Double>();
-				ArrayList<Boolean> mockApneaEvents = new ArrayList<Boolean>();
-				for (int i=0;i<(60*8+2);i++) {
-					if ((i>60 & i<65))
-						mockBpm.add(10.0+0.5*(i-60));
-					else if (i>=65 & i<70)
-						mockBpm.add(12.5-0.5*(i-65));
-					else if ((i>200 & i<205))
-						mockBpm.add(10.0+0.5*(i-200));
-					else if (i>=205 & i<210)
-						mockBpm.add(12.5-0.5*(i-205));
-					else mockBpm.add(10.0);
-				}
-				for (double bpmEvent : mockBpm){
-					if (bpmEvent > 10.0)
-						mockApneaEvents.add(true);
-					else mockApneaEvents.add(false);
-				}
-
-				// =============================================
-				// ========= Simulate Data - Non Apnea Night ======================
-				ArrayList<Double> noApneaBpm = new ArrayList<Double>();
-				ArrayList<Boolean> noApneaEvents = new ArrayList<Boolean>();
-				for (int i=0;i<(60*8+2);i++){
-					noApneaBpm.add(10.0);
-					noApneaEvents.add(false);
-				}
-				// ================================================================
-
-				bpm = mockBpm;
-				apneaEvents = mockApneaEvents;
-
-				 */
-
-				intent.putExtra("bpmList", bpmMonitored);
-				intent.putExtra("apneaEvents", apneaEvents);
-				intent.putExtra("startDate", nightStartCalendar);
-				intent.putExtra("endDate", endCalendar);
-
-				startActivity(intent);
-			}
-		});
-
-		// __________________________________________
-
-		this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-
-		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
+//		DBHandler dbHandler = DBHandler.getInstance(BioLibTestActivity.this);
 //
-//		// ###################################################
-//		// MACADDRESS:
-//		address = "00:23:FE:00:0B:59";
-//		// ###################################################
+//		textViewTestBPM=findViewById(R.id.txtViewTestBPM);
+//		textViewTestBPM.setText("Last night ID: " + dbHandler.getLastNightID());
 //
+//		Night night1 = new Night("2023-12-08 22:53", "2023-12-09 8:53", "a lot", 3);
+//		Night night2 = new Night("2023-12-14 23:45", "2023-12-15 10:34", "a lottt", 4);
+//		Night night3 = new Night("2023-12-20 23:45", "2023-12-21 10:34", "a lottt", 0);
 //
-//		text = (TextView) findViewById(R.id.lblStatus);
-//		text.setText("");
+//		dbHandler.addNight(night1);
+//		dbHandler.addNight(night2);
+//		dbHandler.addNight(night3);
 //
+//		events.add(new Event(90, "some date", "2023-12-12 11:45"));
+//		events.add(new Event(80, "some date", "2023-12-12 11:45"));
+//		events.add(new Event(70, "some date", "2023-12-12 11:45"));
+//		events.add(new Event(60, "some date", "2023-12-12 11:45"));
+//		events.add(new Event(60, "some date", "2023-12-12 11:45"));
+//		events.add(new Event(60, "some date", "2023-12-12 11:45"));
+//		events.add(new Event(60, "some date", "2023-12-12 11:45"));
+//		events.add(new Event(85, "some date", "2023-12-12 11:45"));
+//		events.add(new Event(60, "some date", "2023-12-12 11:45"));
+//		events.add(new Event(60, "some date", "2023-12-12 11:45"));
+//		events.add(new Event(60, "some date", "2023-12-12 11:45"));
+//		events.add(new Event(70, "some date", "2023-12-12 11:45"));
+//		events.add(new Event(85, "some date", "2023-12-12 11:45"));
 //
+//		Toast.makeText(BioLibTestActivity.this, "Apnea events at 2023-12-08 10:53: " + dbHandler.getApneaEventsForNight("2023-12-08 10:53"), Toast.LENGTH_SHORT).show();
 //
-////      textRTC = (TextView) findViewById(R.id.lblRTC);
-////    	textPUSH = (TextView) findViewById(R.id.lblButton);
-////    	textPULSE = (TextView) findViewById(R.id.lblPulse);
-////    	textBAT = (TextView) findViewById(R.id.lblBAT);
-////    	textDataReceived = (TextView) findViewById(R.id.lblData);
-////    	textSDCARD = (TextView) findViewById(R.id.lblSDCARD);
-////    	textACC = (TextView) findViewById(R.id.lblACC);
-////    	textHR = (TextView) findViewById(R.id.lblHR);
-////    	textECG = (TextView) findViewById(R.id.lblECG);
-//    	textDeviceId = (TextView) findViewById(R.id.lblDeviceId);
-////    	textRadioEvent = (TextView) findViewById(R.id.textRadioEvent);
-////    	textTimeSpan  = (TextView) findViewById(R.id.lblTimeSpan);
-//
-//
-//
-//		try {
-//			lib = new BioLib(this, mHandler);
-//			text.append("Init BioLib \n");
-//		} catch (Exception e) {
-//			text.append("Error to init BioLib \n");
-//			e.printStackTrace();
+//		bpmMonitored = dbHandler.getBpmValuesForNight("2023-12-12 11:45");
+//		if(!bpmMonitored.isEmpty()) {
+//			textViewTestBPM.setText("Array size: " + bpmMonitored.size() + "First value: " + bpmMonitored.get(0) + "Last value: " + bpmMonitored.get(bpmMonitored.size() - 1));
 //		}
+//		else textViewTestBPM.setText("empty array");
 //
-//		buttonConnect = (Button) findViewById(R.id.buttonConnect);
-//		buttonConnect.setOnClickListener(new View.OnClickListener() {
+//		buttonMonitor = findViewById(R.id.btnMonitor);
+//		buttonGetSleepReport = findViewById(R.id.buttonGetSleepReport);
+
+//		buttonMonitor.setOnClickListener(new View.OnClickListener() {
+//			@Override
 //			public void onClick(View view) {
-//				Connect();
-//			}
 //
-//			**
-//			 * Connect to device.
+//				if (isMonitoring) {
+//					/** STOP MONITORING ACTION */
 //
-//			private void Connect() {
-//				try {
-//					deviceToConnect = lib.mBluetoothAdapter.getRemoteDevice(address);
+//					endCalendar = Calendar.getInstance();
+//					nightEndDate = fullDateFormat.format(endCalendar.getTime());
+//					night.setEnd_date(nightEndDate);
+//					night.calculateSleepTime();
 //
-//					Reset();
+//					//night.reset();
 //
-//					text.setText("");
-//					lib.Connect(address, 5);
-//				} catch (Exception e) {
-//					text.setText("Error to connect device: " + address);
-//					e.printStackTrace();
-//				}
-//			}
+//					// sleep to awake background animation
+//					animationView.setImageDrawable(sleep_to_awake);
+//					sleep_to_awake.startTransition(2500);
 //
-//		});
+//					// Change to "sleep" when the button is checked
+//					buttonMonitor.startAnimation(fadeOut);
+//					buttonMonitor.setBackgroundResource(R.drawable.awake);
+//					buttonMonitor.startAnimation(fadeIn);
 //
-//		buttonDisconnect = (Button) findViewById(R.id.buttonDisconnect);
-//		buttonDisconnect.setOnClickListener(new View.OnClickListener() {
-//			public void onClick(View view) {
-//				Disconnect();
-//			}
-//		});
+//					buttonDisconnect.setEnabled(true);
+//					buttonSearch.setEnabled(true);
+//					buttonGetSleepReport.setEnabled(true);
 //
+//					if(!events.isEmpty()) {
+//						/*
+//						bpmMonitored = bpm;
+//						cropBpmArray(bpmMonitored);
+//						apneaEvents = checkApneaEvents(bpmMonitored, APNEA_THRESHOLD);
 //
-//        buttonSetRTC = (Button) findViewById(R.id.buttonSetRTC);
-//        buttonSetRTC.setOnClickListener(new View.OnClickListener()
-//        {
-//            public void onClick(View view)
-//            {
-//            	try
-//            	{
-//            		Date date = new Date();
-//					lib.SetRTC(date);
-//				}
-//            	catch (Exception e)
-//				{
-//					e.printStackTrace();
-//				}
-//            }
-//        });
+//						 */
 //
-//        buttonGetRTC = (Button) findViewById(R.id.buttonGetRTC);
-//        buttonGetRTC.setOnClickListener(new View.OnClickListener()
-//        {
-//            public void onClick(View view)
-//            {
-//            	try
-//            	{
-//					lib.GetRTC();
-//				}
-//            	catch (Exception e)
-//				{
-//					e.printStackTrace();
-//				}
-//            }
-//        });
+//						cropEventArray(events);
+//						night.setApneaEventsNumber(checkApneaEvents(events, 20));
 //
-//        buttonRequest = (Button) findViewById(R.id.buttonRequestData);
-//        buttonRequest.setOnClickListener(new View.OnClickListener()
-//        {
-//            public void onClick(View view)
-//            {
-//            	RequestData();
-//            }
+//						for (Event event : events){
+//							//Toast.makeText(BioLibTestActivity.this, "entrou no for " + nightEndDate, Toast.LENGTH_SHORT).show();
+//							dbHandler.addEvent(event);
+//						}
 //
-//			private void RequestData()
-//			{
-//				try
-//				{
-//					deviceToConnect =  lib.mBluetoothAdapter.getRemoteDevice(address);
-//
-//					Reset();
-//					text.setText("");
-//					lib.Request(address, 30);
-//				}
-//				catch (Exception ex)
-//				{
-//					ex.printStackTrace();
-//				}
-//			}
-//        });
+//						dbHandler.addNight(night);
 //
 //
-//
-//		buttonSearch = (Button) findViewById(R.id.buttonSearch);
-//		buttonSearch.setOnClickListener(new View.OnClickListener() {
-//			public void onClick(View view) {
-//				Search(view);
-//			}
-//
-//
-////			 * Search for bluetooth devices.
-//
-//			private void Search(View view) {
-//				try {
-//					Intent myIntent = new Intent(view.getContext(), SearchDeviceActivity.class);
-//					startActivityForResult(myIntent, 0);
-//				} catch (Exception ex) {
-//					ex.printStackTrace();
-//				}
-//			}
-//		});
-//
-//
-//        buttonSetLabel = (Button) findViewById(R.id.buttonSetLabel);
-//        buttonSetLabel.setOnClickListener(new View.OnClickListener()
-//        {
-//            public void onClick(View view)
-//            {
-//            	try
-//            	{
-//            		/*
-//            		// SAMPLE 1: Sample of radio event: send array of bytes (10Bytes maximum)
-//            		byte type = 1;
-//            		// Maximum 10 bytes to send device [Optional]
-//            		byte[] info = new byte[4];
-//            		info[0] = 0x31; // 1 ascii table
-//            		info[1] = 0x32; // 2 ascii table
-//            		info[2] = 0x33; // 3 ascii table
-//            		info[3] = 0x34; // 4 ascii table
-//
-//            		textRadioEvent.setText("Start send");
-//					if (lib.SetBytesToRadioEvent(type, info))
-//					{
-//						countEvent++;
-//						textRadioEvent.setText("REvent: " + countEvent);
+//						Toast.makeText(BioLibTestActivity.this, "Sleep monitoring stopped at " + nightEndDate, Toast.LENGTH_SHORT).show();
 //					}
-//					else
-//						textRadioEvent.setText("Error");
+//					else Toast.makeText(BioLibTestActivity.this, "Empty array", Toast.LENGTH_SHORT).show();
 //
 //
 //
 //
-//            		// SAMPLE 2: Sample of radio event: send string (10 char maximum)
-//					byte type = 2;
-//					String info = "5678";
-//					textRadioEvent.setText("Start send");
-//					if (lib.SetStringToRadioEvent(type, info))
-//					{
-//						countEvent++;
-//						textRadioEvent.setText("REvent: " + countEvent);
-//					}
-//					else
-//						textRadioEvent.setText("Error");
+//
+//				} else {
+//					/** START MONITORING ACTION */
+//
+//					nightStartCalendar = Calendar.getInstance();
+//					nightStartDate = fullDateFormat.format(nightStartCalendar.getTime());
+//					night.setStart_date(nightStartDate);
+//					lastNightID = dbHandler.getLastNightID();
+//
+//
+//					//buttonMonitor.setText("Stop Monitoring");
+//
+//					// awake to sleep background animation
+//					animationView.setImageDrawable(awake_to_sleep);
+//					awake_to_sleep.startTransition(2500);
+//
+//					// Change to "awake" when the button is checked
+//					buttonMonitor.startAnimation(fadeOut);
+//					buttonMonitor.setBackgroundResource(R.drawable.sleep);
+//					buttonMonitor.startAnimation(fadeIn);
+//
+//					buttonDisconnect.setEnabled(false);
+//					buttonSearch.setEnabled(false);
+//					buttonGetSleepReport.setEnabled(false);
+//
+//					bpm.clear();
+//
+//
+//					Toast.makeText(BioLibTestActivity.this, "Sleep monitoring started at " + nightStartDate, Toast.LENGTH_SHORT).show();
 //
 //				}
-//            	catch (Exception e)
-//				{
-//					e.printStackTrace();
-//				}
-//            }
-//        });
 //
+//				isMonitoring = !isMonitoring;
+//			}
+//			private void startMonitoring() {
+//				// TODO: Add code to start monitoring
+//				// Example: Start a background service, initiate sensor readings, etc.
+//			}
 //
-//        buttonGetDeviceId = (Button) findViewById(R.id.buttonGetDeviceId);
-//        buttonGetDeviceId.setOnClickListener(new View.OnClickListener()
-//        {
-//            public void onClick(View view)
-//            {
-//            	try
-//            	{
-//					lib.GetDeviceId();
-//				}
-//            	catch (Exception e)
-//				{
-//					e.printStackTrace();
-//				}
-//            }
-//        });
+//			private void stopMonitoring() {
+//				// TODO: Add code to stop monitoring
+//				// Example: Stop the background service, close sensor connections, etc.
+//			}
 //
-//        buttonGetAcc = (Button) findViewById(R.id.buttonGetAcc);
-//        buttonGetAcc.setOnClickListener(new View.OnClickListener()
-//        {
-//            public void onClick(View view)
-//            {
-//            	try
-//            	{
-//					lib.GetAccSensibility();
-//				}
-//            	catch (Exception e)
-//				{
-//					e.printStackTrace();
-//				}
-//            }
-//        });
-//
-//
-//
-//		buttonConnect.setEnabled(true);
-//		//buttonRequest.setEnabled(true);
-//		buttonDisconnect.setEnabled(false);
-		//buttonGetRTC.setEnabled(false);
-		//buttonSetRTC.setEnabled(false);
-//		//buttonSetLabel.setEnabled(false);
-//		//buttonGetDeviceId.setEnabled(false);
-//		//buttonGetAcc.setEnabled(false);
+//		});
+
+//		buttonOpenCalendar = findViewById(R.id.buttonOpenCalendar);
+//		buttonOpenCalendar.setOnClickListener( new View.OnClickListener() {
+//			@Override
+//			public void onClick(View view){
+//				Intent intent = new Intent(BioLibTestActivity.this, CalendarActivity.class);
+//				startActivity(intent);
+//			}
+//		});
 	}
 
 	// Load the default fragment (Biolib)
@@ -648,111 +345,107 @@ public class BioLibTestActivity extends Activity {
 								.replace(R.id.fragmentContainer, selectedFragment)
 								.commit();
 					}
-	            	textRadioEvent.setText("Radio-event: " + typeRadioEvent + "[" + str + "]");
+//	            	textRadioEvent.setText("Radio-event: " + typeRadioEvent + "[" + str + "]");
 
 					return true;
 				}
-			};
+	};
 
 //	public void OnDestroy() {
 //		if (isConn) {
 //			Disconnect();
 //		}
-	}
+//	}
 
-
-	public static double calculateMean(ArrayList<Integer> arrayList) {
-		if (arrayList == null || arrayList.isEmpty()) {
-			throw new IllegalArgumentException("Input ArrayList is null or empty");
-		}
-
-		int sum = 0;
-		for (int number : arrayList) {
-			sum += number;
-		}
-
-		return (double) sum / arrayList.size();
-	}
-    /*
-     *
-     */
-    public void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
-        switch (requestCode)
-        {
-	        case BioLib.REQUEST_ENABLE_BT:
-	            if (resultCode == Activity.RESULT_OK)
-	            {
-	            	Toast.makeText(getApplicationContext(), "Bluetooth is now enabled! ", Toast.LENGTH_SHORT).show();
-	            	text.append("Bluetooth is now enabled \n");
-
-	            	buttonConnect.setEnabled(true);
-	            	//buttonRequest.setEnabled(true);
-	                buttonDisconnect.setEnabled(false);
-	                //buttonGetRTC.setEnabled(false);
-	                //buttonSetRTC.setEnabled(false);
-	                //buttonSetLabel.setEnabled(false);
-	                //buttonGetDeviceId.setEnabled(false);
-	                //buttonGetAcc.setEnabled(false);
-
-	                text.append("Macaddress selected: " + address + " \n");
-	            }
-	            else
-	            {
-	            	Toast.makeText(getApplicationContext(), "Bluetooth not enabled! ", Toast.LENGTH_SHORT).show();
-	            	text.append("Bluetooth not enabled \n");
-	            	isConn = false;
-
-
-					buttonConnect.setEnabled(true);
-					//buttonRequest.setEnabled(true);
-					buttonDisconnect.setEnabled(false);
-					//buttonGetRTC.setEnabled(false);
-					//buttonSetRTC.setEnabled(false);
-					//buttonSetLabel.setEnabled(false);
-					//buttonGetDeviceId.setEnabled(false);
-					//buttonGetAcc.setEnabled(false);
-
-	            }
-	            break;
-
-	        case 0:
-	        	switch (resultCode)
-	        	{
-	        		case SearchDeviceActivity.CHANGE_MACADDRESS:
-	        			try
-	        			{
-	        				text.append("\nSelect new macaddress: ");
-	        				macaddress = data.getExtras().getString(SearchDeviceActivity.SELECT_DEVICE_ADDRESS);
-	        				Toast.makeText(getApplicationContext(), macaddress, Toast.LENGTH_SHORT).show();
-
-	        				text.append(macaddress);
-
-	        				address = macaddress;
-	        			}
-	        			catch (Exception ex)
-	        			{
-	        				Toast.makeText(getApplicationContext(), "ERROR: " + ex.getMessage(), Toast.LENGTH_SHORT).show();
-	        			}
-	        			break;
-	        	}
-    			break;
-        }
-    }
+//	public static double calculateMean(ArrayList<Integer> arrayList) {
+//		if (arrayList == null || arrayList.isEmpty()) {
+//			throw new IllegalArgumentException("Input ArrayList is null or empty");
+//		}
+//
+//		int sum = 0;
+//		for (int number : arrayList) {
+//			sum += number;
+//		}
+//
+//		return (double) sum / arrayList.size();
+//	}
+//    public void onActivityResult(int requestCode, int resultCode, Intent data)
+//    {
+//        switch (requestCode)
+//        {
+//	        case BioLib.REQUEST_ENABLE_BT:
+//	            if (resultCode == Activity.RESULT_OK)
+//	            {
+//	            	Toast.makeText(getApplicationContext(), "Bluetooth is now enabled! ", Toast.LENGTH_SHORT).show();
+//	            	text.append("Bluetooth is now enabled \n");
+//
+//	            	buttonConnect.setEnabled(true);
+//	            	//buttonRequest.setEnabled(true);
+//	                buttonDisconnect.setEnabled(false);
+//	                //buttonGetRTC.setEnabled(false);
+//	                //buttonSetRTC.setEnabled(false);
+//	                //buttonSetLabel.setEnabled(false);
+//	                //buttonGetDeviceId.setEnabled(false);
+//	                //buttonGetAcc.setEnabled(false);
+//
+//	                text.append("Macaddress selected: " + address + " \n");
+//	            }
+//	            else
+//	            {
+//	            	Toast.makeText(getApplicationContext(), "Bluetooth not enabled! ", Toast.LENGTH_SHORT).show();
+//	            	text.append("Bluetooth not enabled \n");
+//	            	isConn = false;
+//
+//
+//					buttonConnect.setEnabled(true);
+//					//buttonRequest.setEnabled(true);
+//					buttonDisconnect.setEnabled(false);
+//					//buttonGetRTC.setEnabled(false);
+//					//buttonSetRTC.setEnabled(false);
+//					//buttonSetLabel.setEnabled(false);
+//					//buttonGetDeviceId.setEnabled(false);
+//					//buttonGetAcc.setEnabled(false);
+//
+//	            }
+//	            break;
+//
+//	        case 0:
+//	        	switch (resultCode)
+//	        	{
+//	        		case SearchDeviceActivity.CHANGE_MACADDRESS:
+//	        			try
+//	        			{
+//	        				text.append("\nSelect new macaddress: ");
+//	        				macaddress = data.getExtras().getString(SearchDeviceActivity.SELECT_DEVICE_ADDRESS);
+//	        				Toast.makeText(getApplicationContext(), macaddress, Toast.LENGTH_SHORT).show();
+//
+//	        				text.append(macaddress);
+//
+//	        				address = macaddress;
+//	        			}
+//	        			catch (Exception ex)
+//	        			{
+//	        				Toast.makeText(getApplicationContext(), "ERROR: " + ex.getMessage(), Toast.LENGTH_SHORT).show();
+//	        			}
+//	        			break;
+//	        	}
+//    			break;
+//        }
+//    }
 
 
 
-	//checkApneaEvent() returns true if for an event, a consecutive number of samples exceeds a threshold
-	public static ArrayList<Boolean> checkBpmApneaEvents(ArrayList<Double> bpmList, int threshold) {
-
-		ArrayList<Boolean> apneaEvents = new ArrayList<Boolean>();
-		double median = calculateMedian(bpmList);
-		for (int i = 0; i < bpmList.size(); i++) {
-			if (bpmList.get(i) > median + threshold) {
-				apneaEvents.add(Boolean.TRUE);
-			}
-			else apneaEvents.add(Boolean.FALSE);
-		}
+//	//checkApneaEvent() returns true if for an event, a consecutive number of samples exceeds a threshold
+//	public static ArrayList<Boolean> checkBpmApneaEvents(ArrayList<Double> bpmList, int threshold) {
+//
+//		ArrayList<Boolean> apneaEvents = new ArrayList<Boolean>();
+//		double median = calculateMedian(bpmList);
+//		for (int i = 0; i < bpmList.size(); i++) {
+//			if (bpmList.get(i) > median + threshold) {
+//				apneaEvents.add(Boolean.TRUE);
+//			}
+//			else apneaEvents.add(Boolean.FALSE);
+//		}
 
 //	protected void onDestroy() {
 //		super.onDestroy();
@@ -1223,113 +916,112 @@ public class BioLibTestActivity extends Activity {
 //}
 
 
-	public static int checkApneaEvents(ArrayList<Event> bpmList, int threshold) {
-
-		int apneaEventsNumber = 0;
-		ArrayList<Boolean> apneaEvents = new ArrayList<Boolean>();
-		double median = calculateEventBpmMedian(bpmList);
-		for (int i = 0; i < bpmList.size(); i++) {
-			if (bpmList.get(i).getType() == null) {
-				if (bpmList.get(i).getBpm() > median + threshold) {
-					bpmList.get(i).setType("apnea");
-					apneaEventsNumber++;
-				} else bpmList.get(i).setType("normal");
-			}
-		}
-		return apneaEventsNumber;
-	}
-
-
-	public static void cropBpmArray(ArrayList<Double> bpmList){
-
-		double median = calculateMedian(bpmList);
-
-		// Remove the first values until a sample is lesser than the median
-		while (!bpmList.isEmpty() && bpmList.get(0) >= median) {
-			bpmList.remove(0);
-		}
-
-		// Remove the last values until a sample is lesser than the median
-		while (!bpmList.isEmpty() && bpmList.get(bpmList.size() - 1) >= median) {
-			bpmList.remove(bpmList.size() - 1);
-		}
-	}
+//	public static int checkApneaEvents(ArrayList<Event> bpmList, int threshold) {
+//
+//		int apneaEventsNumber = 0;
+//		ArrayList<Boolean> apneaEvents = new ArrayList<Boolean>();
+//		double median = calculateEventBpmMedian(bpmList);
+//		for (int i = 0; i < bpmList.size(); i++) {
+//			if (bpmList.get(i).getType() == null) {
+//				if (bpmList.get(i).getBpm() > median + threshold) {
+//					bpmList.get(i).setType("apnea");
+//					apneaEventsNumber++;
+//				} else bpmList.get(i).setType("normal");
+//			}
+//		}
+//		return apneaEventsNumber;
+//	}
 
 
-
-	public static void cropEventArray(ArrayList<Event> bpmList){
-
-		double median = calculateEventBpmMedian(bpmList);
-		int i = 0;
-		// Remove the first values until a sample is lesser than the median
-		while (bpmList.get(i).getBpm() > median) {
-			bpmList.get(i).setType("Falling asleep");
-			i++;
-		}
-
-		i=0;
-		// Remove the last values until a sample is lesser than the median
-		while (bpmList.get(bpmList.size() - 1 - i).getBpm() > median) {
-			bpmList.get(bpmList.size() - 1 - i).setType("Awakening");
-			i++;
-		}
-	}
-
-
-	public static double calculateMedian(ArrayList<Double> numbers) {
-		// Check for empty list
-		if (numbers == null || numbers.isEmpty()) {
-			throw new IllegalArgumentException("The list is empty");
-		}
-
-		// Sort the ArrayList
-		ArrayList<Double> sorted_numbers = new ArrayList<Double>(numbers);
-		Collections.sort(sorted_numbers);
-
-		int size = sorted_numbers.size();
-		double median;
-
-		if (size % 2 == 0) {
-			// If the size is even, average the two middle elements
-			double middle1 = sorted_numbers.get(size / 2 - 1);
-			double middle2 = sorted_numbers.get(size / 2);
-			median = (middle1 + middle2) / 2.0;
-		} else {
-			// If the size is odd, take the middle element
-			median = sorted_numbers.get(size / 2);
-		}
-
-		return median;
-	}
+//	public static void cropBpmArray(ArrayList<Double> bpmList){
+//
+//		double median = calculateMedian(bpmList);
+//
+//		// Remove the first values until a sample is lesser than the median
+//		while (!bpmList.isEmpty() && bpmList.get(0) >= median) {
+//			bpmList.remove(0);
+//		}
+//
+//		// Remove the last values until a sample is lesser than the median
+//		while (!bpmList.isEmpty() && bpmList.get(bpmList.size() - 1) >= median) {
+//			bpmList.remove(bpmList.size() - 1);
+//		}
+//	}
 
 
 
-	public static double calculateEventBpmMedian(ArrayList<Event> events) {
-		// Check for empty list
-		if (events == null || events.isEmpty()) {
-			throw new IllegalArgumentException("The list is empty");
-		}
+//	public static void cropEventArray(ArrayList<Event> bpmList){
+//
+//		double median = calculateEventBpmMedian(bpmList);
+//		int i = 0;
+//		// Remove the first values until a sample is lesser than the median
+//		while (bpmList.get(i).getBpm() > median) {
+//			bpmList.get(i).setType("Falling asleep");
+//			i++;
+//		}
+//
+//		i=0;
+//		// Remove the last values until a sample is lesser than the median
+//		while (bpmList.get(bpmList.size() - 1 - i).getBpm() > median) {
+//			bpmList.get(bpmList.size() - 1 - i).setType("Awakening");
+//			i++;
+//		}
+//	}
 
-		// Sort the ArrayList
-		ArrayList<Event> sortedEvents = new ArrayList<>(events);
-		sortedEvents.sort((e1, e2) -> Double.compare(e1.getBpm(), e2.getBpm()));
 
-		int size = sortedEvents.size();
-		double median;
+//	public static double calculateMedian(ArrayList<Double> numbers) {
+//		// Check for empty list
+//		if (numbers == null || numbers.isEmpty()) {
+//			throw new IllegalArgumentException("The list is empty");
+//		}
+//
+//		// Sort the ArrayList
+//		ArrayList<Double> sorted_numbers = new ArrayList<Double>(numbers);
+//		Collections.sort(sorted_numbers);
+//
+//		int size = sorted_numbers.size();
+//		double median;
+//
+//		if (size % 2 == 0) {
+//			// If the size is even, average the two middle elements
+//			double middle1 = sorted_numbers.get(size / 2 - 1);
+//			double middle2 = sorted_numbers.get(size / 2);
+//			median = (middle1 + middle2) / 2.0;
+//		} else {
+//			// If the size is odd, take the middle element
+//			median = sorted_numbers.get(size / 2);
+//		}
+//
+//		return median;
+//	}
 
-		if (size % 2 == 0) {
-			// If the size is even, average the two middle elements
-			double middle1 = sortedEvents.get(size / 2 - 1).getBpm();
-			double middle2 = sortedEvents.get(size / 2).getBpm();
-			median = (middle1 + middle2) / 2.0;
-		} else {
-			// If the size is odd, take the middle element
-			median = sortedEvents.get(size / 2).getBpm();
-		}
 
-		return median;
-	}
 
+//	public static double calculateEventBpmMedian(ArrayList<Event> events) {
+//		// Check for empty list
+//		if (events == null || events.isEmpty()) {
+//			throw new IllegalArgumentException("The list is empty");
+//		}
+//
+//		// Sort the ArrayList
+//		ArrayList<Event> sortedEvents = new ArrayList<>(events);
+//		sortedEvents.sort((e1, e2) -> Double.compare(e1.getBpm(), e2.getBpm()));
+//
+//		int size = sortedEvents.size();
+//		double median;
+//
+//		if (size % 2 == 0) {
+//			// If the size is even, average the two middle elements
+//			double middle1 = sortedEvents.get(size / 2 - 1).getBpm();
+//			double middle2 = sortedEvents.get(size / 2).getBpm();
+//			median = (middle1 + middle2) / 2.0;
+//		} else {
+//			// If the size is odd, take the middle element
+//			median = sortedEvents.get(size / 2).getBpm();
+//		}
+//
+//		return median;
+//	}
 
 
 }

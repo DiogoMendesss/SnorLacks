@@ -1022,6 +1022,4 @@ public class BioLibTestActivity extends AppCompatActivity {
 //
 //		return median;
 //	}
-
-
 }

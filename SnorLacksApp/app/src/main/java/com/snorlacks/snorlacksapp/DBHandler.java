@@ -74,6 +74,7 @@ public class DBHandler extends SQLiteOpenHelper {
     public static synchronized DBHandler getInstance(Context context) {
         if (instance == null) {
             instance = new DBHandler(context.getApplicationContext());
+            Log.d("DBHandler", "Instance created successfully");
         }
         return instance;
     }

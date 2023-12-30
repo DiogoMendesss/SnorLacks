@@ -4,42 +4,20 @@ import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.jjoe64.graphview.DefaultLabelFormatter;
-import com.jjoe64.graphview.GraphView;
-import com.jjoe64.graphview.series.DataPoint;
-import com.jjoe64.graphview.series.LineGraphSeries;
-
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.YearMonth;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-import java.time.LocalDate;
-import java.time.Month;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -108,7 +86,13 @@ public class ReportsFragment extends Fragment implements CalendarAdapter.OnItemL
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.activity_calendar, container, false);
+        View view = inflater.inflate(R.layout.fragment_reports, container, false);
+
+        Button button_PreviousMonth = view.findViewById(R.id.button_previousMonth);
+        Button button_NextMonth = view.findViewById(R.id.button_nextMonth);
+
+        button_PreviousMonth.setOnClickListener(v -> action_previousMonth(v));
+        button_NextMonth.setOnClickListener(v -> action_nextMonth(v));
 
         recyclerView_calendar= view.findViewById(R.id.calendarRecyclerView);
         textView_monthYear = view.findViewById(R.id.textView_monthYear);
@@ -116,7 +100,6 @@ public class ReportsFragment extends Fragment implements CalendarAdapter.OnItemL
         setMonthView();
 
         dbHandler = DBHandler.getInstance(fragmentContext);
-
 
 
         // Inflate the layout for this fragment
@@ -127,6 +110,14 @@ public class ReportsFragment extends Fragment implements CalendarAdapter.OnItemL
     {
         textView_monthYear.setText(monthYear_fromDate(selectedDate));
         ArrayList<LocalDate> daysInMonth_localDate = daysInMonth_LocalDateArray(selectedDate);
+
+        if (dbHandler == null){
+            Log.e("ReportsFragment", "fragment dbHandler is null");
+            dbHandler = DBHandler.getInstance(fragmentContext);}
+        if (dbHandler != null)
+            Log.e("ReportsFragment", "fragment dbHandler is not null");
+        else
+            Log.e("ReportsFragment", "fragment dbHandler leeps being null");
 
         CalendarAdapter calendarAdapter = new CalendarAdapter(daysInMonth_localDate, this, dbHandler );
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(fragmentContext, 7);

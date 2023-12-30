@@ -1,96 +1,154 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ReportsFragment">
+    tools:context=".MonitorFragment">
 
-    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/constraintLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#9C91B1"
-        tools:context=".SleepReportActivity">
+        android:orientation="vertical"
+        android:background="@color/black"
+        >
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:orientation="horizontal"
+            android:background="@color/black"
+            android:gravity="center">
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
+            <Button
+                android:id="@+id/button_previousMonth"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:background="@drawable/action_arrow"
+                android:onClick="action_nextMonth"
+                android:textStyle="bold"
+                android:gravity="center_vertical"
+                android:layout_marginLeft="40dp"
+                android:backgroundTint="@color/white"
+                android:backgroundTintMode="src_over">
+
+            </Button>
+
+            <TextView
+                android:id="@+id/textView_monthYear"
+                android:layout_width="0dp"
+                android:layout_weight="2"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:textSize="20dp"
+                android:text="Month Year">
+
+            </TextView>
+
+            <Button
+                android:id="@+id/button_nextMonth"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:background="@drawable/action_arrow"
+                android:onClick="action_nextMonth"
+                android:textStyle="bold"
+                android:gravity="center_horizontal"
+                android:rotation="180"
+                android:layout_marginRight="40dp">
+
+            </Button>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:orientation="horizontal"
+            android:background="@color/black"
+            android:gravity="center">
+
+            <TextView
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:text="SUN"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                ></TextView>
+
+            <TextView
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:text="MON"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                ></TextView>
+
+            <TextView
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:text="TUE"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                ></TextView>
+
+            <TextView
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:text="WED"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                ></TextView>
+
+            <TextView
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:text="THU"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                ></TextView>
+
+            <TextView
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:text="FRI"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                ></TextView>
+
+            <TextView
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:text="SAT"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                ></TextView>
+
+            </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/calendarRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/colorPrimary"
-            android:minHeight="?attr/actionBarSize"
-            android:theme="?attr/actionBarTheme"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:background="@color/black">
 
-        <ImageView
-            android:id="@+id/imgSleepQuality"
-            android:layout_width="101dp"
-            android:layout_height="99dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="52dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/toolbar"
-            app:srcCompat="@drawable/drowsy_doodle" />
+        </androidx.recyclerview.widget.RecyclerView>
 
-        <TextView
-            android:id="@+id/txtSleepQuality"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:layout_marginTop="68dp"
-            android:hint="Sleep Quality"
-            android:textAlignment="textStart"
-            android:textSize="17sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toEndOf="@+id/imgSleepQuality"
-            app:layout_constraintTop_toBottomOf="@+id/toolbar" />
-
-        <com.jjoe64.graphview.GraphView
-            android:id="@+id/idGraphView"
-            android:layout_width="371dp"
-            android:layout_height="246dp"
-            android:layout_alignParentTop="true"
-            android:layout_marginTop="64dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/imgSleepQuality" />
-
-        <TextView
-            android:id="@+id/txtSleepStamps"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:layout_marginTop="36dp"
-            android:hint="Beginning and End of sleep"
-            android:text=""
-            android:textColor="@color/black"
-            android:textSize="15sp"
-            android:textStyle="normal"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.497"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/idGraphView" />
-
-        <TextView
-            android:id="@+id/txtApneaEvents"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:layout_marginTop="12dp"
-            android:hint="No. Apnea Events"
-            android:textSize="17sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toEndOf="@+id/imgSleepQuality"
-            app:layout_constraintTop_toBottomOf="@+id/txtSleepQuality" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
+    </LinearLayout>
 </FrameLayout>

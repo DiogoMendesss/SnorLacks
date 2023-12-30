@@ -1,5 +1,6 @@
 package com.snorlacks.snorlacksapp;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,9 +16,13 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarViewHolder> {
 
     private final ArrayList<LocalDate> daysOfMonth_LocalDate;
     private final OnItemListener onItemListener;
-    private final DBHandler dbHandler;
+    private DBHandler dbHandler;
     public CalendarAdapter(ArrayList<LocalDate> daysOfMonth_LocalDate, OnItemListener onItemListener, DBHandler dbHandler) {
         this.dbHandler = dbHandler;
+        if (dbHandler == null)
+            Log.e("CalendarAdapter", "dbHandler is null");
+        else
+            Log.e("CalendarAdapter", "dbHandler is not null");
         this.daysOfMonth_LocalDate = daysOfMonth_LocalDate;
         this.onItemListener = onItemListener;
     }

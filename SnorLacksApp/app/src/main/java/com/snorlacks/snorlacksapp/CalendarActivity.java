@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.time.LocalDate;
-import java.time.Month;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -25,15 +24,12 @@ public class CalendarActivity extends AppCompatActivity implements CalendarAdapt
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_calendar);
+        setContentView(R.layout.fragment_reports);
         initWidgets();
         selectedDate = LocalDate.now();
         setMonthView();
 
         dbHandler = DBHandler.getInstance(CalendarActivity.this);
-
-        setSupportActionBar(findViewById(R.id.toolbar2));
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     private void initWidgets()

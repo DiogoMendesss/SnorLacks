@@ -139,11 +139,13 @@ public class MonitorFragment extends Fragment {
     public Calendar endCalendar;
 
     private String nightStartDate;
+    private String nightStartTime;
     private String eventStartDate;
-    private String nightEndDate;
+    private String nightEndTime;
 
-    private SimpleDateFormat nightDateFormat = new SimpleDateFormat("h:mm a");
+    private SimpleDateFormat sleepTimeFormat = new SimpleDateFormat("h:mm a");
     private SimpleDateFormat fullDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+    private SimpleDateFormat justDateFormat = new SimpleDateFormat("yyyy-MM-dd");
     private SimpleDateFormat eventDateFormat = new SimpleDateFormat("HH:mm:ss");
 
     private Night night = new Night();
@@ -244,8 +246,8 @@ public class MonitorFragment extends Fragment {
                 if (isMonitoring) {
 
                     endCalendar = Calendar.getInstance();
-                    nightEndDate = fullDateFormat.format(endCalendar.getTime());
-                    night.setEnd_date(nightEndDate);
+                    nightEndTime = sleepTimeFormat.format(endCalendar.getTime());
+                    night.setEnd_time(nightEndTime);
                     night.calculateSleepTime();
                     Toast.makeText(fragmentContext, "sleep time " + night.getSleep_time(), Toast.LENGTH_SHORT).show();
 
@@ -288,22 +290,19 @@ public class MonitorFragment extends Fragment {
                         dbHandler.addNight(night);
 
 
-                        Toast.makeText(fragmentContext, "Sleep monitoring stopped at " + nightEndDate, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(fragmentContext, "Sleep monitoring stopped at " + nightEndTime, Toast.LENGTH_SHORT).show();
                     } else
-                        Toast.makeText(fragmentContext, "Empty array", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(fragmentContext, "Empty array at time: " + sleepTimeFormat.format(endCalendar.getTime()), Toast.LENGTH_SHORT).show();
 
                 } else {/** START MONITORING ACTION */
                     nightStartCalendar = Calendar.getInstance();
-                    nightStartDate = fullDateFormat.format(nightStartCalendar.getTime());
+                    nightStartDate = justDateFormat.format(nightStartCalendar.getTime());
+                    nightStartTime = sleepTimeFormat.format(nightStartCalendar.getTime());
                     night.setStart_date(nightStartDate);
+                    night.setStart_time(nightStartTime);
                     lastNightID = dbHandler.getLastNightID();
 
                     zoomInAnimation(view);
-
-                    nightStartCalendar = Calendar.getInstance();
-                    nightStartDate = fullDateFormat.format(nightStartCalendar.getTime());
-                    night.setStart_date(nightStartDate);
-                    lastNightID = dbHandler.getLastNightID();
 
                     // awake to sleep background animation
                     Animation fadeInSlow = AnimationUtils.loadAnimation(fragmentContext, R.anim.fade_in_slow);

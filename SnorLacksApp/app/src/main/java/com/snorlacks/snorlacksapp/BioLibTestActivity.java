@@ -148,7 +148,7 @@ public class BioLibTestActivity extends AppCompatActivity {
 	private String eventStartDate;
 	private String nightEndDate;
 
-	private SimpleDateFormat nightDateFormat = new SimpleDateFormat("h:mm a");
+	private SimpleDateFormat nightTimeFormat = new SimpleDateFormat("h:mm a");
 	private SimpleDateFormat fullDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 	private SimpleDateFormat eventDateFormat = new SimpleDateFormat("HH:mm:ss");
 
@@ -182,11 +182,11 @@ public class BioLibTestActivity extends AppCompatActivity {
 		DBHandler dbHandler = DBHandler.getInstance(BioLibTestActivity.this);
 		dbHandler.cleanDatabase(dbHandler.getWritableDatabase());
 
-		Night night1 = new Night("2023-12-08 22:53", "2023-12-09 8:53", "a lot", 3);
-		Night night2 = new Night("2023-12-14 23:45", "2023-12-15 10:34", "a lottt", 4);
-		Night night3 = new Night("2023-12-20 23:45", "2023-12-21 10:34", "a lottt", 0);
-		Night night4 = new Night("2024-02-05 23:45", "2023-12-21 10:34", "very much", 69);
-		Night night5 = new Night("2023-12-22 23:45", "2023-12-21 10:34", "very much", 0);
+		Night night1 = new Night("2023-12-08","23:30" ,"7:22", 3);
+		Night night2 = new Night("2023-12-14","23:30" ,"7:22", 4);
+		Night night3 = new Night("2023-12-20","23:30" ,"7:22", 0);
+		Night night4 = new Night("2024-02-05","23:30" ,"7:22", 69);
+		Night night5 = new Night("2023-12-22","23:30" ,"7:22", 0);
 
 		dbHandler.addNight(night1);
 		dbHandler.addNight(night2);
@@ -194,21 +194,21 @@ public class BioLibTestActivity extends AppCompatActivity {
 		dbHandler.addNight(night4);
 		dbHandler.addNight(night5);
 
-		events.add(new Event(90, "some date", "2023-12-12 11:45"));
-		events.add(new Event(80, "some date", "2023-12-12 11:45"));
-		events.add(new Event(70, "some date", "2023-12-12 11:45"));
-		events.add(new Event(60, "some date", "2023-12-12 11:45"));
-		events.add(new Event(60, "some date", "2023-12-12 11:45"));
-		events.add(new Event(60, "some date", "2023-12-12 11:45"));
-		events.add(new Event(60, "some date", "2023-12-12 11:45"));
-		events.add(new Event(85, "some date", "2023-12-12 11:45"));
-		events.add(new Event(60, "some date", "2023-12-12 11:45"));
-		events.add(new Event(60, "some date", "2023-12-12 11:45"));
-		events.add(new Event(60, "some date", "2023-12-12 11:45"));
-		events.add(new Event(70, "some date", "2023-12-12 11:45"));
-		events.add(new Event(85, "some date", "2023-12-12 11:45"));
+		events.add(new Event(90, "some date", "2023-12-12"));
+		events.add(new Event(80, "some date", "2023-12-12"));
+		events.add(new Event(70, "some date", "2023-12-12"));
+		events.add(new Event(60, "some date", "2023-12-12"));
+		events.add(new Event(60, "some date", "2023-12-12"));
+		events.add(new Event(60, "some date", "2023-12-12"));
+		events.add(new Event(60, "some date", "2023-12-12"));
+		events.add(new Event(85, "some date", "2023-12-12"));
+		events.add(new Event(60, "some date", "2023-12-12"));
+		events.add(new Event(60, "some date", "2023-12-12"));
+		events.add(new Event(60, "some date", "2023-12-12"));
+		events.add(new Event(70, "some date", "2023-12-12"));
+		events.add(new Event(85, "some date", "2023-12-12"));
 
-		bpmMonitored = dbHandler.getBpmValuesForNight("2023-12-12 11:45");
+		bpmMonitored = dbHandler.getBpmValuesForNight("2023-12-12");
 
 //		buttonMonitor = findViewById(R.id.btnMonitor);
 //		buttonGetSleepReport = findViewById(R.id.buttonGetSleepReport);

@@ -153,6 +153,12 @@ public class DBHandler extends SQLiteOpenHelper {
         long result = db.insert(EVENT_TABLE_NAME, null, cv);
     }
 
+    public void addEvents(ArrayList<Event> events) {
+        for (Event event : events) {
+            addEvent(event);
+        }
+    }
+
     public int getLastNightID(){
         int lastNightID = -1;
 
@@ -247,6 +253,56 @@ public class DBHandler extends SQLiteOpenHelper {
 
         cursor.close();
         return bpmValues;
+    }
+
+    public String getNightStartTime(String nightDate) {
+        String startTime = null;
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT " + NIGHT_START_TIME_COL + " FROM " + NIGHT_TABLE_NAME +
+                " WHERE " + NIGHT_START_DATE_COL + " = ?";
+
+        Cursor cursor = db.rawQuery(query, new String[]{nightDate});
+
+        if (cursor.moveToFirst()) {
+            int columnIndex = cursor.getColumnIndex(NIGHT_START_TIME_COL);
+
+            // Check if the column exists in the result set
+            if (columnIndex != -1) {
+                startTime = cursor.getString(columnIndex);
+            } else {
+                // Handle the case where the column is not found
+                Log.e("Start Time", "Column not found: " + NIGHT_START_TIME_COL);
+            }
+        }
+
+        cursor.close();
+        return startTime;
+    }
+
+    public String getNightEndTime(String nightDate) {
+        String endTime = null;
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT " + NIGHT_END_TIME_COL + " FROM " + NIGHT_TABLE_NAME +
+                " WHERE " + NIGHT_START_DATE_COL + " = ?";
+
+        Cursor cursor = db.rawQuery(query, new String[]{nightDate});
+
+        if (cursor.moveToFirst()) {
+            int columnIndex = cursor.getColumnIndex(NIGHT_END_TIME_COL);
+
+            // Check if the column exists in the result set
+            if (columnIndex != -1) {
+                endTime = cursor.getString(columnIndex);
+            } else {
+                // Handle the case where the column is not found
+                Log.e("End Time", "Column not found: " + NIGHT_END_TIME_COL);
+            }
+        }
+
+        cursor.close();
+        return endTime;
     }
 
     public void cleanDatabase(SQLiteDatabase db){

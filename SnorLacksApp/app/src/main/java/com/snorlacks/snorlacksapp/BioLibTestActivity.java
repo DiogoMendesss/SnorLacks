@@ -1,5 +1,8 @@
 package com.snorlacks.snorlacksapp;
 
+import static com.snorlacks.snorlacksapp.MonitorFragment.checkApneaEvents;
+import static com.snorlacks.snorlacksapp.MonitorFragment.cropEventArray;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -200,12 +203,14 @@ public class BioLibTestActivity extends AppCompatActivity implements ReportsFrag
 		Night night3 = new Night("2023-12-20","23:30" ,"7:22", 0);
 		Night night4 = new Night("2024-02-05","23:30" ,"7:22", 69);
 		Night night5 = new Night("2023-12-22","23:30" ,"7:22", 0);
+		Night theNight = new Night("2023-12-12","22:51" ,"9:22");
 
 		dbHandler.addNight(night1);
 		dbHandler.addNight(night2);
 		dbHandler.addNight(night3);
 		dbHandler.addNight(night4);
 		dbHandler.addNight(night5);
+
 
 		events.add(new Event(90, "some date", "2023-12-12"));
 		events.add(new Event(80, "some date", "2023-12-12"));
@@ -220,6 +225,12 @@ public class BioLibTestActivity extends AppCompatActivity implements ReportsFrag
 		events.add(new Event(60, "some date", "2023-12-12"));
 		events.add(new Event(70, "some date", "2023-12-12"));
 		events.add(new Event(85, "some date", "2023-12-12"));
+
+		cropEventArray(events);
+		theNight.setApneaEventsNumber(checkApneaEvents(events, 20));
+
+		dbHandler.addNight(theNight);
+		dbHandler.addEvents(events);
 
 		bpmMonitored = dbHandler.getBpmValuesForNight("2023-12-12");
 

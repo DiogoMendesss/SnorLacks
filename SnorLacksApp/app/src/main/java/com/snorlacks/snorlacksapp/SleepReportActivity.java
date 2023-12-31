@@ -41,11 +41,23 @@ public class SleepReportActivity extends AppCompatActivity {
     // Create a list to store DataPoint objects
     ArrayList<DataPoint> bpmDataPoints = new ArrayList<>();
     ArrayList<Calendar> timeStamps = new ArrayList<Calendar>();
+    ArrayList<Double> bpmList;
+
+    String nightDate;
+    String nightStartTime;
+    String nightEndTime;
+
+    private DBHandler dbHandler;
+    private SimpleDateFormat justDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private SimpleDateFormat nightTimeFormat = new SimpleDateFormat("h:mm a");
+    int numberApneaEvents;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sleep_report);
+
+        dbHandler = DBHandler.getInstance(SleepReportActivity.this);
 
         constraintLayout = findViewById(R.id.constraintLayout);
         textViewApneaEvents = findViewById(R.id.txtApneaEvents);
@@ -66,25 +78,23 @@ public class SleepReportActivity extends AppCompatActivity {
 
         // Convert LocalDate to Date
         Date date = Date.from(clickedDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        nightDate = justDateFormat.format(date);
 
+        bpmList = dbHandler.getBpmValuesForNight(nightDate);
+
+
+        numberApneaEvents = dbHandler.getApneaEventsForNight(nightDate);
+
+        nightStartTime = dbHandler.getNightStartTime(nightDate);
         // Convert Date to Calendar
-        Calendar startDate = Calendar.getInstance();
-        startDate.setTime(date);
+        Calendar startTime = Calendar.getInstance();
+        startTime.setTime(date);
 
-        int numberApneaEvents = 0;
-        Boolean currentEvent = false;
-        for (boolean event : apneaEvents) {
-            if (event & !currentEvent) {
-                numberApneaEvents++;
-                currentEvent = true;
-            } else if (!event & currentEvent)
-                currentEvent = false;
-        }
-
+        nightEndTime = dbHandler.getNightEndTime(nightDate);
 
         //populate timeStamps array list, assuming that the datapoints are distanced 1 minute
         for (int i = 0; i < bpmList.size(); i++) {
-            Calendar minIncrement = (Calendar) startDate.clone();
+            Calendar minIncrement = (Calendar) startTime.clone();
             minIncrement.add(Calendar.MINUTE,i);
             timeStamps.add(minIncrement);
         }
@@ -132,7 +142,7 @@ public class SleepReportActivity extends AppCompatActivity {
 
         textViewApneaEvents.setText("No. suspected Apnea Events: " + numberApneaEvents);
 
-        //textViewSleepStamps.setText("Sleep started at " + timeStampFormat.format(startDate.getTime()) + " and ended at: " + timeStampFormat.format(endDate.getTime()));
+        textViewSleepStamps.setText("Sleep started at " + nightStartTime + " and ended at: " + nightEndTime);
 
         if (numberApneaEvents==0){
             textViewSleepQuality.setText("Looks like you had a night well rested!!");

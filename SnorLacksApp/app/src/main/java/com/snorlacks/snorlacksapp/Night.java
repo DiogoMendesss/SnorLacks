@@ -2,6 +2,7 @@ package com.snorlacks.snorlacksapp;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 public class Night {
@@ -91,6 +92,13 @@ public class Night {
         try {
             Date startTime = sleep_time_format.parse(start_time);
             Date endTime = sleep_time_format.parse(end_time);
+
+            if (endTime.before(startTime)) {
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(endTime);
+                calendar.add(Calendar.DAY_OF_MONTH, 1); // Add one day to the end time
+                endTime = calendar.getTime();
+            }
 
             long diffMillis = endTime.getTime() - startTime.getTime();
             long diffMinutes = diffMillis / (60 * 1000);

@@ -32,6 +32,8 @@ public class DBHandler extends SQLiteOpenHelper {
 
     // below variable is for night start date column
     private static final String NIGHT_START_DATE_COL = "start_date";
+    private static final String NIGHT_START_TIME_COL = "start_time";
+    private static final String NIGHT_END_TIME_COL = "end_time";
 
 
     // below variable is for night end date column.
@@ -63,6 +65,7 @@ public class DBHandler extends SQLiteOpenHelper {
     private static DBHandler instance;
 
     private SimpleDateFormat fullDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+    private SimpleDateFormat justDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
 
     // creating a constructor for our database handler.
@@ -82,29 +85,28 @@ public class DBHandler extends SQLiteOpenHelper {
     // below method is for creating a database by running a sqlite query
     @Override
     public void onCreate(SQLiteDatabase db) {
-        // on below line we are creating
-        // an sqlite query and we are
-        // setting our column names
-        // along with their data types.
+        // Drop existing tables if they exist
+        db.execSQL("DROP TABLE IF EXISTS " + NIGHT_TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + EVENT_TABLE_NAME);
+
+        // Create the Night table
         String create_night_table = "CREATE TABLE " + NIGHT_TABLE_NAME + " ("
                 + NIGHT_ID_COL + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + NIGHT_START_DATE_COL + " TEXT,"
-                + NIGHT_END_DATE_COL + " TEXT,"
+                + NIGHT_START_TIME_COL + " TEXT,"
+                + NIGHT_END_TIME_COL + " TEXT,"
                 + SLEEP_TIME_COL + " TEXT,"
                 + APNEA_EVENTS_COL + " INTEGER);";
+        db.execSQL(create_night_table);
 
+        // Create the Event table
         String create_event_table = "CREATE TABLE " + EVENT_TABLE_NAME + " ("
                 + EVENT_ID_COL + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + EVENT_BPM_COL + " REAL,"
                 + EVENT_DATE_COL + " TEXT,"
                 + EVENT_TYPE_COL + " TEXT,"
                 + EVENT_NIGHT_COL + " TEXT REFERENCES " + NIGHT_TABLE_NAME + "(" + NIGHT_START_DATE_COL + ")" +  ");";
-
-        // at last we are calling a exec sql
-        // method to execute above sql query
-        db.execSQL(create_night_table);
         db.execSQL(create_event_table);
-
     }
 
     @Override
@@ -122,12 +124,20 @@ public class DBHandler extends SQLiteOpenHelper {
         ContentValues cv = new ContentValues();
 
         cv.put(NIGHT_START_DATE_COL, night.getStart_date());
-        cv.put(NIGHT_START_DATE_COL, night.getStart_date());
-        cv.put(NIGHT_END_DATE_COL, night.getEnd_date());
+        cv.put(NIGHT_START_TIME_COL, night.getStart_time());
+        cv.put(NIGHT_END_TIME_COL, night.getEnd_time());
         cv.put(SLEEP_TIME_COL, night.getSleep_time());
         cv.put(APNEA_EVENTS_COL, night.getApneaEventsNumber());
 
         long result = db.insert(NIGHT_TABLE_NAME, null, cv);
+
+        if (result == -1) {
+            // Insertion failed
+            Log.e("DBHandler", "Night insertion failed");
+        } else {
+            // Insertion succeeded, result contains the row ID
+            Log.d("DBHandler", "Night inserted with ID: " + result);
+        }
     }
 
     public void addEvent(Event event){
@@ -169,7 +179,7 @@ public class DBHandler extends SQLiteOpenHelper {
         return lastNightID;
     }
 
-    public int getApneaEventsForNight(String startDateTime) {
+    public int getApneaEventsForNight(String startDate) {
         int apneaEvents = -1;
 
         // Check if the input string adheres to the expected format
@@ -182,9 +192,9 @@ public class DBHandler extends SQLiteOpenHelper {
 
         SQLiteDatabase db = this.getReadableDatabase();
         String query = "SELECT " + APNEA_EVENTS_COL + " FROM " + NIGHT_TABLE_NAME +
-                " WHERE strftime('%Y-%m-%d', " + NIGHT_START_DATE_COL + ") = ?";
+                " WHERE " + NIGHT_START_DATE_COL + " = ?";
 
-        Cursor cursor = db.rawQuery(query, new String[]{startDateTime});
+        Cursor cursor = db.rawQuery(query, new String[]{startDate});
 
         if (cursor.moveToFirst()) {
             int columnIndex = cursor.getColumnIndex(APNEA_EVENTS_COL);
@@ -203,14 +213,14 @@ public class DBHandler extends SQLiteOpenHelper {
         return apneaEvents;
     }
 
-    public ArrayList<Double> getBpmValuesForNight(String startDateTime) {
+    public ArrayList<Double> getBpmValuesForNight(String startDate) {
         ArrayList<Double> bpmValues = new ArrayList<>();
 
         // Check if the input string adheres to the expected format
         try {
-            Date parsedDate = fullDateFormat.parse(startDateTime);
+            Date parsedDate = justDateFormat.parse(startDate);
         } catch (ParseException e) {
-            Log.e("Date Format", "Invalid date format: " + startDateTime);
+            Log.e("Date Format", "Invalid date format: " + startDate);
             return bpmValues; // or throw an exception, depending on your requirements
         }
 
@@ -218,7 +228,7 @@ public class DBHandler extends SQLiteOpenHelper {
         String query = "SELECT " + EVENT_BPM_COL + " FROM " + EVENT_TABLE_NAME +
                 " WHERE " + EVENT_NIGHT_COL + " = ?";
 
-        Cursor cursor = db.rawQuery(query, new String[]{startDateTime});
+        Cursor cursor = db.rawQuery(query, new String[]{startDate});
 
         if (cursor.moveToFirst()) {
             int columnIndex = cursor.getColumnIndex(EVENT_BPM_COL);

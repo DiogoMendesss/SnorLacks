@@ -7,40 +7,41 @@ import java.util.Date;
 public class Night {
     //private int id;
     private String start_date;
-    private String end_date;
+    private String start_time;
+    private String end_time;
     private String sleep_time;
     private int apneaEventsNumber;
+    private int id;
 
-    public Night(int id, String start_date, String end_date) {
-        //this.id = id;
-        this.start_date = start_date;
-        this.end_date = end_date;
-        calculateSleepTime();
-    }
-
-    public Night(String start_date, String end_date, String sleep_time) {
-        this.start_date = start_date;
-        this.end_date = end_date;
-        this.sleep_time = sleep_time;
-    }
 
     public Night() {
         this.start_date = null;
-        this.end_date = null;
+        this.start_time = null;
+        this.end_time = null;
         this.sleep_time = null;
     }
 
-    public Night(String start_date, String end_date, String sleep_time, int apneaEventsNumber) {
+    public Night(String start_date, String start_time, String end_time, int apneaEventsNumber) {
         this.start_date = start_date;
-        this.end_date = end_date;
-        this.sleep_time = sleep_time;
+        this.start_time = start_time;
+        this.end_time = end_time;
+        sleep_time = calculateSleepTime();
         this.apneaEventsNumber = apneaEventsNumber;
+    }
+
+    public Night(String start_date, String start_time, String end_time) {
+        this.start_date = start_date;
+        this.start_time = start_time;
+        this.end_time = end_time;
+        sleep_time = calculateSleepTime();
+        apneaEventsNumber = 0;
     }
 
     public void reset () {
         //this.id = -1;
         this.start_date = null;
-        this.end_date = null;
+        this.start_time = null;
+        this.end_time = null;
         this.sleep_time = null;
     }
 
@@ -52,13 +53,20 @@ public class Night {
     public void setStart_date(String start_date) {
         this.start_date = start_date;
     }
-
-    public String getEnd_date() {
-        return end_date;
+    public String getStart_time() {
+        return start_time;
     }
 
-    public void setEnd_date(String end_date) {
-        this.end_date = end_date;
+    public void setStart_time(String start_time) {
+        this.start_time = start_time;
+    }
+
+    public String getEnd_time() {
+        return end_time;
+    }
+
+    public void setEnd_time(String end_time) {
+        this.end_time = end_time;
     }
 
     public String getSleep_time() {
@@ -77,14 +85,14 @@ public class Night {
         this.apneaEventsNumber = apneaEventsNumber;
     }
 
-    public void calculateSleepTime() {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+    public String calculateSleepTime() {
+        SimpleDateFormat sleep_time_format = new SimpleDateFormat("HH:mm");
 
         try {
-            Date startDate = format.parse(start_date);
-            Date endDate = format.parse(end_date);
+            Date startTime = sleep_time_format.parse(start_time);
+            Date endTime = sleep_time_format.parse(end_time);
 
-            long diffMillis = endDate.getTime() - startDate.getTime();
+            long diffMillis = endTime.getTime() - startTime.getTime();
             long diffMinutes = diffMillis / (60 * 1000);
 
             // Calculate hours and minutes
@@ -92,9 +100,10 @@ public class Night {
             long minutes = diffMinutes % 60;
 
             // Format the result as "hh:mm"
-            sleep_time = String.format("%02d:%02d", hours, minutes);
+            return String.format("%02d:%02d", hours, minutes);
         } catch (ParseException e) {
             e.printStackTrace();
+            return "error calculating time";
         }
     }
 }

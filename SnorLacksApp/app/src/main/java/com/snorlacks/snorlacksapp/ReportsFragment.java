@@ -1,6 +1,7 @@
 package com.snorlacks.snorlacksapp;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -30,6 +31,7 @@ import java.util.ArrayList;
  */
 public class ReportsFragment extends Fragment implements CalendarAdapter.OnItemListener {
 
+
     private Context fragmentContext;
 
     // TODO: Rename parameter arguments, choose names that match
@@ -37,6 +39,7 @@ public class ReportsFragment extends Fragment implements CalendarAdapter.OnItemL
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
+    private OnStartSleepReportListener onStartSleepReportListener;
 
     private TextView textView_monthYear;
     private RecyclerView recyclerView_calendar;
@@ -72,6 +75,13 @@ public class ReportsFragment extends Fragment implements CalendarAdapter.OnItemL
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         fragmentContext = context;
+
+        // Check if the hosting activity implements OnStartSleepReportListener
+        if (context instanceof OnStartSleepReportListener) {
+            onStartSleepReportListener = (OnStartSleepReportListener) context;
+        } else {
+            throw new ClassCastException(context.toString() + " must implement OnStartSleepReportListener");
+        }
     }
 
     @Override
@@ -195,10 +205,13 @@ public class ReportsFragment extends Fragment implements CalendarAdapter.OnItemL
             }
             else {
                 message = "Apnea Events from date " + formattedDate + ": " + num_apneaEvents;
+                onStartSleepReportListener.onStartSleepReport(clickedDate);
             }
             Toast.makeText(fragmentContext, message, Toast.LENGTH_LONG).show();
         }
     }
 
-
+    public interface OnStartSleepReportListener {
+        void onStartSleepReport(LocalDate clickedDate);
+    }
 }

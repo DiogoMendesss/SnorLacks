@@ -58,9 +58,9 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarViewHolder> {
         if (dayText=="")
             holder.indicator_circle.setVisibility(View.GONE);
         else if (num_apneaEvents==0) {
-            holder.indicator_circle.setImageResource(R.drawable.good_indicator_circle);
+            holder.indicator_circle.setImageResource(R.drawable.calendar_cell_good_circle);
         } else if (num_apneaEvents>0) {
-            holder.indicator_circle.setImageResource(R.drawable.bad_indicator_circle);
+            holder.indicator_circle.setImageResource(R.drawable.calendar_cell_bad_circle);
         }
         holder.dayOfMonth.setText(dayText);
     }

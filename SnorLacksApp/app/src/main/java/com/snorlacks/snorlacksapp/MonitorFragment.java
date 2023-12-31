@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Bundle;
@@ -35,6 +36,7 @@ import android.widget.ToggleButton;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -201,6 +203,8 @@ public class MonitorFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_monitor, container, false);
 
+        Toast.makeText(fragmentContext, "Alta peta que isto está", Toast.LENGTH_SHORT).show();
+
         textViewTestBPM = view.findViewById(R.id.txtViewTestBPM);
 
         buttonMonitor = view.findViewById(R.id.btnMonitor);
@@ -227,49 +231,23 @@ public class MonitorFragment extends Fragment {
             Toast.makeText(fragmentContext, "BUTTON IS NULL", Toast.LENGTH_SHORT).show();
 
         DBHandler dbHandler = DBHandler.getInstance(fragmentContext);
+        SQLiteDatabase db = dbHandler.getWritableDatabase();
 
         textViewTestBPM = view.findViewById(R.id.txtViewTestBPM);
         textViewTestBPM.setText("Last night ID: " + dbHandler.getLastNightID());
 
-        Night night1 = new Night("2023-12-08 22:53", "2023-12-09 8:53", "a lot", 3);
-        Night night2 = new Night("2023-12-14 23:45", "2023-12-15 10:34", "a lottt", 4);
-        Night night3 = new Night("2023-12-20 23:45", "2023-12-21 10:34", "a lottt", 0);
-
-        dbHandler.addNight(night1);
-        dbHandler.addNight(night2);
-        dbHandler.addNight(night3);
-
-        events.add(new Event(90, "some date", "2023-12-12 11:45"));
-        events.add(new Event(80, "some date", "2023-12-12 11:45"));
-        events.add(new Event(70, "some date", "2023-12-12 11:45"));
-        events.add(new Event(60, "some date", "2023-12-12 11:45"));
-        events.add(new Event(60, "some date", "2023-12-12 11:45"));
-        events.add(new Event(60, "some date", "2023-12-12 11:45"));
-        events.add(new Event(60, "some date", "2023-12-12 11:45"));
-        events.add(new Event(85, "some date", "2023-12-12 11:45"));
-        events.add(new Event(60, "some date", "2023-12-12 11:45"));
-        events.add(new Event(60, "some date", "2023-12-12 11:45"));
-        events.add(new Event(60, "some date", "2023-12-12 11:45"));
-        events.add(new Event(70, "some date", "2023-12-12 11:45"));
-        events.add(new Event(85, "some date", "2023-12-12 11:45"));
-
-        Toast.makeText(fragmentContext, "Apnea events at 2023-12-08 10:53: " + dbHandler.getApneaEventsForNight("2023-12-08 10:53"), Toast.LENGTH_SHORT).show();
-
-        bpmMonitored = dbHandler.getBpmValuesForNight("2023-12-12 11:45");
-        if (!bpmMonitored.isEmpty()) {
-            textViewTestBPM.setText("Array size: " + bpmMonitored.size() + "First value: " + bpmMonitored.get(0) + "Last value: " + bpmMonitored.get(bpmMonitored.size() - 1));
-        } else textViewTestBPM.setText("empty array");
 
         // main button to start and stop sleep monitoring
         buttonMonitor.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(fragmentContext, "CLICKED", Toast.LENGTH_SHORT).show();
                 if (isMonitoring) {
 
+                    endCalendar = Calendar.getInstance();
                     nightEndDate = fullDateFormat.format(endCalendar.getTime());
                     night.setEnd_date(nightEndDate);
                     night.calculateSleepTime();
+                    Toast.makeText(fragmentContext, "sleep time " + night.getSleep_time(), Toast.LENGTH_SHORT).show();
 
                     night.reset();
 
@@ -304,7 +282,6 @@ public class MonitorFragment extends Fragment {
                         night.setApneaEventsNumber(checkApneaEvents(events, 20));
 
                         for (Event event : events) {
-                            //Toast.makeText(BioLibTestActivity.this, "entrou no for " + nightEndDate, Toast.LENGTH_SHORT).show();
                             dbHandler.addEvent(event);
                         }
 
@@ -356,7 +333,6 @@ public class MonitorFragment extends Fragment {
                 }
 
                 isMonitoring = !isMonitoring;
-                Log.d("YourTag", "ToggleButton clicked!");
             }
 
 

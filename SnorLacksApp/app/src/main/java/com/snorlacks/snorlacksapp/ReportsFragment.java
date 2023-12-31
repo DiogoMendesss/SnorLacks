@@ -178,9 +178,24 @@ public class ReportsFragment extends Fragment implements CalendarAdapter.OnItemL
 
     @Override
     public void onItemClick(int position, String dayText) {
-        if(!dayText.equals(""))
-        {
-            String message = "Selected Date " + dayText + " " + monthYear_fromDate(selectedDate);
+        if (!dayText.equals("")) {
+            // Get the day of the month as an integer
+            int dayOfMonth = Integer.parseInt(dayText);
+
+            // Create a new LocalDate with the year and month of selectedDate and the specified day
+            LocalDate clickedDate = selectedDate.withDayOfMonth(dayOfMonth);
+
+            // Format the selectedDateWithDay in the desired format "yyyy-MM-dd"
+            String formattedDate = clickedDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+
+            int num_apneaEvents = dbHandler.getApneaEventsForNight(formattedDate);
+            String message;
+            if (num_apneaEvents<0){
+                message = "Selected Date " + formattedDate;
+            }
+            else {
+                message = "Apnea Events from date " + formattedDate + ": " + num_apneaEvents;
+            }
             Toast.makeText(fragmentContext, message, Toast.LENGTH_LONG).show();
         }
     }

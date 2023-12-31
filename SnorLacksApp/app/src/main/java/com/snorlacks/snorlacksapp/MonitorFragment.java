@@ -205,8 +205,6 @@ public class MonitorFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_monitor, container, false);
 
-        Toast.makeText(fragmentContext, "Alta peta que isto está", Toast.LENGTH_SHORT).show();
-
         textViewTestBPM = view.findViewById(R.id.txtViewTestBPM);
 
         buttonMonitor = view.findViewById(R.id.btnMonitor);

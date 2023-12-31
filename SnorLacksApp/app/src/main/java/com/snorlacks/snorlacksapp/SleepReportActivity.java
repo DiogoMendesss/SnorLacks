@@ -18,6 +18,9 @@ import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -56,8 +59,17 @@ public class SleepReportActivity extends AppCompatActivity {
         setSupportActionBar(findViewById(R.id.toolbar));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        ArrayList<Double> bpmList = (ArrayList<Double>) getIntent().getSerializableExtra("bpmList");
+        //ArrayList<Double> bpmList = (ArrayList<Double>) getIntent().getSerializableExtra("bpmList");
+        ArrayList<Double> bpmList = null;
         ArrayList<Boolean> apneaEvents = (ArrayList<Boolean>) getIntent().getSerializableExtra("apneaEvents");
+        LocalDate clickedDate = (LocalDate) getIntent().getSerializableExtra("clickedDate");
+
+        // Convert LocalDate to Date
+        Date date = Date.from(clickedDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+        // Convert Date to Calendar
+        Calendar startDate = Calendar.getInstance();
+        startDate.setTime(date);
 
         int numberApneaEvents = 0;
         Boolean currentEvent = false;
@@ -69,8 +81,6 @@ public class SleepReportActivity extends AppCompatActivity {
                 currentEvent = false;
         }
 
-        Calendar startDate = (Calendar) getIntent().getSerializableExtra("startDate");
-        Calendar endDate = (Calendar) getIntent().getSerializableExtra("endDate");
 
         //populate timeStamps array list, assuming that the datapoints are distanced 1 minute
         for (int i = 0; i < bpmList.size(); i++) {
@@ -92,7 +102,8 @@ public class SleepReportActivity extends AppCompatActivity {
         // after adding data to our line graph series.
         // on below line we are setting
         // title for our graph view.
-        graphView.setTitle("Sleep Report from " + dateFormat.format(startDate.getTime()));
+        String formattedDate = clickedDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        graphView.setTitle("Sleep Report from " + formattedDate);
 
         // on below line we are setting
         // text color to our graph view.
@@ -119,10 +130,9 @@ public class SleepReportActivity extends AppCompatActivity {
         // Refresh graph
         graphView.invalidate();
 
-        textViewApneaEvents.setText("No. suspected Apnea Events: " + Integer.toString(numberApneaEvents));
+        textViewApneaEvents.setText("No. suspected Apnea Events: " + numberApneaEvents);
 
-        textViewSleepStamps.setText("Sleep started at " + timeStampFormat.format(startDate.getTime()) +
-                " and ended at: " + timeStampFormat.format(endDate.getTime()));
+        //textViewSleepStamps.setText("Sleep started at " + timeStampFormat.format(startDate.getTime()) + " and ended at: " + timeStampFormat.format(endDate.getTime()));
 
         if (numberApneaEvents==0){
             textViewSleepQuality.setText("Looks like you had a night well rested!!");

@@ -81,6 +81,8 @@ public class ReportsFragment extends Fragment implements CalendarAdapter.OnItemL
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
+        dbHandler = DBHandler.getInstance(fragmentContext);
     }
 
     @Override
@@ -99,8 +101,6 @@ public class ReportsFragment extends Fragment implements CalendarAdapter.OnItemL
         selectedDate = LocalDate.now();
         setMonthView();
 
-        dbHandler = DBHandler.getInstance(fragmentContext);
-
 
         // Inflate the layout for this fragment
         return view;
@@ -110,14 +110,6 @@ public class ReportsFragment extends Fragment implements CalendarAdapter.OnItemL
     {
         textView_monthYear.setText(monthYear_fromDate(selectedDate));
         ArrayList<LocalDate> daysInMonth_localDate = daysInMonth_LocalDateArray(selectedDate);
-
-        if (dbHandler == null){
-            Log.e("ReportsFragment", "fragment dbHandler is null");
-            dbHandler = DBHandler.getInstance(fragmentContext);}
-        if (dbHandler != null)
-            Log.e("ReportsFragment", "fragment dbHandler is not null");
-        else
-            Log.e("ReportsFragment", "fragment dbHandler leeps being null");
 
         CalendarAdapter calendarAdapter = new CalendarAdapter(daysInMonth_localDate, this, dbHandler );
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(fragmentContext, 7);

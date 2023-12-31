@@ -128,9 +128,6 @@ public class DBHandler extends SQLiteOpenHelper {
         cv.put(APNEA_EVENTS_COL, night.getApneaEventsNumber());
 
         long result = db.insert(NIGHT_TABLE_NAME, null, cv);
-        if(result==-1){
-            Toast.makeText(context, "NIGHT insert failed", Toast.LENGTH_SHORT).show();
-        }else Toast.makeText(context, "NIGHT insert succeeded", Toast.LENGTH_SHORT).show();
     }
 
     public void addEvent(Event event){
@@ -144,9 +141,6 @@ public class DBHandler extends SQLiteOpenHelper {
         cv.put(EVENT_NIGHT_COL, event.getNight());
 
         long result = db.insert(EVENT_TABLE_NAME, null, cv);
-        if(result==-1){
-            Toast.makeText(context, "EVENT insert failed", Toast.LENGTH_SHORT).show();
-        }else Toast.makeText(context, "EVENT insert succeeded", Toast.LENGTH_SHORT).show();
     }
 
     public int getLastNightID(){
@@ -245,6 +239,9 @@ public class DBHandler extends SQLiteOpenHelper {
         return bpmValues;
     }
 
+    public void cleanDatabase(SQLiteDatabase db){
+        db.execSQL("DELETE FROM Night");
+    }
 
 }
 

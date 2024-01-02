@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Bundle;
@@ -35,6 +36,7 @@ import android.widget.ToggleButton;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -137,11 +139,13 @@ public class MonitorFragment extends Fragment {
     public Calendar endCalendar;
 
     private String nightStartDate;
+    private String nightStartTime;
     private String eventStartDate;
-    private String nightEndDate;
+    private String nightEndTime;
 
-    private SimpleDateFormat nightDateFormat = new SimpleDateFormat("h:mm a");
+    private SimpleDateFormat sleepTimeFormat = new SimpleDateFormat("h:mm a");
     private SimpleDateFormat fullDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+    private SimpleDateFormat justDateFormat = new SimpleDateFormat("yyyy-MM-dd");
     private SimpleDateFormat eventDateFormat = new SimpleDateFormat("HH:mm:ss");
 
     private Night night = new Night();
@@ -227,49 +231,23 @@ public class MonitorFragment extends Fragment {
             Toast.makeText(fragmentContext, "BUTTON IS NULL", Toast.LENGTH_SHORT).show();
 
         DBHandler dbHandler = DBHandler.getInstance(fragmentContext);
+        SQLiteDatabase db = dbHandler.getWritableDatabase();
 
         textViewTestBPM = view.findViewById(R.id.txtViewTestBPM);
         textViewTestBPM.setText("Last night ID: " + dbHandler.getLastNightID());
 
-        Night night1 = new Night("2023-12-08 22:53", "2023-12-09 8:53", "a lot", 3);
-        Night night2 = new Night("2023-12-14 23:45", "2023-12-15 10:34", "a lottt", 4);
-        Night night3 = new Night("2023-12-20 23:45", "2023-12-21 10:34", "a lottt", 0);
-
-        dbHandler.addNight(night1);
-        dbHandler.addNight(night2);
-        dbHandler.addNight(night3);
-
-        events.add(new Event(90, "some date", "2023-12-12 11:45"));
-        events.add(new Event(80, "some date", "2023-12-12 11:45"));
-        events.add(new Event(70, "some date", "2023-12-12 11:45"));
-        events.add(new Event(60, "some date", "2023-12-12 11:45"));
-        events.add(new Event(60, "some date", "2023-12-12 11:45"));
-        events.add(new Event(60, "some date", "2023-12-12 11:45"));
-        events.add(new Event(60, "some date", "2023-12-12 11:45"));
-        events.add(new Event(85, "some date", "2023-12-12 11:45"));
-        events.add(new Event(60, "some date", "2023-12-12 11:45"));
-        events.add(new Event(60, "some date", "2023-12-12 11:45"));
-        events.add(new Event(60, "some date", "2023-12-12 11:45"));
-        events.add(new Event(70, "some date", "2023-12-12 11:45"));
-        events.add(new Event(85, "some date", "2023-12-12 11:45"));
-
-        Toast.makeText(fragmentContext, "Apnea events at 2023-12-08 10:53: " + dbHandler.getApneaEventsForNight("2023-12-08 10:53"), Toast.LENGTH_SHORT).show();
-
-        bpmMonitored = dbHandler.getBpmValuesForNight("2023-12-12 11:45");
-        if (!bpmMonitored.isEmpty()) {
-            textViewTestBPM.setText("Array size: " + bpmMonitored.size() + "First value: " + bpmMonitored.get(0) + "Last value: " + bpmMonitored.get(bpmMonitored.size() - 1));
-        } else textViewTestBPM.setText("empty array");
 
         // main button to start and stop sleep monitoring
         buttonMonitor.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(fragmentContext, "CLICKED", Toast.LENGTH_SHORT).show();
                 if (isMonitoring) {
 
-                    nightEndDate = fullDateFormat.format(endCalendar.getTime());
-                    night.setEnd_date(nightEndDate);
+                    endCalendar = Calendar.getInstance();
+                    nightEndTime = sleepTimeFormat.format(endCalendar.getTime());
+                    night.setEnd_time(nightEndTime);
                     night.calculateSleepTime();
+                    Toast.makeText(fragmentContext, "sleep time " + night.getSleep_time(), Toast.LENGTH_SHORT).show();
 
                     night.reset();
 
@@ -304,29 +282,25 @@ public class MonitorFragment extends Fragment {
                         night.setApneaEventsNumber(checkApneaEvents(events, 20));
 
                         for (Event event : events) {
-                            //Toast.makeText(BioLibTestActivity.this, "entrou no for " + nightEndDate, Toast.LENGTH_SHORT).show();
                             dbHandler.addEvent(event);
                         }
 
                         dbHandler.addNight(night);
 
 
-                        Toast.makeText(fragmentContext, "Sleep monitoring stopped at " + nightEndDate, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(fragmentContext, "Sleep monitoring stopped at " + nightEndTime, Toast.LENGTH_SHORT).show();
                     } else
-                        Toast.makeText(fragmentContext, "Empty array", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(fragmentContext, "Empty array at time: " + sleepTimeFormat.format(endCalendar.getTime()), Toast.LENGTH_SHORT).show();
 
                 } else {/** START MONITORING ACTION */
                     nightStartCalendar = Calendar.getInstance();
-                    nightStartDate = fullDateFormat.format(nightStartCalendar.getTime());
+                    nightStartDate = justDateFormat.format(nightStartCalendar.getTime());
+                    nightStartTime = sleepTimeFormat.format(nightStartCalendar.getTime());
                     night.setStart_date(nightStartDate);
+                    night.setStart_time(nightStartTime);
                     lastNightID = dbHandler.getLastNightID();
 
                     zoomInAnimation(view);
-
-                    nightStartCalendar = Calendar.getInstance();
-                    nightStartDate = fullDateFormat.format(nightStartCalendar.getTime());
-                    night.setStart_date(nightStartDate);
-                    lastNightID = dbHandler.getLastNightID();
 
                     // awake to sleep background animation
                     Animation fadeInSlow = AnimationUtils.loadAnimation(fragmentContext, R.anim.fade_in_slow);
@@ -356,7 +330,6 @@ public class MonitorFragment extends Fragment {
                 }
 
                 isMonitoring = !isMonitoring;
-                Log.d("YourTag", "ToggleButton clicked!");
             }
 
 

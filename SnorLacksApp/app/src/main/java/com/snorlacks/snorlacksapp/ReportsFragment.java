@@ -1,6 +1,7 @@
 package com.snorlacks.snorlacksapp;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -30,6 +31,7 @@ import java.util.ArrayList;
  */
 public class ReportsFragment extends Fragment implements CalendarAdapter.OnItemListener {
 
+
     private Context fragmentContext;
 
     // TODO: Rename parameter arguments, choose names that match
@@ -37,6 +39,7 @@ public class ReportsFragment extends Fragment implements CalendarAdapter.OnItemL
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
+    private OnStartSleepReportListener onStartSleepReportListener;
 
     private TextView textView_monthYear;
     private RecyclerView recyclerView_calendar;
@@ -72,6 +75,13 @@ public class ReportsFragment extends Fragment implements CalendarAdapter.OnItemL
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         fragmentContext = context;
+
+        // Check if the hosting activity implements OnStartSleepReportListener
+        if (context instanceof OnStartSleepReportListener) {
+            onStartSleepReportListener = (OnStartSleepReportListener) context;
+        } else {
+            throw new ClassCastException(context.toString() + " must implement OnStartSleepReportListener");
+        }
     }
 
     @Override
@@ -81,6 +91,8 @@ public class ReportsFragment extends Fragment implements CalendarAdapter.OnItemL
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
+        dbHandler = DBHandler.getInstance(fragmentContext);
     }
 
     @Override
@@ -99,8 +111,6 @@ public class ReportsFragment extends Fragment implements CalendarAdapter.OnItemL
         selectedDate = LocalDate.now();
         setMonthView();
 
-        dbHandler = DBHandler.getInstance(fragmentContext);
-
 
         // Inflate the layout for this fragment
         return view;
@@ -110,14 +120,6 @@ public class ReportsFragment extends Fragment implements CalendarAdapter.OnItemL
     {
         textView_monthYear.setText(monthYear_fromDate(selectedDate));
         ArrayList<LocalDate> daysInMonth_localDate = daysInMonth_LocalDateArray(selectedDate);
-
-        if (dbHandler == null){
-            Log.e("ReportsFragment", "fragment dbHandler is null");
-            dbHandler = DBHandler.getInstance(fragmentContext);}
-        if (dbHandler != null)
-            Log.e("ReportsFragment", "fragment dbHandler is not null");
-        else
-            Log.e("ReportsFragment", "fragment dbHandler leeps being null");
 
         CalendarAdapter calendarAdapter = new CalendarAdapter(daysInMonth_localDate, this, dbHandler );
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(fragmentContext, 7);
@@ -186,12 +188,30 @@ public class ReportsFragment extends Fragment implements CalendarAdapter.OnItemL
 
     @Override
     public void onItemClick(int position, String dayText) {
-        if(!dayText.equals(""))
-        {
-            String message = "Selected Date " + dayText + " " + monthYear_fromDate(selectedDate);
+        if (!dayText.equals("")) {
+            // Get the day of the month as an integer
+            int dayOfMonth = Integer.parseInt(dayText);
+
+            // Create a new LocalDate with the year and month of selectedDate and the specified day
+            LocalDate clickedDate = selectedDate.withDayOfMonth(dayOfMonth);
+
+            // Format the selectedDateWithDay in the desired format "yyyy-MM-dd"
+            String formattedDate = clickedDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+
+            int num_apneaEvents = dbHandler.getApneaEventsForNight(formattedDate);
+            String message;
+            if (num_apneaEvents<0){
+                message = "Selected Date " + formattedDate;
+            }
+            else {
+                message = "Apnea Events from date " + formattedDate + ": " + num_apneaEvents;
+                onStartSleepReportListener.onStartSleepReport(clickedDate);
+            }
             Toast.makeText(fragmentContext, message, Toast.LENGTH_LONG).show();
         }
     }
 
-
+    public interface OnStartSleepReportListener {
+        void onStartSleepReport(LocalDate clickedDate);
+    }
 }

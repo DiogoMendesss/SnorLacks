@@ -196,7 +196,8 @@ public class BioLibTestActivity extends AppCompatActivity implements ReportsFrag
 				.commit();
 
 		DBHandler dbHandler = DBHandler.getInstance(BioLibTestActivity.this);
-		dbHandler.cleanDatabase(dbHandler.getWritableDatabase());
+		dbHandler.cleanDatabase();
+
 
 		Night night1 = new Night("2023-12-08","23:30" ,"7:22", 3);
 		Night night2 = new Night("2023-12-14","23:30" ,"7:22", 4);
@@ -212,19 +213,19 @@ public class BioLibTestActivity extends AppCompatActivity implements ReportsFrag
 		dbHandler.addNight(night5);
 
 
-		events.add(new Event(90, "some date", "2023-12-12"));
-		events.add(new Event(80, "some date", "2023-12-12"));
-		events.add(new Event(70, "some date", "2023-12-12"));
-		events.add(new Event(60, "some date", "2023-12-12"));
-		events.add(new Event(60, "some date", "2023-12-12"));
-		events.add(new Event(60, "some date", "2023-12-12"));
-		events.add(new Event(60, "some date", "2023-12-12"));
-		events.add(new Event(85, "some date", "2023-12-12"));
-		events.add(new Event(60, "some date", "2023-12-12"));
-		events.add(new Event(60, "some date", "2023-12-12"));
-		events.add(new Event(60, "some date", "2023-12-12"));
-		events.add(new Event(70, "some date", "2023-12-12"));
-		events.add(new Event(85, "some date", "2023-12-12"));
+		events.add(new Event(90, "22:51:10", "2023-12-12"));
+		events.add(new Event(80, "22:52:10", "2023-12-12"));
+		events.add(new Event(70, "22:53:10", "2023-12-12"));
+		events.add(new Event(60, "22:54:10", "2023-12-12"));
+		events.add(new Event(56, "22:55:10", "2023-12-12"));
+		events.add(new Event(58, "22:56:10", "2023-12-12"));
+		events.add(new Event(64, "22:57:10", "2023-12-12"));
+		events.add(new Event(85, "22:58:10", "2023-12-12"));
+		events.add(new Event(63, "22:59:10", "2023-12-12"));
+		events.add(new Event(56, "23:00:10", "2023-12-12"));
+		events.add(new Event(60, "23:01:10", "2023-12-12"));
+		events.add(new Event(70, "23:02:10", "2023-12-12"));
+		events.add(new Event(85, "23:03:10", "2023-12-12"));
 
 		cropEventArray(events);
 		theNight.setApneaEventsNumber(checkApneaEvents(events, 20));

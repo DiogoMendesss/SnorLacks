@@ -18,6 +18,7 @@ import com.jjoe64.graphview.DefaultLabelFormatter;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
+import com.jjoe64.graphview.series.PointsGraphSeries;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -136,47 +137,60 @@ public class SleepReportActivity extends AppCompatActivity {
             // Create series for each event type
             LineGraphSeries<DataPoint> fallingAsleepSeries = new LineGraphSeries<>();
             LineGraphSeries<DataPoint> normalSeries = new LineGraphSeries<>();
-            LineGraphSeries<DataPoint> apneaSeries = new LineGraphSeries<>();
+            PointsGraphSeries<DataPoint> apneaSeries = new PointsGraphSeries<>();
             LineGraphSeries<DataPoint> awakeningSeries = new LineGraphSeries<>();
 
             // Iterate through events and add data points to respective series
             for (int i = 0; i < events.size(); i++) {
                 Event event = events.get(i);
-                double yValue = event.getBpm();
-                int color;
+                //double yValue = event.getBpm();
                 Date xValue = event.getDateAsDate(); // Use getDateAsDate() method
-                DataPoint dataPoint = new DataPoint(xValue.getTime(), yValue);
+                DataPoint dataPoint = new DataPoint(xValue.getTime(), event.getBpm());
 
                 // Add data points to respective series based on event type
                 switch (event.getType()) {
                     case "Falling asleep":
                         fallingAsleepSeries.appendData(dataPoint, true, events.size());
-                        color = getColorForEventType(event.getType());
-                        fallingAsleepSeries.setColor(color);
+                        //color = getColorForEventType(event.getType());
+
+                        normalSeries.appendData(dataPoint, true, events.size());
+
                         break;
                     case "normal":
                         normalSeries.appendData(dataPoint, true, events.size());
-                        color = getColorForEventType(event.getType());
-                        normalSeries.setColor(color);
                         break;
                     case "apnea":
+                        apneaSeries.appendData(dataPoint, true, events.size());
+
                         normalSeries.appendData(dataPoint, true, events.size());
-                        color = getColorForEventType(event.getType());
-                        apneaSeries.setColor(color);
+
                         break;
                     case "Awakening":
                         awakeningSeries.appendData(dataPoint, true, events.size());
-                        color = getColorForEventType(event.getType());
-                        awakeningSeries.setColor(color);
+
+                        normalSeries.appendData(dataPoint, true, events.size());
+
                         break;
                 }
             }
 
 
+            fallingAsleepSeries.setColor(getResources().getColor(R.color.colorFallingAsleep));
+            fallingAsleepSeries.setThickness(18);
+            normalSeries.setColor(getResources().getColor(R.color.colorNormal));
+            normalSeries.setThickness(12);
+            apneaSeries.setColor(getResources().getColor(R.color.colorApnea));
+
+            apneaSeries.setSize(30);
+            apneaSeries.setShape(PointsGraphSeries.Shape.POINT); // Set the shape to POINT
+
+// Add each series to the graph
+            awakeningSeries.setColor(getResources().getColor(R.color.colorAwakening));
+            awakeningSeries.setThickness(14);
 
             // Add each series to the graph
-            graphView.addSeries(fallingAsleepSeries);
             graphView.addSeries(normalSeries);
+            graphView.addSeries(fallingAsleepSeries);
             graphView.addSeries(apneaSeries);
             graphView.addSeries(awakeningSeries);
 
@@ -205,15 +219,15 @@ public class SleepReportActivity extends AppCompatActivity {
             graphView.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(this)); // Format X-axis as date
 
             // Set custom bounds for the vertical axis to ensure all data points are visible
-            double minY = findMinYValue(fallingAsleepSeries, normalSeries, apneaSeries, awakeningSeries);
-            double maxY = findMaxYValue(fallingAsleepSeries, normalSeries, apneaSeries, awakeningSeries);
+            double minY = findMinYValue(fallingAsleepSeries, normalSeries, awakeningSeries);
+            double maxY = findMaxYValue(fallingAsleepSeries, normalSeries, awakeningSeries);
             graphView.getViewport().setYAxisBoundsManual(true);
-            graphView.getViewport().setMinY(minY);
-            graphView.getViewport().setMaxY(maxY);
+            graphView.getViewport().setMinY(minY-10);
+            graphView.getViewport().setMaxY(maxY+10);
 
             // Adjust the number of horizontal labels to display the x-values between each 5 samples
-            //int numLabels = Math.min(events.size(), 5); // Display labels for every 5 samples
-            int numLabels = events.size();
+            int numLabels = Math.min(events.size(), 5); // Display labels for every 5 samples
+            //int numLabels = events.size();
             graphView.getGridLabelRenderer().setNumHorizontalLabels(numLabels);
 
 

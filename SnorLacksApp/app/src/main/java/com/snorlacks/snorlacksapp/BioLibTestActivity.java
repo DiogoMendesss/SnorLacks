@@ -35,11 +35,12 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.MenuItem;
 import androidx.fragment.app.FragmentManager;
-
+import androidx.viewpager.widget.ViewPager;
 
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -96,15 +97,9 @@ public class BioLibTestActivity extends AppCompatActivity implements ReportsFrag
 	private TextView textTimeSpan;
 	private TextView textViewTestBPM;
 
-	private Button buttonConnect;
-	private Button buttonDisconnect;
-	private Button buttonGetRTC;
-	private Button buttonSetRTC;
-	private Button buttonRequest;
+
 	private Button buttonSearch;
-	private Button buttonSetLabel;
-	private Button buttonGetDeviceId;
-	private Button buttonGetAcc;
+
 
 
 
@@ -172,28 +167,26 @@ public class BioLibTestActivity extends AppCompatActivity implements ReportsFrag
 	private int lastNightID;
     private Event event = new Event();
 
+	private ViewPager viewPager;
+	private BottomNavigationView bottomNav;
 
-
-	/**
-	 * Called when the activity is first created.
-	 */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
 		this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-		// Get Sleep Report Button on Main Activity, goes to Sleep Report Activity
-		// USE SYSTEM CLOCK
-		BottomNavigationView bottomNavigation = findViewById(R.id.bottomNavigation);
-		bottomNavigation.setOnItemSelectedListener(navListener);
-		// Load the default fragment
-		getSupportFragmentManager().beginTransaction()
-				.replace(R.id.fragmentContainer, new MonitorFragment())
-				.commit();
+		bottomNav = findViewById(R.id.bottomNavigation);
+		viewPager = findViewById(R.id.viewPager);
+
+		setupViewPager();
+		setupBottomNav();
+
+		int middleFragmentIndex = 1;	// start in the MonitorFragment
+		viewPager.setCurrentItem(middleFragmentIndex);
+		bottomNav.setItemIconTintList(null);
 
 		DBHandler dbHandler = DBHandler.getInstance(BioLibTestActivity.this);
 		dbHandler.cleanDatabase(dbHandler.getWritableDatabase());
@@ -210,7 +203,6 @@ public class BioLibTestActivity extends AppCompatActivity implements ReportsFrag
 		dbHandler.addNight(night3);
 		dbHandler.addNight(night4);
 		dbHandler.addNight(night5);
-
 
 		events.add(new Event(90, "some date", "2023-12-12"));
 		events.add(new Event(80, "some date", "2023-12-12"));
@@ -235,29 +227,69 @@ public class BioLibTestActivity extends AppCompatActivity implements ReportsFrag
 		bpmMonitored = dbHandler.getBpmValuesForNight("2023-12-12");
 
 	}
+	private void setupViewPager() {
+		MyPagerAdapter pagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
+		viewPager.setAdapter(pagerAdapter);
 
-	// Load the default fragment (Biolib)
-	private BottomNavigationView.OnItemSelectedListener navListener =
-			new BottomNavigationView.OnItemSelectedListener() {
-				@Override
-				public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-					Fragment selectedFragment = null;
+		viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+			@Override
+			public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
 
-					if (item.getItemId() == R.id.reportsMenu)
-						selectedFragment = new ReportsFragment();
-					else if (item.getItemId() == R.id.monitorMenu)
-						selectedFragment = new MonitorFragment();
-					else if (item.getItemId() == R.id.settingsMenu)
-						selectedFragment = new SettingsFragment();
+			@Override
+			public void onPageSelected(int position) {
+				// Sync BottomNavigationView with ViewPager
+				bottomNav.getMenu().getItem(position).setChecked(true);
+			}
 
-					if (selectedFragment != null) {
-						getSupportFragmentManager().beginTransaction()
-								.replace(R.id.fragmentContainer, selectedFragment)
-								.commit();
-					}
-//	            	textRadioEvent.setText("Radio-event: " + typeRadioEvent + "[" + str + "]");
-
+			@Override
+			public void onPageScrollStateChanged(int state) {}
+		});
+	}
+	private void setupBottomNav() {
+		bottomNav.setOnItemSelectedListener(new BottomNavigationView.OnItemSelectedListener() {
+			@Override
+			public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+				int itemId = item.getItemId();
+				if (itemId == R.id.reportsMenu) {
+					viewPager.setCurrentItem(0); // ReportsFragment
 					return true;
+				} else if (itemId == R.id.monitorMenu) {
+					viewPager.setCurrentItem(1); // MonitorFragment
+					return true;
+				} else if (itemId == R.id.settingsMenu) {
+					viewPager.setCurrentItem(2); // SettingsFragment
+					return true;
+				} else {
+					return false;
 				}
-	};
+			}
+		});
+	}
+	private static class MyPagerAdapter extends FragmentPagerAdapter {
+		// Handles the fragments for the bottom navigation bar
+
+		public MyPagerAdapter(FragmentManager fm) {
+			super(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
+		}
+
+		@NonNull
+		@Override
+		public Fragment getItem(int position) {
+			switch (position) {
+				case 0:
+					return new ReportsFragment();
+				case 1:
+					return new MonitorFragment();
+				case 2:
+					return new SettingsFragment();
+				default:
+					return null;
+			}
+		}
+
+		@Override
+		public int getCount() {
+			return 3; // Number of fragments
+		}
+	}
 }

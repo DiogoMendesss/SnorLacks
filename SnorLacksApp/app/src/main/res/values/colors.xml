@@ -12,9 +12,9 @@
     <color name="colorDay">#ECBE9F</color>
     <color name="colorDay2">#E8DBCF</color>
 
-    <color name="colorFallingAsleep">#FFA500</color>
-    <color name="colorAwakening">#00FF00</color>
-    <color name="colorNormal">#0000FF</color>
+    <color name="colorFallingAsleep">#1164A6</color>
+    <color name="colorAwakening">#E3B52F</color>
+    <color name="colorNormal">#0E2255</color>
     <color name="colorApnea">#FF0000</color>
     <color name="defaultColor">#000000</color>
 

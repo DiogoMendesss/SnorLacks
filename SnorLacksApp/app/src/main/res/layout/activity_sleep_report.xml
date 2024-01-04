@@ -12,10 +12,11 @@
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
+        android:layout_height="40dp"
+        android:background="#9C91B1"
         android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme"
+
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -24,7 +25,7 @@
         android:layout_width="101dp"
         android:layout_height="99dp"
         android:layout_marginStart="20dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar"
         app:srcCompat="@drawable/drowsy_doodle" />
@@ -34,6 +35,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
+        android:layout_marginTop="24dp"
         android:hint="Sleep Quality"
         android:textAlignment="textStart"
         android:textSize="17sp"
@@ -45,13 +47,20 @@
 
     <com.jjoe64.graphview.GraphView
         android:id="@+id/idGraphView"
-        android:layout_width="371dp"
-        android:layout_height="246dp"
+        android:layout_width="380dp"
+        android:layout_height="200dip"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="32dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imgSleepQuality" />
+        app:layout_constraintTop_toBottomOf="@+id/imgSleepQuality"
+        android:layout_centerVertical="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_gravity="center_horizontal"
+        android:nestedScrollingEnabled="false" />
 
     <TextView
         android:id="@+id/txtSleepStamps"
@@ -59,7 +68,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:layout_marginBottom="24dp"
+        android:layout_marginBottom="8dp"
         android:hint="Beginning and End of sleep"
         android:text=""
         android:textColor="@color/black"
@@ -86,9 +95,10 @@
 
     <!-- Row 1 -->
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="32dp"
+        android:layout_margin="20dp"
         android:background="@drawable/report_info_background"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
@@ -99,7 +109,7 @@
             android:id="@+id/FallAsleepTime"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_margin="8dp"
+            android:layout_margin="4dp"
             android:layout_weight="0.333"
             android:orientation="vertical">
 
@@ -111,24 +121,24 @@
                 app:srcCompat="@drawable/awake" />
 
             <TextView
-                android:id="@+id/txtViewFallAsleep"
+                android:id="@+id/txtViewFallTime"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="22 min"
                 android:textAlignment="center"
                 android:textColor="@color/badSleepText"
-                android:textStyle="bold"
-                android:textSize="20dp"/>
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/txtViewFallTime"
+                android:id="@+id/txtViewFallAsleep"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Fall asleep time"
                 android:textAlignment="center"
                 android:textColor="@color/badSleepText"
-                android:textStyle=""
-                android:textSize="11dp"/>
+                android:textSize="11sp"
+                android:textStyle="" />
 
         </LinearLayout>
 
@@ -136,7 +146,7 @@
             android:id="@+id/SleepTime"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_margin="8dp"
+            android:layout_margin="4dp"
             android:layout_weight="0.333"
             android:orientation="vertical">
 
@@ -148,26 +158,26 @@
                 app:srcCompat="@drawable/awake" />
 
             <TextView
-                android:id="@+id/txtViewSleep"
+                android:id="@+id/txtViewSleepTime"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
 
                 android:text="8h 25min"
                 android:textAlignment="center"
                 android:textColor="@color/badSleepText"
-                android:textStyle="bold"
-                android:textSize="20dp"/>
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/txtViewSleepTime"
+                android:id="@+id/txtViewSleep"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
 
                 android:text="Sleep time"
                 android:textAlignment="center"
                 android:textColor="@color/badSleepText"
-                android:textStyle=""
-                android:textSize="11dp"/>
+                android:textSize="11sp"
+                android:textStyle="" />
 
         </LinearLayout>
 
@@ -175,7 +185,7 @@
             android:id="@+id/AwakeningTime"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_margin="8dp"
+            android:layout_margin="4dp"
             android:layout_weight="0.333"
             android:orientation="vertical">
 
@@ -187,24 +197,149 @@
                 app:srcCompat="@drawable/awake" />
 
             <TextView
-                android:id="@+id/txtViewAwakening"
+                android:id="@+id/txtViewAwakeningTime"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="10 min"
                 android:textAlignment="center"
                 android:textColor="@color/badSleepText"
-                android:textStyle="bold"
-                android:textSize="20dp"/>
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/txtViewAwakeningTime"
+                android:id="@+id/txtViewAwakening"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Awakening time"
                 android:textAlignment="center"
                 android:textColor="@color/badSleepText"
-                android:textStyle=""
-                android:textSize="11dp"/>
+                android:textSize="11sp"
+                android:textStyle="" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:background="@drawable/report_info_background"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout">
+
+        <LinearLayout
+            android:id="@+id/MinHR"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="4dp"
+            android:layout_weight="0.333"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/imgViewMinHR"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                app:srcCompat="@drawable/awake" />
+
+            <TextView
+                android:id="@+id/txtViewMinHRValue"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="49 bpm"
+                android:textAlignment="center"
+                android:textColor="@color/badSleepText"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/txtViewMinHR"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Min HR"
+                android:textAlignment="center"
+                android:textColor="@color/badSleepText"
+                android:textSize="11sp"
+                android:textStyle="" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/MedianHR"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="4dp"
+            android:layout_weight="0.333"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/imgViewMedianHR"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                app:srcCompat="@drawable/awake" />
+
+            <TextView
+                android:id="@+id/txtViewMedianHRValue"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:text="63 bpm"
+                android:textAlignment="center"
+                android:textColor="@color/badSleepText"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/txtViewMedianHR"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:text="Median HR"
+                android:textAlignment="center"
+                android:textColor="@color/badSleepText"
+                android:textSize="11sp"
+                android:textStyle="" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/MaxHR"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="4dp"
+            android:layout_weight="0.333"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/imgViewMaxHR"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                app:srcCompat="@drawable/awake" />
+
+            <TextView
+                android:id="@+id/txtViewMaxHRValue"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="93 bpm"
+                android:textAlignment="center"
+                android:textColor="@color/badSleepText"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/txtViewMaxHR"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Max HR"
+                android:textAlignment="center"
+                android:textColor="@color/badSleepText"
+                android:textSize="11sp"
+                android:textStyle="" />
 
         </LinearLayout>
 

@@ -100,6 +100,8 @@ public class MonitorFragment extends Fragment {
     private android.widget.ImageButton buttonVJ;
     private ImageView iconStatusVJ;
     private View cableStatusVJ;
+    private TextView clickLabelMonitor;
+    private TextView clickLabelVJ;
 
     private View clockBackground;
     private ImageView imageClock;
@@ -156,6 +158,8 @@ public class MonitorFragment extends Fragment {
         ImageView animationView = view.findViewById(R.id.animationView);
         imageClock = view.findViewById(R.id.imageClock);
         clockBackground = view.findViewById(R.id.clockBackground);
+        clickLabelMonitor = view.findViewById(R.id.clickLabelMonitor);
+        clickLabelVJ = view.findViewById(R.id.clickLabelVJ);
 
         TransitionDrawable sleep_to_awake = new TransitionDrawable(new Drawable[]{
                 ContextCompat.getDrawable(fragmentContext, R.drawable.sleep_background),
@@ -244,6 +248,7 @@ public class MonitorFragment extends Fragment {
                     // Button enabling/disabling
                     buttonVJ.setEnabled(false);
                     buttonBluetooth.setEnabled(false);
+                    clickLabelMonitor.setVisibility(View.GONE);
 
                     bpm.clear();
 
@@ -256,8 +261,8 @@ public class MonitorFragment extends Fragment {
             public void onClick(View view) {
                 zoomInAnimation(view);
                 Connect();
+                clickLabelVJ.setVisibility(View.GONE);
             }
-
             /*
                 Connect to vital jacket device
             */

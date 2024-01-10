@@ -12,6 +12,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
 
@@ -67,10 +68,7 @@ public class SearchDeviceActivity extends Activity {
             if (mBluetoothAdapter != null) {
                 if (mBluetoothAdapter.isEnabled()) {
                     // Listing paired devices
-                    if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                        // Permission Check
-                        return;
-                    }
+
                     Set<BluetoothDevice> devices = mBluetoothAdapter.getBondedDevices();
 	    		    for (BluetoothDevice device : devices) 
 	    		    {
@@ -86,17 +84,18 @@ public class SearchDeviceActivity extends Activity {
                 public void onItemClick( AdapterView<?> parent, View item, int position, long id) 
                 {  
                 	selectedValue = (String) listAdapter.getItem(position);
-            		
+
                 	String[] aux = selectedValue.split("   ");
                 	selectedValue = aux[0];
+
+                    String txtMessage = "Device '" + selectedValue + "' selected.";
+                    Toast.makeText(SearchDeviceActivity.this, txtMessage, Toast.LENGTH_SHORT).show();
                 }  
             });  
         }
-        catch (Exception ex)
-        {
-        	
+        catch (Exception ex) {
+            Toast.makeText(SearchDeviceActivity.this, "BT Device click exception", Toast.LENGTH_SHORT).show();
         }
-        
     }
     
     @Override

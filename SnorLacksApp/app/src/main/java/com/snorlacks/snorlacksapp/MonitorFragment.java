@@ -184,7 +184,7 @@ public class MonitorFragment extends Fragment {
                     nightEndTime = sleepTimeFormat.format(endCalendar.getTime());
                     night.setEnd_time(nightEndTime);
                     night.calculateSleepTime();
-                    Toast.makeText(fragmentContext, "sleep time " + night.getSleep_time(), Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(fragmentContext, "sleep time " + night.getSleep_time(), Toast.LENGTH_SHORT).show();
                     night.reset();
 
                     // sleep to awake background animation
@@ -220,9 +220,9 @@ public class MonitorFragment extends Fragment {
                         dbHandler.addNight(night);
 
                         Toast.makeText(fragmentContext, "Sleep monitoring stopped at " + nightEndTime, Toast.LENGTH_SHORT).show();
-                    } else
+                    } else {
                         Toast.makeText(fragmentContext, "Empty array at time: " + sleepTimeFormat.format(endCalendar.getTime()), Toast.LENGTH_SHORT).show();
-
+                    }
                 } else {    /* START MONITORING ACTION */
                     nightStartCalendar = Calendar.getInstance();
                     nightStartDate = justDateFormat.format(nightStartCalendar.getTime());
@@ -423,10 +423,7 @@ public class MonitorFragment extends Fragment {
                     break;
 
                 case BioLib.STATE_CONNECTED:
-                    if (ActivityCompat.checkSelfPermission(fragmentContext, android.Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                        // Permission check
-                        return;
-                    }
+
                     Toast.makeText(fragmentContext, "Connected to " + deviceToConnect.getName(), Toast.LENGTH_SHORT).show();
                     text.append("   Connect to " + deviceToConnect.getName() + " \n");
                     isConn = true;

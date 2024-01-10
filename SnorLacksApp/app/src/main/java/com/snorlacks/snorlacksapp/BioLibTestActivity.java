@@ -104,14 +104,11 @@ public class BioLibTestActivity extends AppCompatActivity implements ReportsFrag
 
 	private Button buttonSearch;
 
-
-	//Battery
+	//Battery icon
 	private ImageView iv_battery;
 	private TextView tv_battery;
 	Handler handler;
 	Runnable runnable;
-
-
 
 	private int BATTERY_LEVEL = 65;
 	private int PULSE = 0;
@@ -136,9 +133,7 @@ public class BioLibTestActivity extends AppCompatActivity implements ReportsFrag
 	private String accConf = "";
 
 
-	/**
-	 * EDITED CODE STARTS HERE
-	 */
+
 	private static final int APNEA_THRESHOLD = 20;
 	private static final int EVENT_SPAN = 10000; // duration of an event in ms
 	private int peak_number = 0; // variable to store how many beats happen in an event
@@ -236,7 +231,7 @@ public class BioLibTestActivity extends AppCompatActivity implements ReportsFrag
 
 		bpmMonitored = dbHandler.getBpmValuesForNight("2023-12-12");
 
-		//Battery
+		//Battery icon
 		iv_battery = (ImageView) findViewById(R.id.iv_battery);
 		tv_battery = (TextView) findViewById(R.id.tv_battery);
 

@@ -35,13 +35,15 @@
             android:background="@drawable/navigation_background"
             app:layout_constraintBottom_toBottomOf="@+id/animationView"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            android:visibility="invisible"/>
 
         <FrameLayout
             android:id="@+id/frameLayout"
             android:layout_width="300dp"
             android:layout_height="300dp"
-            android:layout_marginHorizontal="20dp"
+            android:layout_marginStart="40dp"
+            android:layout_marginEnd="40dp"
             android:layout_marginTop="40dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -65,8 +67,8 @@
 
             <ImageView
                 android:id="@+id/imageClock"
-                android:layout_width="300dp"
-                android:layout_height="300dp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:background="@drawable/clock"
                 android:contentDescription="Background clock"
@@ -77,7 +79,7 @@
             android:id="@+id/clickLabelMonitor"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="5dp"
             android:textSize="15sp"
             android:text="(click to start monitoring)"
             app:layout_constraintEnd_toEndOf="parent"
@@ -89,7 +91,9 @@
             android:id="@+id/frameLayoutVJ"
             android:layout_width="120dp"
             android:layout_height="120dp"
-            android:layout_marginTop="70dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            app:layout_constraintBottom_toTopOf="@+id/bottomNavigation"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/frameLayout">
 
@@ -106,7 +110,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:background="@drawable/vj_big"
-                android:drawableTop="@drawable/vj_big"/>
+                android:drawableTop="@drawable/vj_big" />
 
             <TextView
                 android:id="@+id/clickLabelVJ"
@@ -130,7 +134,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="5dp"
             android:text="(click to connect)"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/frameLayoutVJ" />

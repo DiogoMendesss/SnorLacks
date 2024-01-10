@@ -113,7 +113,6 @@
                 android:drawableTop="@drawable/vj_big" />
 
             <TextView
-                android:id="@+id/clickLabelVJ"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom|center"
@@ -126,11 +125,11 @@
                 android:layout_width="25dp"
                 android:layout_height="25dp"
                 android:layout_gravity="top|right"
-                android:src="@drawable/inactive" />
+                android:background="@drawable/inactive" />
         </FrameLayout>
 
         <TextView
-            android:id="@+id/textView"
+            android:id="@+id/clickLabelVJ"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"

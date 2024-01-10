@@ -76,6 +76,7 @@
         </FrameLayout>
 
         <TextView
+            android:id="@+id/clickLabelMonitor"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
@@ -112,6 +113,7 @@
                 android:drawableTop="@drawable/vj_big" />
 
             <TextView
+                android:id="@+id/clickLabelVJ"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom|center"

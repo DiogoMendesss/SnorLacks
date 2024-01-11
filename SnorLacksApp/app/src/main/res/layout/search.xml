@@ -2,18 +2,57 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
-    
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:background="@drawable/ic_launcher_background">
+
+    <TextView
+        android:id="@+id/txtTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Searching for devices..."
+        android:textColor="@color/colorAccent"
+        android:textSize="20dp"
+        android:textStyle="bold"
+        android:layout_gravity="center"/>
+
     <ListView
         android:id="@+id/lstDevices"
         android:layout_width="wrap_content"
-        android:layout_height="208dp" >
+        android:layout_height="208dp"
+        android:layout_marginVertical="10dp"
+        android:divider="@color/white"
+        android:dividerHeight="1.5dp"
+        android:background="@drawable/navigation_background"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp">
     </ListView>
-    
+
+    <TextView
+        android:id="@+id/txtInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Make sure you have bluetooth enabled on both you smartphone and the vital jacket"
+        android:textColor="@color/colorAccent"
+        android:textSize="20dp"
+        android:textAlignment="center"
+        android:gravity="start|end"
+        android:paddingHorizontal="20dp"
+        android:layout_gravity="center"/>
+
     <Button
         android:id="@+id/cmdOK"
-        android:layout_width="84dp"
+        android:layout_width="wrap_content"
         android:layout_height="42dp"
-        android:text="OK" />
+        android:background="@drawable/navigation_background"
+        android:backgroundTint="@color/colorAccent"
+        android:text="OK"
+        android:textSize="20dp"
+        android:textStyle="bold"
+        android:layout_marginTop="10dp"
+        android:textColor="@color/white"
+        android:layout_gravity="center"/>
 
 </LinearLayout>

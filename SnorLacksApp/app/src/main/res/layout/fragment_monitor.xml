@@ -13,6 +13,7 @@
         android:orientation="vertical"
         android:background="@drawable/awake_background">
 
+<!--        base layer-->
         <ImageView
             android:id="@+id/animationView"
             android:layout_width="match_parent"
@@ -24,11 +25,25 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottomNavigation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginHorizontal="30dp"
+            android:layout_marginBottom="20dp"
+            android:background="@drawable/navigation_background"
+            app:layout_constraintBottom_toBottomOf="@+id/animationView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:visibility="invisible"/>
+
         <FrameLayout
             android:id="@+id/frameLayout"
-            android:layout_width="@dimen/clock_size"
-            android:layout_height="@dimen/clock_size"
-            android:layout_marginHorizontal="20dp"
+            android:layout_width="300dp"
+            android:layout_height="300dp"
+            android:layout_marginStart="40dp"
+            android:layout_marginEnd="40dp"
             android:layout_marginTop="40dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -52,80 +67,75 @@
 
             <ImageView
                 android:id="@+id/imageClock"
-                android:layout_width="300dp"
-                android:layout_height="300dp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:background="@drawable/clock"
                 android:contentDescription="Background clock"
                 android:visibility="visible" />
         </FrameLayout>
 
-        <Button
-            android:id="@+id/buttonGetSleepReport"
+        <TextView
+            android:id="@+id/clickLabelMonitor"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:background="@color/colorAccent"
-            android:text="Get Sleep Report"
-            android:textColor="@color/white"
-            android:visibility="invisible"
+            android:layout_marginTop="5dp"
+            android:textSize="15sp"
+            android:text="(click to start monitoring)"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.498"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/frameLayout" />
 
+
         <FrameLayout
-            android:layout_width="110dp"
+            android:id="@+id/frameLayoutVJ"
+            android:layout_width="120dp"
             android:layout_height="120dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            app:layout_constraintBottom_toTopOf="@+id/bottomNavigation"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/frameLayout">
 
             <View
-                android:layout_width="30dp"
+                android:id="@+id/cableStatusVJ"
+                android:layout_width="40dp"
                 android:layout_height="15dp"
-                android:background="@drawable/vj_connection"
-                android:layout_gravity="center|left"/>
+                android:layout_gravity="center|left"
+                android:background="@drawable/vj_connection_inactive" />
 
-            <Button
-                android:id="@+id/buttonConnect"
+            <android.widget.ImageButton
+                android:id="@+id/buttonVJ"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:background="@drawable/vj"
-                android:src="@drawable/vj"/>
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/vj"
-                android:layout_gravity="center" />
+                android:background="@drawable/vj_big"
+                android:drawableTop="@drawable/vj_big" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="15sp"
+                android:layout_gravity="bottom|center"
                 android:text="Vital Jacket"
-                android:layout_gravity="bottom|center"/>
+                android:textSize="17sp"
+                android:textStyle="bold" />
 
             <ImageView
+                android:id="@+id/iconStatusVJ"
                 android:layout_width="25dp"
                 android:layout_height="25dp"
-                android:src="@drawable/active"
-                android:layout_gravity="top|right"/>
-
+                android:layout_gravity="top|right"
+                android:background="@drawable/inactive" />
         </FrameLayout>
 
-
-        <Button
-            android:id="@+id/buttonDisconnect"
+        <TextView
+            android:id="@+id/clickLabelVJ"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="40dp"
-            android:layout_marginBottom="50dp"
-            android:text="Disconnect"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:visibility="invisible"/>
+            android:layout_marginStart="8dp"
+            android:text="(click to connect)"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/frameLayoutVJ" />
 
         <TextView
             android:id="@+id/lblLog"
@@ -150,7 +160,7 @@
             android:visibility="invisible"/>
 
         <Button
-            android:id="@+id/buttonSearch"
+            android:id="@+id/buttonBluetooth"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_margin="16dp"

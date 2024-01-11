@@ -13,6 +13,7 @@ import android.content.pm.PackageManager;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
+import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -35,11 +36,12 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.MenuItem;
 import androidx.fragment.app.FragmentManager;
-
+import androidx.viewpager.widget.ViewPager;
 
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -57,6 +59,9 @@ import java.util.ArrayList;
 import java.util.GregorianCalendar;
 
 import Bio.Library.namespace.BioLib;
+
+import android.content.IntentFilter;
+
 
 // SDK v1.0.07 @MAR15
 public class BioLibTestActivity extends AppCompatActivity implements ReportsFragment.OnStartSleepReportListener{
@@ -96,19 +101,16 @@ public class BioLibTestActivity extends AppCompatActivity implements ReportsFrag
 	private TextView textTimeSpan;
 	private TextView textViewTestBPM;
 
-	private Button buttonConnect;
-	private Button buttonDisconnect;
-	private Button buttonGetRTC;
-	private Button buttonSetRTC;
-	private Button buttonRequest;
+
 	private Button buttonSearch;
-	private Button buttonSetLabel;
-	private Button buttonGetDeviceId;
-	private Button buttonGetAcc;
 
+	//Battery icon
+	private ImageView iv_battery;
+	private TextView tv_battery;
+	Handler handler;
+	Runnable runnable;
 
-
-	private int BATTERY_LEVEL = 0;
+	private int BATTERY_LEVEL = 65;
 	private int PULSE = 0;
 	private Date DATETIME_PUSH_BUTTON = null;
 	private Date DATETIME_RTC = null;
@@ -131,9 +133,7 @@ public class BioLibTestActivity extends AppCompatActivity implements ReportsFrag
 	private String accConf = "";
 
 
-	/**
-	 * EDITED CODE STARTS HERE
-	 */
+
 	private static final int APNEA_THRESHOLD = 20;
 	private static final int EVENT_SPAN = 10000; // duration of an event in ms
 	private int peak_number = 0; // variable to store how many beats happen in an event
@@ -172,28 +172,26 @@ public class BioLibTestActivity extends AppCompatActivity implements ReportsFrag
 	private int lastNightID;
     private Event event = new Event();
 
+	private ViewPager viewPager;
+	private BottomNavigationView bottomNav;
 
-
-	/**
-	 * Called when the activity is first created.
-	 */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
 		this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-		// Get Sleep Report Button on Main Activity, goes to Sleep Report Activity
-		// USE SYSTEM CLOCK
-		BottomNavigationView bottomNavigation = findViewById(R.id.bottomNavigation);
-		bottomNavigation.setOnItemSelectedListener(navListener);
-		// Load the default fragment
-		getSupportFragmentManager().beginTransaction()
-				.replace(R.id.fragmentContainer, new MonitorFragment())
-				.commit();
+		bottomNav = findViewById(R.id.bottomNavigation);
+		viewPager = findViewById(R.id.viewPager);
+
+		setupViewPager();
+		setupBottomNav();
+
+		int middleFragmentIndex = 1;	// start in the MonitorFragment
+		viewPager.setCurrentItem(middleFragmentIndex);
+		bottomNav.setItemIconTintList(null);
 
 		DBHandler dbHandler = DBHandler.getInstance(BioLibTestActivity.this);
 		dbHandler.cleanDatabase();
@@ -211,7 +209,6 @@ public class BioLibTestActivity extends AppCompatActivity implements ReportsFrag
 		dbHandler.addNight(night3);
 		dbHandler.addNight(night4);
 		dbHandler.addNight(night5);
-
 
 		events.add(new Event(90, "22:51:10", "2023-12-12"));
 		events.add(new Event(80, "22:52:10", "2023-12-12"));
@@ -235,30 +232,108 @@ public class BioLibTestActivity extends AppCompatActivity implements ReportsFrag
 
 		bpmMonitored = dbHandler.getBpmValuesForNight("2023-12-12");
 
+		//Battery icon
+		iv_battery = (ImageView) findViewById(R.id.iv_battery);
+		tv_battery = (TextView) findViewById(R.id.tv_battery);
+
+		runnable = new Runnable() {
+			@Override
+			public void run() {
+				tv_battery.setText(BATTERY_LEVEL + "%");
+				if (BATTERY_LEVEL == 100) {
+					iv_battery.setImageResource(R.drawable.baseline_battery_full);
+				}
+				if (BATTERY_LEVEL > 75 && BATTERY_LEVEL <= 99) {
+					iv_battery.setImageResource(R.drawable.baseline_battery_2);
+				}
+				if (BATTERY_LEVEL > 50 && BATTERY_LEVEL <= 75) {
+					iv_battery.setImageResource(R.drawable.baseline_battery_3);
+				}
+				if (BATTERY_LEVEL == 50) {
+					iv_battery.setImageResource(R.drawable.baseline_battery_5);
+				}
+				if (BATTERY_LEVEL > 25 && BATTERY_LEVEL < 50) {
+					iv_battery.setImageResource(R.drawable.baseline_battery_5);
+				}
+				if (BATTERY_LEVEL > 5 && BATTERY_LEVEL <= 25) {
+					iv_battery.setImageResource(R.drawable.baseline_battery_6);
+				}
+				if (BATTERY_LEVEL <= 5) {
+					iv_battery.setImageResource(R.drawable.baseline_battery_7);
+				}
+				if (BATTERY_LEVEL == 0) {
+					iv_battery.setImageResource(R.drawable.baseline_battery_7);
+				}
+				handler.postDelayed(runnable, 5000);
+			};
+		};
+		handler = new Handler();
+		handler.postDelayed(runnable, 0);
+	}
+	private void setupViewPager() {
+		MyPagerAdapter pagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
+		viewPager.setAdapter(pagerAdapter);
+
+		viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+			@Override
+			public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
+
+			@Override
+			public void onPageSelected(int position) {
+				// Sync BottomNavigationView with ViewPager
+				bottomNav.getMenu().getItem(position).setChecked(true);
+			}
+
+			@Override
+			public void onPageScrollStateChanged(int state) {}
+		});
+	}
+	private void setupBottomNav() {
+		bottomNav.setOnItemSelectedListener(new BottomNavigationView.OnItemSelectedListener() {
+			@Override
+			public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+				int itemId = item.getItemId();
+				if (itemId == R.id.reportsMenu) {
+					viewPager.setCurrentItem(0); // ReportsFragment
+					return true;
+				} else if (itemId == R.id.monitorMenu) {
+					viewPager.setCurrentItem(1); // MonitorFragment
+					return true;
+				} else if (itemId == R.id.settingsMenu) {
+					viewPager.setCurrentItem(2); // SettingsFragment
+					return true;
+				} else {
+					return false;
+				}
+			}
+		});
+	}
+	private static class MyPagerAdapter extends FragmentPagerAdapter {
+		// Handles the fragments for the bottom navigation bar
+
+		public MyPagerAdapter(FragmentManager fm) {
+			super(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
+		}
+
+		@NonNull
+		@Override
+		public Fragment getItem(int position) {
+			switch (position) {
+				case 0:
+					return new ReportsFragment();
+				case 1:
+					return new MonitorFragment();
+				case 2:
+					return new SettingsFragment();
+				default:
+					return null;
+			}
+		}
+
+		@Override
+		public int getCount() {
+			return 3; // Number of fragments
+		}
 	}
 
-	// Load the default fragment (Biolib)
-	private BottomNavigationView.OnItemSelectedListener navListener =
-			new BottomNavigationView.OnItemSelectedListener() {
-				@Override
-				public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-					Fragment selectedFragment = null;
-
-					if (item.getItemId() == R.id.reportsMenu)
-						selectedFragment = new ReportsFragment();
-					else if (item.getItemId() == R.id.monitorMenu)
-						selectedFragment = new MonitorFragment();
-					else if (item.getItemId() == R.id.settingsMenu)
-						selectedFragment = new SettingsFragment();
-
-					if (selectedFragment != null) {
-						getSupportFragmentManager().beginTransaction()
-								.replace(R.id.fragmentContainer, selectedFragment)
-								.commit();
-					}
-//	            	textRadioEvent.setText("Radio-event: " + typeRadioEvent + "[" + str + "]");
-
-					return true;
-				}
-	};
 }

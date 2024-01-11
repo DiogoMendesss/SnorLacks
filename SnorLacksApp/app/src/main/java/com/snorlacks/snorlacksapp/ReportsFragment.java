@@ -23,21 +23,9 @@ import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
-
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link ReportsFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class ReportsFragment extends Fragment implements CalendarAdapter.OnItemListener {
 
-
     private Context fragmentContext;
-
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
 
     private OnStartSleepReportListener onStartSleepReportListener;
 
@@ -46,30 +34,12 @@ public class ReportsFragment extends Fragment implements CalendarAdapter.OnItemL
     private LocalDate selectedDate;
     private DBHandler dbHandler;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
 
     public ReportsFragment() {
         // Required empty public constructor
     }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment ReportsFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static ReportsFragment newInstance(String param1, String param2) {
-        ReportsFragment fragment = new ReportsFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
+        return new ReportsFragment();
     }
     @Override
     public void onAttach(@NonNull Context context) {
@@ -87,10 +57,6 @@ public class ReportsFragment extends Fragment implements CalendarAdapter.OnItemL
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
 
         dbHandler = DBHandler.getInstance(fragmentContext);
     }
@@ -103,14 +69,13 @@ public class ReportsFragment extends Fragment implements CalendarAdapter.OnItemL
         Button button_PreviousMonth = view.findViewById(R.id.button_previousMonth);
         Button button_NextMonth = view.findViewById(R.id.button_nextMonth);
 
-        button_PreviousMonth.setOnClickListener(v -> action_previousMonth(v));
-        button_NextMonth.setOnClickListener(v -> action_nextMonth(v));
+        button_PreviousMonth.setOnClickListener(this::action_previousMonth);
+        button_NextMonth.setOnClickListener(this::action_nextMonth);
 
         recyclerView_calendar= view.findViewById(R.id.calendarRecyclerView);
         textView_monthYear = view.findViewById(R.id.textView_monthYear);
         selectedDate = LocalDate.now();
         setMonthView();
-
 
         // Inflate the layout for this fragment
         return view;

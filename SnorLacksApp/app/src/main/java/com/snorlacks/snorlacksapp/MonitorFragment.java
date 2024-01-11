@@ -1,11 +1,11 @@
 package com.snorlacks.snorlacksapp;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.Drawable;
@@ -20,11 +20,10 @@ import androidx.fragment.app.Fragment;
 
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
@@ -33,10 +32,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -44,11 +40,6 @@ import java.util.Date;
 
 import Bio.Library.namespace.BioLib;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link MonitorFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class MonitorFragment extends Fragment {
 
     private Context fragmentContext;
@@ -64,29 +55,9 @@ public class MonitorFragment extends Fragment {
     public static final String TOAST = "toast";
 
     private TextView text;
-    private TextView textRTC;
-    private TextView textPUSH;
-    private TextView textPULSE;
-    private TextView textBAT;
-    private TextView textDataReceived;
-    private TextView textSDCARD;
-    private TextView textACC;
-    private TextView textHR;
-    private TextView textECG;
-    private TextView textDeviceId;
-    private TextView textRadioEvent;
-    private TextView textTimeSpan;
     private TextView textViewTestBPM;
 
-    private Button buttonConnect;
-    private Button buttonDisconnect;
-    private Button buttonGetRTC;
-    private Button buttonSetRTC;
-    private Button buttonRequest;
-    private Button buttonSearch;
-    private Button buttonSetLabel;
-    private Button buttonGetDeviceId;
-    private Button buttonGetAcc;
+    private Button buttonBluetooth;
 
     private int BATTERY_LEVEL = 0;
     private int PULSE = 0;
@@ -110,10 +81,7 @@ public class MonitorFragment extends Fragment {
 
     private String accConf = "";
 
-
-    /**
-     * EDITED CODE STARTS HERE
-     */
+    /** EDITED CODE STARTS HERE */
     private static final int APNEA_THRESHOLD = 20;
     private static final int EVENT_SPAN = 10000; // duration of an event in ms
     private int peak_number = 0; // variable to store how many beats happen in an event
@@ -128,12 +96,16 @@ public class MonitorFragment extends Fragment {
 
     private boolean isMonitoring = false;
 
-    private Button buttonGetSleepReport;
     private ToggleButton buttonMonitor;
+    private android.widget.ImageButton buttonVJ;
+    private ImageView iconStatusVJ;
+    private View cableStatusVJ;
+    private TextView clickLabelMonitor;
+    private TextView clickLabelVJ;
 
     private View clockBackground;
+    private ImageView imageClock;
 
-    public Calendar startCalendar;
     public Calendar nightStartCalendar;
     public Calendar eventStartCalendar;
     public Calendar endCalendar;
@@ -152,51 +124,21 @@ public class MonitorFragment extends Fragment {
     private int lastNightID;
     private Event event = new Event();
 
-
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
     public MonitorFragment() {
         // Required empty public constructor
     }
-
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         fragmentContext = context;
     }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment MonitorFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static MonitorFragment newInstance(String param1, String param2) {
-        MonitorFragment fragment = new MonitorFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
+        return new MonitorFragment();
 
+    }
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
@@ -206,49 +148,43 @@ public class MonitorFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_monitor, container, false);
 
         textViewTestBPM = view.findViewById(R.id.txtViewTestBPM);
-
         buttonMonitor = view.findViewById(R.id.btnMonitor);
-        buttonGetSleepReport = view.findViewById(R.id.buttonGetSleepReport);
-        buttonConnect = (Button) view.findViewById(R.id.buttonConnect);
-        buttonDisconnect = (Button) view.findViewById(R.id.buttonDisconnect);
-        buttonSearch = (Button) view.findViewById(R.id.buttonSearch);
+        buttonVJ = (android.widget.ImageButton) view.findViewById(R.id.buttonVJ);
+        buttonBluetooth = (Button) view.findViewById(R.id.buttonBluetooth);
+        iconStatusVJ = (ImageView) view.findViewById(R.id.iconStatusVJ);
+        cableStatusVJ = (View) view.findViewById(R.id.cableStatusVJ);
 
-        clockBackground = view.findViewById(R.id.clockBackground);
-
-        // used for gradient animation
         ConstraintLayout mainLayout = view.findViewById(R.id.mainLayout);
         ImageView animationView = view.findViewById(R.id.animationView);
+        imageClock = view.findViewById(R.id.imageClock);
+        clockBackground = view.findViewById(R.id.clockBackground);
+        clickLabelMonitor = view.findViewById(R.id.clickLabelMonitor);
+        clickLabelVJ = view.findViewById(R.id.clickLabelVJ);
 
         TransitionDrawable sleep_to_awake = new TransitionDrawable(new Drawable[]{
                 ContextCompat.getDrawable(fragmentContext, R.drawable.sleep_background),
-                ContextCompat.getDrawable(fragmentContext, R.drawable.awake_background)
-        });
+                ContextCompat.getDrawable(fragmentContext, R.drawable.awake_background)});
         TransitionDrawable awake_to_sleep = new TransitionDrawable(new Drawable[]{
                 ContextCompat.getDrawable(fragmentContext, R.drawable.awake_background),
-                ContextCompat.getDrawable(fragmentContext, R.drawable.sleep_background)
-        });
-        if (view == null)
-            Toast.makeText(fragmentContext, "BUTTON IS NULL", Toast.LENGTH_SHORT).show();
+                ContextCompat.getDrawable(fragmentContext, R.drawable.sleep_background)});
 
+        //  Database stuff
         DBHandler dbHandler = DBHandler.getInstance(fragmentContext);
         SQLiteDatabase db = dbHandler.getWritableDatabase();
-
-        textViewTestBPM = view.findViewById(R.id.txtViewTestBPM);
         textViewTestBPM.setText("Last night ID: " + dbHandler.getLastNightID());
 
-
-        // main button to start and stop sleep monitoring
+        //  Sleep monitoring (start, stop, data)
         buttonMonitor.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (isMonitoring) {
+
+                if (isMonitoring) { // STOP MONITORING ACTION
 
                     endCalendar = Calendar.getInstance();
                     nightEndTime = sleepTimeFormat.format(endCalendar.getTime());
                     night.setEnd_time(nightEndTime);
                     night.calculateSleepTime();
-                    Toast.makeText(fragmentContext, "sleep time " + night.getSleep_time(), Toast.LENGTH_SHORT).show();
-
+                    //Toast.makeText(fragmentContext, "sleep time " + night.getSleep_time(), Toast.LENGTH_SHORT).show();
                     night.reset();
 
                     // sleep to awake background animation
@@ -256,43 +192,38 @@ public class MonitorFragment extends Fragment {
                     animationView.setImageDrawable(sleep_to_awake);
                     sleep_to_awake.startTransition(sleepToAwakeTime);
 
-                    // Change to "awake" when the button is checked
-                    // 1 is fast, 2 is slow
-                    fadeOutAnimation(clockBackground, 1);
-                    fadeOutAnimation(buttonConnect, 1);
-                    zoomInAnimation(view);
+                    // Change to "awake" when the button is checked (1 is fast, 2 is slow)
+                    fadeOutAnimation(clockBackground, 2);
+                    fadeOutAnimation(buttonMonitor, 2);
+                    clickZoomAnimation(buttonMonitor);
                     clockBackground.setBackgroundResource(R.drawable.clock_background_awake);
                     buttonMonitor.setBackgroundResource(R.drawable.awake);
-                    fadeInAnimation(clockBackground, 1);
-                    fadeInAnimation(buttonConnect, 1);
+                    fadeInAnimation(clockBackground, 2);
+                    fadeInAnimation(buttonMonitor, 1);
 
-                    buttonDisconnect.setEnabled(true);
-                    buttonSearch.setEnabled(true);
-                    buttonGetSleepReport.setEnabled(true);
+                    // Button enabling/disabling
+                    buttonVJ.setEnabled(true);
+                    buttonBluetooth.setEnabled(true);
 
                     if (!events.isEmpty()) {
 						/*
 						bpmMonitored = bpm;
 						cropBpmArray(bpmMonitored);
 						apneaEvents = checkApneaEvents(bpmMonitored, APNEA_THRESHOLD);
-
 						 */
-
                         cropEventArray(events);
                         night.setApneaEventsNumber(checkApneaEvents(events, 20));
 
                         for (Event event : events) {
                             dbHandler.addEvent(event);
                         }
-
                         dbHandler.addNight(night);
 
-
                         Toast.makeText(fragmentContext, "Sleep monitoring stopped at " + nightEndTime, Toast.LENGTH_SHORT).show();
-                    } else
+                    } else {
                         Toast.makeText(fragmentContext, "Empty array at time: " + sleepTimeFormat.format(endCalendar.getTime()), Toast.LENGTH_SHORT).show();
-
-                } else {/** START MONITORING ACTION */
+                    }
+                } else {    /* START MONITORING ACTION */
                     nightStartCalendar = Calendar.getInstance();
                     nightStartDate = justDateFormat.format(nightStartCalendar.getTime());
                     nightStartTime = sleepTimeFormat.format(nightStartCalendar.getTime());
@@ -300,182 +231,41 @@ public class MonitorFragment extends Fragment {
                     night.setStart_time(nightStartTime);
                     lastNightID = dbHandler.getLastNightID();
 
-                    zoomInAnimation(view);
-
                     // awake to sleep background animation
-                    Animation fadeInSlow = AnimationUtils.loadAnimation(fragmentContext, R.anim.fade_in_slow);
-                    Animation fadeOutSlow = AnimationUtils.loadAnimation(fragmentContext, R.anim.fade_out_slow);
                     int awakeToSleepTime = 1500;
                     animationView.setImageDrawable(awake_to_sleep);
                     awake_to_sleep.startTransition(awakeToSleepTime);
 
                     // Change to "sleep" when the button is checked
-                    fadeOutAnimation(clockBackground, 2);
-                    fadeOutAnimation(buttonConnect, 2);
-                    zoomInAnimation(view);
+                    fadeOutAnimation(clockBackground, 1);
+                    fadeOutAnimation(buttonMonitor, 1);
+                    clickZoomAnimation(buttonMonitor);
                     clockBackground.setBackgroundResource(R.drawable.clock_background_sleep);
                     buttonMonitor.setBackgroundResource(R.drawable.sleep);
-                    fadeInAnimation(clockBackground, 2);
-                    fadeInAnimation(buttonConnect, 2);
+                    fadeInAnimation(clockBackground, 1);
+                    fadeInAnimation(buttonMonitor, 1);
 
-                    buttonDisconnect.setEnabled(false);
-                    buttonSearch.setEnabled(false);
-                    buttonGetSleepReport.setEnabled(false);
+                    // Button enabling/disabling
+                    buttonVJ.setEnabled(false);
+                    buttonBluetooth.setEnabled(false);
+                    clickLabelMonitor.setVisibility(View.GONE);
 
                     bpm.clear();
 
-
                     Toast.makeText(fragmentContext, "Sleep monitoring started", Toast.LENGTH_SHORT).show();
-
                 }
-
                 isMonitoring = !isMonitoring;
             }
-
-
-            private void zoomInAnimation(View view) {
-                Animation zoomIn = AnimationUtils.loadAnimation(fragmentContext, R.anim.zoomy);
-                view.startAnimation(zoomIn);
-            }
-
-            private void fadeInAnimation(View view, int time) {
-                // time = 1 is fast, time = 2 is slow
-                Animation fadeIn;
-                switch (time) {
-                    case 1:
-                        fadeIn = AnimationUtils.loadAnimation(fragmentContext, R.anim.fade_in_fast);
-                        break;
-                    case 2:
-                        fadeIn = AnimationUtils.loadAnimation(fragmentContext, R.anim.fade_in_slow);
-                        break;
-                    default:
-                        fadeIn = AnimationUtils.loadAnimation(fragmentContext, R.anim.fade_in_fast);
-                }
-                view.startAnimation(fadeIn);
-            }
-
-            private void fadeOutAnimation(View view, int time) {
-                // time = 1 is fast, time = 2 is slow
-                Animation fadeIn;
-                switch (time) {
-                    case 1:
-                        fadeIn = AnimationUtils.loadAnimation(fragmentContext, R.anim.fade_out_fast);
-                        break;
-                    case 2:
-                        fadeIn = AnimationUtils.loadAnimation(fragmentContext, R.anim.fade_out_slow);
-                        break;
-                    default:
-                        fadeIn = AnimationUtils.loadAnimation(fragmentContext, R.anim.fade_out_fast);
-                }
-                view.startAnimation(fadeIn);
-            }
-
         });
-
-//         Get Sleep Report Button on Main Activity, goes to Sleep Report Activity
-//         USE SYSTEM CLOCK
-        buttonGetSleepReport.setOnClickListener(new View.OnClickListener() {
-            @Override
+        buttonVJ.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                Toast.makeText(fragmentContext, "Getting Sleep report", Toast.LENGTH_SHORT).show();
-
-                Intent intent = new Intent(fragmentContext, SleepReportActivity.class);
-
-				/*
-				// ========= Simulate Data - Apnea Night ======================
-				ArrayList<Double> mockBpm = new ArrayList<Double>();
-				ArrayList<Boolean> mockApneaEvents = new ArrayList<Boolean>();
-				for (int i=0;i<(60*8+2);i++) {
-					if ((i>60 & i<65))
-						mockBpm.add(10.0+0.5*(i-60));
-					else if (i>=65 & i<70)
-						mockBpm.add(12.5-0.5*(i-65));
-					else if ((i>200 & i<205))
-						mockBpm.add(10.0+0.5*(i-200));
-					else if (i>=205 & i<210)
-						mockBpm.add(12.5-0.5*(i-205));
-					else mockBpm.add(10.0);
-				}
-				for (double bpmEvent : mockBpm){
-					if (bpmEvent > 10.0)
-						mockApneaEvents.add(true);
-					else mockApneaEvents.add(false);
-				}
-
-				// =============================================
-				// ========= Simulate Data - Non Apnea Night ======================
-				ArrayList<Double> noApneaBpm = new ArrayList<Double>();
-				ArrayList<Boolean> noApneaEvents = new ArrayList<Boolean>();
-				for (int i=0;i<(60*8+2);i++){
-					noApneaBpm.add(10.0);
-					noApneaEvents.add(false);
-				}
-				// ================================================================
-
-				bpm = mockBpm;
-				apneaEvents = mockApneaEvents;
-
-				 */
-
-                intent.putExtra("bpmList", bpmMonitored);
-                intent.putExtra("apneaEvents", apneaEvents);
-                intent.putExtra("startDate", startCalendar);
-                intent.putExtra("endDate", endCalendar);
-
-                startActivity(intent);
-            }
-        });
-
-        // __________________________________________
-
-//        this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-
-//        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
-
-        // ###################################################
-        // MACADDRESS:
-        address = "00:23:FE:00:0B:59";
-        // ###################################################
-
-
-        text = (TextView) view.findViewById(R.id.lblStatus);
-        text.setText("");
-
-
-		/*
-        textRTC = (TextView) findViewById(R.id.lblRTC);
-    	textPUSH = (TextView) findViewById(R.id.lblButton);
-    	textPULSE = (TextView) findViewById(R.id.lblPulse);
-    	textBAT = (TextView) findViewById(R.id.lblBAT);
-    	textDataReceived = (TextView) findViewById(R.id.lblData);
-    	textSDCARD = (TextView) findViewById(R.id.lblSDCARD);
-    	textACC = (TextView) findViewById(R.id.lblACC);
-    	textHR = (TextView) findViewById(R.id.lblHR);
-    	textECG = (TextView) findViewById(R.id.lblECG);
-    	textDeviceId = (TextView) findViewById(R.id.lblDeviceId);
-    	textRadioEvent = (TextView) findViewById(R.id.textRadioEvent);
-    	textTimeSpan  = (TextView) findViewById(R.id.lblTimeSpan);
-
-		 */
-
-        try {
-            lib = new BioLib(fragmentContext, mHandler);
-            text.append("Init BioLib \n");
-        } catch (Exception e) {
-            text.append("Error to init BioLib \n");
-            e.printStackTrace();
-        }
-
-
-        buttonConnect.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
+                zoomInAnimation(view);
                 Connect();
+                clickLabelVJ.setVisibility(View.GONE);
             }
-
-            /***
-             * Connect to device.
-             */
+            /*
+                Connect to vital jacket device
+            */
             private void Connect() {
                 try {
                     deviceToConnect = lib.mBluetoothAdapter.getRemoteDevice(address);
@@ -484,91 +274,26 @@ public class MonitorFragment extends Fragment {
 
                     text.setText("");
                     lib.Connect(address, 5);
+
+                    iconStatusVJ.setBackgroundResource(R.drawable.active);
+                    cableStatusVJ.setBackgroundResource(R.drawable.vj_connection_active);
+
                 } catch (Exception e) {
                     text.setText("Error to connect device: " + address);
                     e.printStackTrace();
+                    iconStatusVJ.setBackgroundResource(R.drawable.inactive);
+                    cableStatusVJ.setBackgroundResource(R.drawable.vj_connection_inactive);
                 }
             }
 
         });
-
-
-        buttonDisconnect.setOnClickListener(new View.OnClickListener() {
+        buttonBluetooth.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                Disconnect();
-            }
-        });
-
-		/*
-        buttonSetRTC = (Button) findViewById(R.id.buttonSetRTC);
-        buttonSetRTC.setOnClickListener(new View.OnClickListener()
-        {
-            public void onClick(View view)
-            {
-            	try
-            	{
-            		Date date = new Date();
-					lib.SetRTC(date);
-				}
-            	catch (Exception e)
-				{
-					e.printStackTrace();
-				}
-            }
-        });
-
-        buttonGetRTC = (Button) findViewById(R.id.buttonGetRTC);
-        buttonGetRTC.setOnClickListener(new View.OnClickListener()
-        {
-            public void onClick(View view)
-            {
-            	try
-            	{
-					lib.GetRTC();
-				}
-            	catch (Exception e)
-				{
-					e.printStackTrace();
-				}
-            }
-        });
-
-        buttonRequest = (Button) findViewById(R.id.buttonRequestData);
-        buttonRequest.setOnClickListener(new View.OnClickListener()
-        {
-            public void onClick(View view)
-            {
-            	RequestData();
-            }
-
-			private void RequestData()
-			{
-				try
-				{
-					deviceToConnect =  lib.mBluetoothAdapter.getRemoteDevice(address);
-
-					Reset();
-					text.setText("");
-					lib.Request(address, 30);
-				}
-				catch (Exception ex)
-				{
-					ex.printStackTrace();
-				}
-			}
-        });
-
-		 */
-
-
-        buttonSearch.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
+                zoomInAnimation(view);
                 Search(view);
             }
 
-            /*
-             * Search for bluetooth devices.
-             */
+            // Search for bluetooth devices.
             private void Search(View view) {
                 try {
                     Intent myIntent = new Intent(view.getContext(), SearchDeviceActivity.class);
@@ -579,108 +304,28 @@ public class MonitorFragment extends Fragment {
             }
         });
 
+        buttonVJ.setEnabled(true);
+        buttonBluetooth.setEnabled(true);
 
-		/*
-        buttonSetLabel = (Button) findViewById(R.id.buttonSetLabel);
-        buttonSetLabel.setOnClickListener(new View.OnClickListener()
-        {
-            public void onClick(View view)
-            {
-            	try
-            	{
-            		/*
-            		// SAMPLE 1: Sample of radio event: send array of bytes (10Bytes maximum)
-            		byte type = 1;
-            		// Maximum 10 bytes to send device [Optional]
-            		byte[] info = new byte[4];
-            		info[0] = 0x31; // 1 ascii table
-            		info[1] = 0x32; // 2 ascii table
-            		info[2] = 0x33; // 3 ascii table
-            		info[3] = 0x34; // 4 ascii table
 
-            		textRadioEvent.setText("Start send");
-					if (lib.SetBytesToRadioEvent(type, info))
-					{
-						countEvent++;
-						textRadioEvent.setText("REvent: " + countEvent);
-					}
-					else
-						textRadioEvent.setText("Error");
+        // MAC_ADDRESS:
+        address = "00:23:FE:00:0B:59";
 
-		 */
+        text = (TextView) view.findViewById(R.id.lblStatus);
+        text.setText("");
 
-					/*
-            		// SAMPLE 2: Sample of radio event: send string (10 char maximum)
-					byte type = 2;
-					String info = "5678";
-					textRadioEvent.setText("Start send");
-					if (lib.SetStringToRadioEvent(type, info))
-					{
-						countEvent++;
-						textRadioEvent.setText("REvent: " + countEvent);
-					}
-					else
-						textRadioEvent.setText("Error");
-
-				}
-            	catch (Exception e)
-				{
-					e.printStackTrace();
-				}
-            }
-        });
-*/
-        /*
-        buttonGetDeviceId = (Button) findViewById(R.id.buttonGetDeviceId);
-        buttonGetDeviceId.setOnClickListener(new View.OnClickListener()
-        {
-            public void onClick(View view)
-            {
-            	try
-            	{
-					lib.GetDeviceId();
-				}
-            	catch (Exception e)
-				{
-					e.printStackTrace();
-				}
-            }
-        });
-
-        buttonGetAcc = (Button) findViewById(R.id.buttonGetAcc);
-        buttonGetAcc.setOnClickListener(new View.OnClickListener()
-        {
-            public void onClick(View view)
-            {
-            	try
-            	{
-					lib.GetAccSensibility();
-				}
-            	catch (Exception e)
-				{
-					e.printStackTrace();
-				}
-            }
-        });
-
-         */
-
-        buttonConnect.setEnabled(true);
-        //buttonRequest.setEnabled(true);
-        buttonDisconnect.setEnabled(false);
-        //buttonGetRTC.setEnabled(false);
-        //buttonSetRTC.setEnabled(false);
-        //buttonSetLabel.setEnabled(false);
-        //buttonGetDeviceId.setEnabled(false);
-        //buttonGetAcc.setEnabled(false);
-
+        try {
+            lib = new BioLib(fragmentContext, mHandler);
+            text.append("Init BioLib \n");
+        } catch (Exception e) {
+            text.append("Error to init BioLib \n");
+            e.printStackTrace();
+        }
 
         return view;
     }
 
-    /***
-     * Disconnect from device.
-     */
+    // Disconnect from device.
     private void Disconnect() {
         try {
             lib.Disconnect();
@@ -691,68 +336,36 @@ public class MonitorFragment extends Fragment {
         }
     }
 
-    /***
-     * Reset variables and UI.
-     */
+    // Reset variables and UI.
     private void Reset() {
         try {
-			/*
-			textBAT.setText("BAT: - - %");
-			textPULSE.setText("PULSE: - - bpm");
-			textPUSH.setText("PUSH-BUTTON: - - - ");
-			textRTC.setText("RTC: - - - ");
-			textDataReceived.setText("RECEIVED: - - - ");
-			textACC.setText("ACC:  X: - -  Y: - -  Z: - -");
-			textSDCARD.setText("SD CARD STATUS: - - ");
-			textECG.setText("Ecg stream: -- ");
-			textHR.setText("PEAK: --  BPMi: -- bpm  BPM: -- bpm  R-R: -- ms");
-			textBAT.setText("BAT: -- %");
-			textPULSE.setText("HR: -- bpm     Nb. Leads: -- ");
-			textDeviceId.setText("Device Id: - - - - - - - - - -");
-			textRadioEvent.setText(".");
-			textTimeSpan.setText("SPAN: - - - ");
-
-			SDCARD_STATE = 0;
-			BATTERY_LEVEL = 0;
-			PULSE = 0;
-			DATETIME_PUSH_BUTTON = null;
-			DATETIME_RTC = null;
-			DATETIME_TIMESPAN = null;
-			numOfPushButton = 0;
-			countEvent = 0;
-			accConf = "";
-			firmwareVersion = "";
-
-			 */
+            SDCARD_STATE = 0;
+            BATTERY_LEVEL = 0;
+            PULSE = 0;
+            DATETIME_PUSH_BUTTON = null;
+            DATETIME_RTC = null;
+            DATETIME_TIMESPAN = null;
+            numOfPushButton = 0;
+            countEvent = 0;
+            accConf = "";
+            firmwareVersion = "";
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
-    /**
-     * The Handler that gets information back from the BioLib
-     */
-    /**
-     * The Handler that gets information back from the BioLib
-     */
+
     public void OnDestroy() {
         if (isConn) {
             Disconnect();
         }
     }
-
     public void onDestroy() {
         super.onDestroy();
 
         if (lib.mBluetoothAdapter != null) {
             try {
                 if (ActivityCompat.checkSelfPermission(fragmentContext, android.Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
+                    // Permission check
                     return;
                 }
                 lib.mBluetoothAdapter.cancelDiscovery();
@@ -760,14 +373,11 @@ public class MonitorFragment extends Fragment {
                 System.out.println("PAM PAM");
             }
         }
-
         lib = null;
     }
 
-    /**
-     * //	 * The Handler that gets information back from the BioLib
-     * //
-     */
+    // The Handler that gets information back from the BioLib
+    @SuppressLint("HandlerLeak")
     private final Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -792,7 +402,7 @@ public class MonitorFragment extends Fragment {
                     Toast.makeText(fragmentContext, "Bluetooth is now enabled! ", Toast.LENGTH_SHORT).show();
                     text.append("Bluetooth is now enabled \n");
                     text.append("Macaddress selected: " + address + " \n");
-                    buttonConnect.setEnabled(true);
+                    buttonVJ.setEnabled(true);
                     //buttonRequest.setEnabled(true);
                     break;
 
@@ -813,18 +423,12 @@ public class MonitorFragment extends Fragment {
                     break;
 
                 case BioLib.STATE_CONNECTED:
+
                     Toast.makeText(fragmentContext, "Connected to " + deviceToConnect.getName(), Toast.LENGTH_SHORT).show();
                     text.append("   Connect to " + deviceToConnect.getName() + " \n");
                     isConn = true;
 
-                    buttonConnect.setEnabled(false);
-                    //buttonRequest.setEnabled(false);
-                    buttonDisconnect.setEnabled(true);
-                    //buttonGetRTC.setEnabled(true);
-                    //buttonSetRTC.setEnabled(true);
-                    //buttonSetLabel.setEnabled(true);
-                    //buttonGetDeviceId.setEnabled(true);
-                    //buttonGetAcc.setEnabled(true);
+                    buttonVJ.setEnabled(false);
 
                     break;
 
@@ -833,14 +437,7 @@ public class MonitorFragment extends Fragment {
                     text.append("   Unable to connect device \n");
                     isConn = false;
 
-                    buttonConnect.setEnabled(true);
-                    //buttonRequest.setEnabled(true);
-                    buttonDisconnect.setEnabled(false);
-                    //buttonGetRTC.setEnabled(false);
-                    //buttonSetRTC.setEnabled(false);
-                    //buttonSetLabel.setEnabled(false);
-                    //buttonGetDeviceId.setEnabled(false);
-                    //buttonGetAcc.setEnabled(false);
+                    buttonVJ.setEnabled(true);
 
                     break;
 
@@ -850,14 +447,7 @@ public class MonitorFragment extends Fragment {
                     isConn = false;
 
 
-                    buttonConnect.setEnabled(true);
-                    //buttonRequest.setEnabled(true);
-                    buttonDisconnect.setEnabled(false);
-                    //buttonGetRTC.setEnabled(false);
-                    //buttonSetRTC.setEnabled(false);
-                    //buttonSetLabel.setEnabled(false);
-                    //buttonGetDeviceId.setEnabled(false);
-                    //buttonGetAcc.setEnabled(false);
+                    buttonVJ.setEnabled(true);
 
                     break;
 
@@ -961,7 +551,7 @@ public class MonitorFragment extends Fragment {
                     BioLib.QRS qrs = (BioLib.QRS) msg.obj;
 
 
-                    /** EDITED CODE STARTS HERE*/
+                    /** EDITED CODE STARTS HERE */
                     if (event_span < EVENT_SPAN) { //checks if the duration of the event hasn't overcome the EVENT_SPAN
                         eventStartCalendar = Calendar.getInstance();
                         eventStartDate = eventDateFormat.format(eventStartCalendar.getTime());
@@ -981,10 +571,9 @@ public class MonitorFragment extends Fragment {
                     }
 
                     //textViewTestBPM.setText("Peak number: " + peak_number + "; Event duration: " + event_span);
-                    textViewTestBPM.setText("PEAK: " + qrs.position + "  BPMi: " + qrs.bpmi + " bpm  BPM: " + qrs.bpm + " bpm  R-R: " + qrs.rr + " ms; Array size: " + bpm.size());
-
-                    /** EDITED CODE ENDS HERE*/
-
+                    textViewTestBPM.setText("PEAK: " + qrs.position + "  BPMi: " + qrs.bpmi + " bpm  BPM: " + qrs.bpm +
+                            " bpm  R-R: " + qrs.rr + " ms; Array size: " + bpm.size());
+                    /** EDITED CODE ENDS HERE */
 
                     //textHR.setText("PEAK: " + qrs.position + "  BPMi: " + qrs.bpmi + " bpm  BPM: " + qrs.bpm + " bpm  R-R: " + qrs.rr + " ms");
                     break;
@@ -1000,8 +589,6 @@ public class MonitorFragment extends Fragment {
 	            		textACC.setText("ACC [" + accConf + "]:  X: " + dataACC.X + "  Y: " + dataACC.Y + "  Z: " + dataACC.Z);
 
 					 */
-
-
                     break;
 
                 case BioLib.MESSAGE_ECG_STREAM:
@@ -1022,7 +609,6 @@ public class MonitorFragment extends Fragment {
 	            	}
 
 					 */
-
                     break;
 
                 case BioLib.MESSAGE_TOAST:
@@ -1032,19 +618,6 @@ public class MonitorFragment extends Fragment {
         }
     };
 
-    public static double calculateMean(ArrayList<Integer> arrayList) {
-        if (arrayList == null || arrayList.isEmpty()) {
-            throw new IllegalArgumentException("Input ArrayList is null or empty");
-        }
-
-        int sum = 0;
-        for (int number : arrayList) {
-            sum += number;
-        }
-
-        return (double) sum / arrayList.size();
-    }
-
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case BioLib.REQUEST_ENABLE_BT:
@@ -1052,14 +625,7 @@ public class MonitorFragment extends Fragment {
                     Toast.makeText(fragmentContext, "Bluetooth is now enabled! ", Toast.LENGTH_SHORT).show();
                     text.append("Bluetooth is now enabled \n");
 
-                    buttonConnect.setEnabled(true);
-                    //buttonRequest.setEnabled(true);
-                    buttonDisconnect.setEnabled(false);
-                    //buttonGetRTC.setEnabled(false);
-                    //buttonSetRTC.setEnabled(false);
-                    //buttonSetLabel.setEnabled(false);
-                    //buttonGetDeviceId.setEnabled(false);
-                    //buttonGetAcc.setEnabled(false);
+                    buttonVJ.setEnabled(true);
 
                     text.append("Macaddress selected: " + address + " \n");
                 } else {
@@ -1068,14 +634,7 @@ public class MonitorFragment extends Fragment {
                     isConn = false;
 
 
-                    buttonConnect.setEnabled(true);
-                    //buttonRequest.setEnabled(true);
-                    buttonDisconnect.setEnabled(false);
-                    //buttonGetRTC.setEnabled(false);
-                    //buttonSetRTC.setEnabled(false);
-                    //buttonSetLabel.setEnabled(false);
-                    //buttonGetDeviceId.setEnabled(false);
-                    //buttonGetAcc.setEnabled(false);
+                    buttonVJ.setEnabled(true);
 
                 }
                 break;
@@ -1100,9 +659,8 @@ public class MonitorFragment extends Fragment {
         }
     }
 
-    //checkApneaEvent() returns true if for an event, a consecutive number of samples exceeds a threshold
     public static int checkApneaEvents(ArrayList<Event> bpmList, int threshold) {
-
+        //checkApneaEvent() returns true if for an event, a consecutive number of samples exceeds a threshold
         int apneaEventsNumber = 0;
         ArrayList<Boolean> apneaEvents = new ArrayList<Boolean>();
         double median = calculateEventBpmMedian(bpmList);
@@ -1131,7 +689,6 @@ public class MonitorFragment extends Fragment {
             bpmList.remove(bpmList.size() - 1);
         }
     }
-
     public static void cropEventArray(ArrayList<Event> bpmList) {
 
         double median = calculateEventBpmMedian(bpmList);
@@ -1150,6 +707,18 @@ public class MonitorFragment extends Fragment {
         }
     }
 
+    public static double calculateMean(ArrayList<Integer> arrayList) {
+        if (arrayList == null || arrayList.isEmpty()) {
+            throw new IllegalArgumentException("Input ArrayList is null or empty");
+        }
+
+        int sum = 0;
+        for (int number : arrayList) {
+            sum += number;
+        }
+
+        return (double) sum / arrayList.size();
+    }
     public static double calculateMedian(ArrayList<Double> numbers) {
         // Check for empty list
         if (numbers == null || numbers.isEmpty()) {
@@ -1175,7 +744,6 @@ public class MonitorFragment extends Fragment {
 
         return median;
     }
-
     public static double calculateEventBpmMedian(ArrayList<Event> events) {
         // Check for empty list
         if (events == null || events.isEmpty()) {
@@ -1200,5 +768,68 @@ public class MonitorFragment extends Fragment {
         }
 
         return median;
+    }
+
+    private void zoomInAnimation(View view) {
+        view.animate()
+                .scaleX(0.95f)
+                .scaleY(0.95f)
+                .setDuration(80)
+                .start();
+    }
+    private void zoomOutAnimation(View view) {
+        view.animate()
+                .scaleX(1.03f)
+                .scaleY(1.03f)
+                .setDuration(80)
+                .start();
+    }
+    private void clickZoomAnimation(View view) {
+        view.animate()
+                .scaleX(0.95f)
+                .scaleY(0.95f)
+                .setDuration(100)
+                .withEndAction(new Runnable() {
+                    @Override
+                    public void run() {
+                        // Zoom-out animation after the zoom-in animation completes
+                        buttonMonitor.animate()
+                                .scaleX(1.0f)
+                                .scaleY(1.0f)
+                                .setDuration(30)
+                                .start();
+                    }
+                })
+                .start();
+    }
+    private void fadeInAnimation(View view, int time) {
+        // time = 1 is fast, time = 2 is slow
+        Animation fadeIn;
+        switch (time) {
+            case 1:
+                fadeIn = AnimationUtils.loadAnimation(fragmentContext, R.anim.fade_in_fast);
+                break;
+            case 2:
+                fadeIn = AnimationUtils.loadAnimation(fragmentContext, R.anim.fade_in_slow);
+                break;
+            default:
+                fadeIn = AnimationUtils.loadAnimation(fragmentContext, R.anim.fade_in_fast);
+        }
+        view.startAnimation(fadeIn);
+    }
+    private void fadeOutAnimation(View view, int time) {
+        // time = 1 is fast, time = 2 is slow
+        Animation fadeOut;
+        switch (time) {
+            case 1:
+                fadeOut = AnimationUtils.loadAnimation(fragmentContext, R.anim.fade_out_fast);
+                break;
+            case 2:
+                fadeOut = AnimationUtils.loadAnimation(fragmentContext, R.anim.fade_out_slow);
+                break;
+            default:
+                fadeOut = AnimationUtils.loadAnimation(fragmentContext, R.anim.fade_out_fast);
+        }
+        view.startAnimation(fadeOut);
     }
 }

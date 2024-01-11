@@ -1,11 +1,13 @@
 package com.snorlacks.snorlacksapp;
 
+import android.Manifest;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
@@ -14,6 +16,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 
 import java.util.ArrayList;
@@ -23,6 +26,8 @@ import java.util.Set;
 public class SearchDeviceActivity extends Activity {
     public static String SELECT_DEVICE_ADDRESS = "device_address";
     public static final int CHANGE_MACADDRESS = 100;
+    private static final int REQUEST_BLUETOOTH_PERMISSION = 1; // You can use any integer value
+
     private ListView mainListView;
     private ArrayAdapter<String> listAdapter;
     private String selectedValue = "";
@@ -61,7 +66,7 @@ public class SearchDeviceActivity extends Activity {
 
             ArrayList<String> lstDevices = new ArrayList<String>();
 
-            // Create ArrayAdapter using the planet list.  
+            // Create ArrayAdapter using the planet list.
             listAdapter = new ArrayAdapter<String>(this, R.layout.simplerow, lstDevices);
 
             mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -69,20 +74,27 @@ public class SearchDeviceActivity extends Activity {
                 if (mBluetoothAdapter.isEnabled()) {
                     // Listing paired devices
 
-                    Set<BluetoothDevice> devices = mBluetoothAdapter.getBondedDevices();
-	    		    for (BluetoothDevice device : devices) 
-	    		    {
-	    		    	listAdapter.add(device.getAddress() + "   " + device.getName());
-	    		    }
+                    if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                        Log.e("BluetoothConnection", "BT permission denied");
+                        ActivityCompat.requestPermissions(SearchDeviceActivity.this, new String[]{Manifest.permission.BLUETOOTH_SCAN}, 100);
+                        return;
+                    }
+
+                        Log.e("BluetoothConnection", "BT permission granted");
+                        Set<BluetoothDevice> devices = mBluetoothAdapter.getBondedDevices();
+                        for (BluetoothDevice device : devices) {
+                            listAdapter.add(device.getAddress() + "   " + device.getName());
+                        }
+
 				}
 			}
 			mainListView.setAdapter( listAdapter );
-            
-            mainListView.setOnItemClickListener(new AdapterView.OnItemClickListener() 
-            {  
-                @Override  
-                public void onItemClick( AdapterView<?> parent, View item, int position, long id) 
-                {  
+
+            mainListView.setOnItemClickListener(new AdapterView.OnItemClickListener()
+            {
+                @Override
+                public void onItemClick( AdapterView<?> parent, View item, int position, long id)
+                {
                 	selectedValue = (String) listAdapter.getItem(position);
 
                 	String[] aux = selectedValue.split("   ");
@@ -90,16 +102,16 @@ public class SearchDeviceActivity extends Activity {
 
                     String txtMessage = "Device '" + selectedValue + "' selected.";
                     Toast.makeText(SearchDeviceActivity.this, txtMessage, Toast.LENGTH_SHORT).show();
-                }  
-            });  
+                }
+            });
         }
         catch (Exception ex) {
             Toast.makeText(SearchDeviceActivity.this, "BT Device click exception", Toast.LENGTH_SHORT).show();
         }
     }
-    
+
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) 
+    public boolean onCreateOptionsMenu(Menu menu)
     {
         getMenuInflater().inflate(R.menu.activity_search_device, menu);
         return true;
@@ -111,5 +123,4 @@ public class SearchDeviceActivity extends Activity {
                 .setDuration(80)
                 .start();
     }
-    
 }

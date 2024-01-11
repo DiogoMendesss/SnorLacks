@@ -1,5 +1,10 @@
 package com.snorlacks.snorlacksapp;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 public class Event {
     //private int id;
     private double bpm;
@@ -78,5 +83,15 @@ public class Event {
         this.night = night;
     }
 
+    public Date getDateAsDate() {
+        try {
+            // Assuming your date format is "HH:mm:ss"
+            SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+            return dateFormat.parse(date);
+        } catch (ParseException e) {
+            e.printStackTrace(); // Handle the exception according to your needs
+            return null;
+        }
+    }
 
 }

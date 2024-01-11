@@ -56,6 +56,7 @@ public class DBHandler extends SQLiteOpenHelper {
 
     // below variable is for event date column.
     private static final String EVENT_DATE_COL = "date";
+    // below variable is for event start time column.
 
     // below variable is for event type column.
     private static final String EVENT_TYPE_COL = "type";
@@ -106,6 +107,7 @@ public class DBHandler extends SQLiteOpenHelper {
                 + EVENT_DATE_COL + " TEXT,"
                 + EVENT_TYPE_COL + " TEXT,"
                 + EVENT_NIGHT_COL + " TEXT REFERENCES " + NIGHT_TABLE_NAME + "(" + NIGHT_START_DATE_COL + ")" +  ");";
+
         db.execSQL(create_event_table);
     }
 
@@ -141,7 +143,6 @@ public class DBHandler extends SQLiteOpenHelper {
     }
 
     public void addEvent(Event event){
-
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
 
@@ -151,6 +152,7 @@ public class DBHandler extends SQLiteOpenHelper {
         cv.put(EVENT_NIGHT_COL, event.getNight());
 
         long result = db.insert(EVENT_TABLE_NAME, null, cv);
+        // ... (your existing code)
     }
 
     public void addEvents(ArrayList<Event> events) {
@@ -255,6 +257,47 @@ public class DBHandler extends SQLiteOpenHelper {
         return bpmValues;
     }
 
+    public ArrayList<Event> getEventsForNight(String startDate) {
+        ArrayList<Event> events = new ArrayList<>();
+
+        // Check if the input string adheres to the expected format
+        try {
+            Date parsedDate = justDateFormat.parse(startDate);
+        } catch (ParseException e) {
+            Log.e("Date Format", "Invalid date format: " + startDate);
+            return events; // or throw an exception, depending on your requirements
+        }
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT * FROM " + EVENT_TABLE_NAME +
+                " WHERE " + EVENT_NIGHT_COL + " = ?";
+
+        Cursor cursor = db.rawQuery(query, new String[]{startDate});
+
+        if (cursor.moveToFirst()) {
+            int columnIndex = cursor.getColumnIndex(EVENT_BPM_COL);
+            int columnDate = cursor.getColumnIndex(EVENT_DATE_COL);
+            int columnType = cursor.getColumnIndex(EVENT_TYPE_COL);
+
+            // Check if the column exists in the result set
+            if (columnIndex != -1) {
+                do {
+                    double bpm = cursor.getDouble(columnIndex);
+                    String date = cursor.getString(columnDate);
+                    String type = cursor.getString(columnType);
+                    Event event = new Event(bpm, date, type, startDate);
+                    events.add(event);
+                } while (cursor.moveToNext());
+            } else {
+                // Handle the case where the column is not found
+                Log.e("BPM Values", "Column not found: " + EVENT_BPM_COL);
+            }
+        }
+
+        cursor.close();
+        return events;
+    }
+
     public String getNightStartTime(String nightDate) {
         String startTime = null;
 
@@ -305,9 +348,25 @@ public class DBHandler extends SQLiteOpenHelper {
         return endTime;
     }
 
-    public void cleanDatabase(SQLiteDatabase db){
-        db.execSQL("DELETE FROM Night");
-    }
+    public void cleanDatabase() {
+        SQLiteDatabase db = this.getWritableDatabase();
 
+        Cursor cursor = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table'", null);
+        ArrayList<String> tableNames = new ArrayList<>();
+
+        if (cursor.moveToFirst()) {
+            while (!cursor.isAfterLast()) {
+                tableNames.add(cursor.getString(0));
+                cursor.moveToNext();
+            }
+        }
+
+        cursor.close();
+
+        for (String tableName : tableNames) {
+            db.execSQL("DELETE FROM " + tableName);
+            Log.d("DBHandler", "Deleted all records from table: " + tableName);
+        }
+    }
 }
 

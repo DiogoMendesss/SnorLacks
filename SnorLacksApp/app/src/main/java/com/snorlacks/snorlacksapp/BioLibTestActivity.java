@@ -3,11 +3,16 @@ package com.snorlacks.snorlacksapp;
 import static com.snorlacks.snorlacksapp.MonitorFragment.checkApneaEvents;
 import static com.snorlacks.snorlacksapp.MonitorFragment.cropEventArray;
 
+import static java.security.AccessController.getContext;
+
+import android.annotation.SuppressLint;
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,6 +20,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import androidx.fragment.app.Fragment;
@@ -237,6 +243,8 @@ public class BioLibTestActivity extends AppCompatActivity implements ReportsFrag
 		iv_battery = (ImageView) findViewById(R.id.iv_battery);
 		tv_battery = (TextView) findViewById(R.id.tv_battery);
 
+
+		/*
 		runnable = new Runnable() {
 			@Override
 			public void run() {
@@ -270,6 +278,8 @@ public class BioLibTestActivity extends AppCompatActivity implements ReportsFrag
 		};
 		handler = new Handler();
 		handler.postDelayed(runnable, 0);
+
+		 */
 	}
 	private void setupViewPager() {
 		MyPagerAdapter pagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
@@ -394,5 +404,55 @@ public class BioLibTestActivity extends AppCompatActivity implements ReportsFrag
 		Date newTime = new Date(startTime.getTime() + minutesToAdd * 60 * 1000);
 		return dateFormat.format(newTime);
 	}
+
+	// The Handler that gets information back from the BioLib
+	@SuppressLint("HandlerLeak")
+	private final Handler mHandler = new Handler() {
+		@Override
+		public void handleMessage(Message msg) {
+			switch (msg.what) {
+				case BioLib.MESSAGE_DATA_UPDATED:
+					BioLib.Output out = (BioLib.Output) msg.obj;
+					BATTERY_LEVEL = out.battery;
+
+					// Update battery level views
+					updateBatteryViews();
+
+					PULSE = out.pulse;
+					//textPULSE.setText("HR: " + PULSE + " bpm     Nb. Leads: " + lib.GetNumberOfChannels());
+					break;
+			}
+		}
+	};
+
+	// Method to update battery level views
+	private void updateBatteryViews() {
+		tv_battery.setText(BATTERY_LEVEL + "%");
+
+		if (BATTERY_LEVEL == 100) {
+			iv_battery.setImageResource(R.drawable.baseline_battery_full);
+		} else if (BATTERY_LEVEL > 75 && BATTERY_LEVEL <= 99) {
+			iv_battery.setImageResource(R.drawable.baseline_battery_2);
+		} else if (BATTERY_LEVEL > 50 && BATTERY_LEVEL <= 75) {
+			iv_battery.setImageResource(R.drawable.baseline_battery_3);
+		} else if (BATTERY_LEVEL == 50) {
+			iv_battery.setImageResource(R.drawable.baseline_battery_5);
+		} else if (BATTERY_LEVEL > 25 && BATTERY_LEVEL < 50) {
+			iv_battery.setImageResource(R.drawable.baseline_battery_5);
+		} else if (BATTERY_LEVEL > 5 && BATTERY_LEVEL <= 25) {
+			iv_battery.setImageResource(R.drawable.baseline_battery_6);
+		} else {
+			iv_battery.setImageResource(R.drawable.baseline_battery_7);
+		}
+
+		if (BATTERY_LEVEL <= 5) {
+			iv_battery.setImageResource(R.drawable.baseline_battery_7);
+		}
+
+		if (BATTERY_LEVEL == 0) {
+			iv_battery.setImageResource(R.drawable.baseline_battery_7);
+		}
+	}
+
 
 }

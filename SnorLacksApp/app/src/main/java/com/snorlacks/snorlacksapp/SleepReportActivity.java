@@ -144,6 +144,7 @@ public class SleepReportActivity extends AppCompatActivity {
             LineGraphSeries<DataPoint> awakeningSeries = new LineGraphSeries<>();
 
             // Iterate through events and add data points to respective series
+            int i =0;
             for (Event event : events) {
 
                 DataPoint dataPoint = new DataPoint(i, event.getBpm());
@@ -219,7 +220,7 @@ public class SleepReportActivity extends AppCompatActivity {
             graphView.getViewport().setMinX(normalSeries.getLowestValueX());
             graphView.getViewport().setMaxX(normalSeries.getHighestValueX());
             graphView.getViewport().setMinY(30);
-            graphView.getViewport().setMaxY(120);
+            graphView.getViewport().setMaxY(180);
 
             // Adjust the number of horizontal labels to display the x-values between each n samples
             //int numLabels = Math.min(events.size(), 5); // Display labels for every n samples

@@ -29,6 +29,7 @@
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:background="@drawable/action_arrow"
+                app:backgroundTint="@color/black"
                 android:onClick="action_nextMonth"
                 android:textStyle="bold"
                 android:gravity="center_vertical"
@@ -53,6 +54,7 @@
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:background="@drawable/action_arrow"
+                app:backgroundTint="@color/black"
                 android:onClick="action_nextMonth"
                 android:textStyle="bold"
                 android:gravity="center_horizontal"
@@ -147,7 +149,6 @@
             android:id="@+id/calendarRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-
         </androidx.recyclerview.widget.RecyclerView>
 
     </LinearLayout>

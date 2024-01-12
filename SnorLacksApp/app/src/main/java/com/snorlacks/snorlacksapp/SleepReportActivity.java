@@ -144,7 +144,6 @@ public class SleepReportActivity extends AppCompatActivity {
             LineGraphSeries<DataPoint> awakeningSeries = new LineGraphSeries<>();
 
             // Iterate through events and add data points to respective series
-            int i = 0;
             for (Event event : events) {
 
                 DataPoint dataPoint = new DataPoint(i, event.getBpm());
@@ -241,12 +240,12 @@ public class SleepReportActivity extends AppCompatActivity {
             graphView.invalidate();
 
             graphView.getGridLabelRenderer().setHorizontalLabelsVisible(false);
-            textViewApneaEvents.setText("No. suspected Apnea Events: " + numberApneaEvents);
+            textViewApneaEvents.setText("No. Apnea Events: " + numberApneaEvents);
 
-            textViewSleepStamps.setText("Sleep started at " + nightStartTime + " and ended at: " + nightEndTime);
+            //textViewSleepStamps.setText("Sleep started at " + nightStartTime + " and ended at: " + nightEndTime);
 
             if (numberApneaEvents == 0) {
-                textViewSleepQuality.setText("Looks like you had a night well rested!!");
+                textViewSleepQuality.setText("Feeling well rested?");
                 imageViewSleepQuality.setImageResource(R.drawable.drowsy_doodle);
                 constraintLayout.setBackgroundResource(R.drawable.good_sleep_report_background);
                 toolbar.setBackgroundResource(R.drawable.good_sleep_report_background);
@@ -254,7 +253,7 @@ public class SleepReportActivity extends AppCompatActivity {
                 textViewApneaEvents.setTextColor(getResources().getColor(R.color.goodSleepText));
                 textViewSleepQuality.setTextColor(getResources().getColor(R.color.goodSleepText));
             } else {
-                textViewSleepQuality.setText("It seems you had a rough nigh...");
+                textViewSleepQuality.setText("Had a rough night?");
                 imageViewSleepQuality.setImageResource(R.drawable.confuse_doodle);
                 constraintLayout.setBackgroundResource(R.drawable.bad_sleep_report_background);
                 toolbar.setBackgroundResource(R.drawable.bad_sleep_report_background);
@@ -274,45 +273,39 @@ public class SleepReportActivity extends AppCompatActivity {
 
 
     }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
 
     // Custom Date formatter for the x-axis
     private static class DateAsXAxisLabelFormatter extends DefaultLabelFormatter {
         private final SimpleDateFormat dateFormat;
-        private final String nightStartDate;
-        private final String nightEndDate;
+        private final Context context;
 
         // Constructor with Context argument
-        public DateAsXAxisLabelFormatter(Context context, String nightStartDate, String nightEndDate) {
+        public DateAsXAxisLabelFormatter(Context context) {
+            this.context = context;
             this.dateFormat = new SimpleDateFormat("h:mm a", Locale.getDefault());
-            this.nightStartDate = nightStartDate;
-            this.nightEndDate = nightEndDate;
         }
 
         @Override
         public String formatLabel(double value, boolean isValueX) {
             if (isValueX) {
                 // Convert Date to formatted date string
-                if (value == 0) {
-                    // Display night start date for the first label
-                    return dateFormat.format(getDateFromString(nightStartDate));
-                } else if (value == 1) {
-                    // Display night end date for the second label
-                    return dateFormat.format(getDateFromString(nightEndDate));
-                }
-            }
-            return super.formatLabel(value, isValueX);
-        }
-
-        private Date getDateFromString(String dateString) {
-            try {
-                return justDateFormat.parse(dateString);
-            } catch (ParseException e) {
-                e.printStackTrace();
-                return new Date(); // Return the current date in case of parsing error
+                return dateFormat.format(new Date((long) value));
+            } else {
+                return super.formatLabel(value, isValueX);
             }
         }
     }
-
 
     // Method to get color based on event type
     private int getColorForEventType(String eventType) {

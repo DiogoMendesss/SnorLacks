@@ -24,8 +24,9 @@
         android:id="@+id/imgSleepQuality"
         android:layout_width="101dp"
         android:layout_height="99dp"
-        android:layout_marginStart="20dp"
         android:layout_marginTop="8dp"
+        android:layout_marginEnd="150dp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar"
         app:srcCompat="@drawable/drowsy_doodle" />
@@ -38,7 +39,7 @@
         android:layout_marginTop="24dp"
         android:hint="Sleep Quality"
         android:textAlignment="textStart"
-        android:textSize="17sp"
+        android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -47,18 +48,16 @@
 
     <com.jjoe64.graphview.GraphView
         android:id="@+id/idGraphView"
-        android:layout_width="380dp"
+        android:layout_width="330dp"
         android:layout_height="200dip"
         android:layout_alignParentTop="true"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="30dp"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginEnd="30dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imgSleepQuality"
         android:layout_centerVertical="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
         android:layout_gravity="center_horizontal"
         android:nestedScrollingEnabled="false" />
 
@@ -69,7 +68,7 @@
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:layout_marginBottom="8dp"
-        android:hint="Beginning and End of sleep"
+        android:hint="HR stands for heart rate "
         android:text=""
         android:textColor="@color/black"
         android:textSize="15sp"
@@ -99,8 +98,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
-        android:background="@drawable/report_info_background"
+        android:background="@drawable/navigation_background"
         android:orientation="horizontal"
+        android:paddingStart="10dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="4dp"
+        android:paddingBottom="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/idGraphView">
@@ -118,7 +121,7 @@
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_gravity="center"
-                app:srcCompat="@drawable/awake" />
+                app:srcCompat="@drawable/sleep_time" />
 
             <TextView
                 android:id="@+id/txtViewFallTime"
@@ -155,7 +158,7 @@
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_gravity="center"
-                app:srcCompat="@drawable/awake" />
+                app:srcCompat="@drawable/sleep_duration" />
 
             <TextView
                 android:id="@+id/txtViewSleepTime"
@@ -173,7 +176,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
 
-                android:text="Sleep time"
+                android:text="Sleep duration"
                 android:textAlignment="center"
                 android:textColor="@color/badSleepText"
                 android:textSize="11sp"
@@ -194,7 +197,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:layout_gravity="center"
-                app:srcCompat="@drawable/awake" />
+                app:srcCompat="@drawable/awake_time" />
 
             <TextView
                 android:id="@+id/txtViewAwakeningTime"
@@ -224,8 +227,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
-        android:background="@drawable/report_info_background"
+        android:background="@drawable/navigation_background"
         android:orientation="horizontal"
+        android:paddingStart="10dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="4dp"
+        android:paddingBottom="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout">
@@ -243,7 +250,7 @@
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_gravity="center"
-                app:srcCompat="@drawable/awake" />
+                app:srcCompat="@drawable/hr_min" />
 
             <TextView
                 android:id="@+id/txtViewMinHRValue"
@@ -280,7 +287,7 @@
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_gravity="center"
-                app:srcCompat="@drawable/awake" />
+                app:srcCompat="@drawable/hr_median" />
 
             <TextView
                 android:id="@+id/txtViewMedianHRValue"
@@ -319,7 +326,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:layout_gravity="center"
-                app:srcCompat="@drawable/awake" />
+                app:srcCompat="@drawable/hr_max" />
 
             <TextView
                 android:id="@+id/txtViewMaxHRValue"

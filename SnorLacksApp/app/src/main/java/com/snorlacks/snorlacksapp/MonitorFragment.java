@@ -95,6 +95,7 @@ public class MonitorFragment extends Fragment {
     public ArrayList<Boolean> apneaEvents = new ArrayList<Boolean>();
 
     private boolean isMonitoring = false;
+    private boolean isConnected = false;
 
     private ToggleButton buttonMonitor;
     private android.widget.ImageButton buttonVJ;
@@ -260,8 +261,13 @@ public class MonitorFragment extends Fragment {
         buttonVJ.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 zoomInAnimation(view);
-                Connect();
-                clickLabelVJ.setVisibility(View.GONE);
+                if (isConnected) {
+                    Disconnect();
+                } else {
+                    Connect();
+                    clickLabelVJ.setVisibility(View.GONE);
+                }
+                isConnected = !isConnected;
             }
             /*
                 Connect to vital jacket device
@@ -329,6 +335,8 @@ public class MonitorFragment extends Fragment {
     private void Disconnect() {
         try {
             lib.Disconnect();
+            iconStatusVJ.setBackgroundResource(R.drawable.inactive);
+            cableStatusVJ.setBackgroundResource(R.drawable.vj_connection_inactive);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

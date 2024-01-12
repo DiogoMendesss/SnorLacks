@@ -22,6 +22,7 @@ import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 import com.jjoe64.graphview.series.PointsGraphSeries;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -63,7 +64,7 @@ public class SleepReportActivity extends AppCompatActivity {
     String nightEndTime;
 
     private DBHandler dbHandler;
-    private SimpleDateFormat justDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private static SimpleDateFormat justDateFormat = new SimpleDateFormat("yyyy-MM-dd");
     private SimpleDateFormat nightTimeFormat = new SimpleDateFormat("h:mm a");
     int numberApneaEvents;
 
@@ -143,9 +144,11 @@ public class SleepReportActivity extends AppCompatActivity {
             LineGraphSeries<DataPoint> awakeningSeries = new LineGraphSeries<>();
 
             // Iterate through events and add data points to respective series
+            int i = 0;
             for (Event event : events) {
 
-                DataPoint dataPoint = new DataPoint(event.getDateAsDate().getTime(), event.getBpm());
+                DataPoint dataPoint = new DataPoint(i, event.getBpm());
+                i++;
 
                 // Add data points to respective series based on event type
                 switch (event.getType()) {
@@ -172,17 +175,17 @@ public class SleepReportActivity extends AppCompatActivity {
 
 
             fallingAsleepSeries.setColor(getResources().getColor(R.color.colorFallingAsleep));
-            fallingAsleepSeries.setThickness(12);
+            fallingAsleepSeries.setThickness(4);
             normalSeries.setColor(getResources().getColor(R.color.colorNormal));
-            normalSeries.setThickness(12);
+            normalSeries.setThickness(4);
             apneaSeries.setColor(getResources().getColor(R.color.colorApnea));
 
-            apneaSeries.setSize(30);
+            apneaSeries.setSize(20);
             apneaSeries.setShape(PointsGraphSeries.Shape.POINT); // Set the shape to POINT
 
             // Add each series to the graph
             awakeningSeries.setColor(getResources().getColor(R.color.colorAwakening));
-            awakeningSeries.setThickness(12);
+            awakeningSeries.setThickness(4);
 
             // Add each series to the graph
             graphView.addSeries(normalSeries);
@@ -210,19 +213,20 @@ public class SleepReportActivity extends AppCompatActivity {
             //graphView.addSeries(series);
 
             // Customize graph properties if needed
-            graphView.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(this)); // Format X-axis as date
+            //graphView.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(this)); // Format X-axis as date
 
 
             graphView.getViewport().setYAxisBoundsManual(true);
             graphView.getViewport().setMinX(normalSeries.getLowestValueX());
             graphView.getViewport().setMaxX(normalSeries.getHighestValueX());
-            graphView.getViewport().setMinY(normalSeries.getLowestValueY());
-            graphView.getViewport().setMaxY(normalSeries.getHighestValueY());
+            graphView.getViewport().setMinY(30);
+            graphView.getViewport().setMaxY(120);
 
             // Adjust the number of horizontal labels to display the x-values between each n samples
-            int numLabels = Math.min(events.size(), 5); // Display labels for every n samples
+            //int numLabels = Math.min(events.size(), 5); // Display labels for every n samples
             //int numLabels = events.size()/4;
-            graphView.getGridLabelRenderer().setNumHorizontalLabels(numLabels);
+            //graphView.getGridLabelRenderer().setNumHorizontalLabels(numLabels);
+
 
 
             // Show labels for each data point
@@ -236,7 +240,7 @@ public class SleepReportActivity extends AppCompatActivity {
             // Refresh graph
             graphView.invalidate();
 
-
+            graphView.getGridLabelRenderer().setHorizontalLabelsVisible(false);
             textViewApneaEvents.setText("No. suspected Apnea Events: " + numberApneaEvents);
 
             textViewSleepStamps.setText("Sleep started at " + nightStartTime + " and ended at: " + nightEndTime);
@@ -274,24 +278,41 @@ public class SleepReportActivity extends AppCompatActivity {
     // Custom Date formatter for the x-axis
     private static class DateAsXAxisLabelFormatter extends DefaultLabelFormatter {
         private final SimpleDateFormat dateFormat;
-        private final Context context;
+        private final String nightStartDate;
+        private final String nightEndDate;
 
         // Constructor with Context argument
-        public DateAsXAxisLabelFormatter(Context context) {
-            this.context = context;
+        public DateAsXAxisLabelFormatter(Context context, String nightStartDate, String nightEndDate) {
             this.dateFormat = new SimpleDateFormat("h:mm a", Locale.getDefault());
+            this.nightStartDate = nightStartDate;
+            this.nightEndDate = nightEndDate;
         }
 
         @Override
         public String formatLabel(double value, boolean isValueX) {
             if (isValueX) {
                 // Convert Date to formatted date string
-                return dateFormat.format(new Date((long) value));
-            } else {
-                return super.formatLabel(value, isValueX);
+                if (value == 0) {
+                    // Display night start date for the first label
+                    return dateFormat.format(getDateFromString(nightStartDate));
+                } else if (value == 1) {
+                    // Display night end date for the second label
+                    return dateFormat.format(getDateFromString(nightEndDate));
+                }
+            }
+            return super.formatLabel(value, isValueX);
+        }
+
+        private Date getDateFromString(String dateString) {
+            try {
+                return justDateFormat.parse(dateString);
+            } catch (ParseException e) {
+                e.printStackTrace();
+                return new Date(); // Return the current date in case of parsing error
             }
         }
     }
+
 
     // Method to get color based on event type
     private int getColorForEventType(String eventType) {
@@ -325,14 +346,24 @@ public class SleepReportActivity extends AppCompatActivity {
         return time;
     }
 
-    private int getSleepTime (ArrayList<Event> events){
-        int time = 0;
-        for (Event event : events){
-            if (event.getType().equals("normal") || event.getType().equals("apnea")){
-                time++;
+    private String getSleepTime(ArrayList<Event> events) {
+        int totalMinutes = 0;
+
+        for (Event event : events) {
+            if (event.getType().equals("normal") || event.getType().equals("apnea")) {
+                totalMinutes++;
             }
         }
-        return time;
+
+        return convertToHHMM(totalMinutes);
+    }
+
+    private String convertToHHMM(int totalMinutes) {
+        int hours = totalMinutes / 60;
+        int minutes = totalMinutes % 60;
+
+        // Format the time as HH:mm
+        return String.format("%02d:%02d", hours, minutes);
     }
 
     private int getAwakeningTime (ArrayList<Event> events){

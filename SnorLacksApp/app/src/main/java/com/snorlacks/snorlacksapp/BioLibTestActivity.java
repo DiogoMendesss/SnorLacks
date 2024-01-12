@@ -3,64 +3,40 @@ package com.snorlacks.snorlacksapp;
 import static com.snorlacks.snorlacksapp.MonitorFragment.checkApneaEvents;
 import static com.snorlacks.snorlacksapp.MonitorFragment.cropEventArray;
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.content.pm.PackageManager;
-import android.graphics.drawable.AnimationDrawable;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.TransitionDrawable;
-import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import androidx.fragment.app.Fragment;
 import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.appcompat.app.AppCompatActivity;
-import android.view.MenuItem;
-import androidx.fragment.app.FragmentManager;
 import androidx.viewpager.widget.ViewPager;
 
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 
-import java.io.UnsupportedEncodingException;
-import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.ArrayList;
-import java.util.GregorianCalendar;
+import java.util.Random;
 
 import Bio.Library.namespace.BioLib;
-
-import android.content.IntentFilter;
 
 
 // SDK v1.0.07 @MAR15
@@ -143,6 +119,9 @@ public class BioLibTestActivity extends AppCompatActivity implements ReportsFrag
 	public ArrayList<Double> bpmMonitored = new ArrayList<Double>(); //array that stores bpm values
 	public ArrayList<Integer> eventBpmi = new ArrayList<Integer>(); //array that stores bpm values
 	public ArrayList<Event> events = new ArrayList<Event>(); //array that stores event instances
+	public ArrayList<Event> simevents = new ArrayList<Event>(); //array that stores event instances
+	public ArrayList<Event> simevents2 = new ArrayList<Event>(); //array that stores event instances
+
 
 	public ArrayList<Boolean> apneaEvents = new ArrayList<Boolean>();
 
@@ -235,6 +214,22 @@ public class BioLibTestActivity extends AppCompatActivity implements ReportsFrag
 
 		dbHandler.addNight(theNight);
 		dbHandler.addEvents(events);
+
+		Night simNight = new Night("2024-01-07","23:03" ,"8:03");
+		simevents = generateMockBPMData(6, "23:03:10", "2024-01-07");
+		cropEventArray(simevents);
+		simNight.setApneaEventsNumber(checkApneaEvents(simevents, 20));
+		dbHandler.addNight(simNight);
+		dbHandler.addEvents(simevents);
+
+		Night simNight2 = new Night("2024-01-04","23:03" ,"8:03");
+		simevents2 = generateMockBPMData(0, "23:03:10", "2024-01-04");
+		cropEventArray(simevents2);
+		simNight2.setApneaEventsNumber(checkApneaEvents(simevents2, 20));
+		dbHandler.addNight(simNight2);
+		dbHandler.addEvents(simevents2);
+
+
 
 		bpmMonitored = dbHandler.getBpmValuesForNight("2023-12-12");
 
@@ -340,6 +335,64 @@ public class BioLibTestActivity extends AppCompatActivity implements ReportsFrag
 		public int getCount() {
 			return 3; // Number of fragments
 		}
+	}
+
+	public static ArrayList<Event> generateMockBPMData(int numApneas, String startTime, String date) {
+		ArrayList<Event> events = new ArrayList<>();
+		SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+
+		try {
+			Date monitoringStartTime = dateFormat.parse(startTime);
+			Date currentTime = monitoringStartTime;
+
+			Random random = new Random();
+
+			for (int i = 0; i < 8 * 60; i++) { // 8 hours * 60 minutes
+				if (numApneas > 0 && random.nextDouble() < 0.02) { // Simulate apnea (2% chance per minute)
+					simulateApnea(events, monitoringStartTime, date);
+					numApneas--;
+				} else {
+					int bpm = random.nextInt(11) + 50; // Random BPM between 50 and 60
+					String timeString = dateFormat.format(currentTime);
+					events.add(new Event(bpm, timeString, date));
+				}
+
+				currentTime = new Date(currentTime.getTime() + 60 * 1000); // Move to the next minute
+			}
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return events;
+	}
+
+	private static void simulateApnea(ArrayList<Event> events, Date startTime, String date) {
+		int bpm = 60;
+
+		// Increase BPM to 80 over 3 minutes
+		for (int i = 0; i < 3; i++) {
+			bpm += 5;
+			String timeString = formatTime(startTime, i + 1);
+			events.add(new Event(bpm, timeString, date));
+		}
+
+		// Stay at 80 BPM for 5 minutes
+		for (int i = 0; i < 5; i++) {
+			String timeString = formatTime(startTime, i + 4); // Add 4 minutes because the previous loop added 3 minutes
+			events.add(new Event(80, timeString, date));
+		}
+
+		// Decrease BPM to 50 over 3 minutes
+		for (int i = 0; i < 3; i++) {
+			bpm -= 10;
+			String timeString = formatTime(startTime, i + 9); // Add 9 minutes because the previous loop added 5 minutes
+			events.add(new Event(bpm, timeString, date));
+		}
+	}
+
+	private static String formatTime(Date startTime, int minutesToAdd) {
+		SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+		Date newTime = new Date(startTime.getTime() + minutesToAdd * 60 * 1000);
+		return dateFormat.format(newTime);
 	}
 
 }

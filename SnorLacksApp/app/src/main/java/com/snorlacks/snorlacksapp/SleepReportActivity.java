@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.widget.Toolbar;
@@ -40,6 +41,8 @@ public class SleepReportActivity extends AppCompatActivity {
     TextView textViewSleepQuality;
     ImageView imageViewSleepQuality;
     ConstraintLayout constraintLayout;
+    LinearLayout linearLayout1;
+    LinearLayout linearLayout2;
     TextView textViewFallAsleepTime;
     TextView textViewSleepTime;
     TextView textViewAwakeningTime;
@@ -74,6 +77,8 @@ public class SleepReportActivity extends AppCompatActivity {
         dbHandler = DBHandler.getInstance(SleepReportActivity.this);
 
         constraintLayout = findViewById(R.id.constraintLayout);
+        linearLayout1 = findViewById(R.id.sleepTimeLayout);
+        linearLayout2 = findViewById(R.id.sleepBPMLayout);
         toolbar = findViewById(R.id.toolbar);
         textViewApneaEvents = findViewById(R.id.txtApneaEvents);
         graphView = findViewById(R.id.idGraphView);
@@ -111,6 +116,8 @@ public class SleepReportActivity extends AppCompatActivity {
             textViewSleepStamps.setVisibility(View.GONE);
             textViewSleepQuality.setVisibility(View.GONE);
             imageViewSleepQuality.setVisibility(View.GONE);
+            linearLayout1.setVisibility(View.GONE);
+            linearLayout2.setVisibility(View.GONE);
         } else {
 
             // Show other UI components

@@ -64,7 +64,7 @@ import android.content.IntentFilter;
 
 
 // SDK v1.0.07 @MAR15
-public class BioLibTestActivity extends AppCompatActivity implements ReportsFragment.OnStartSleepReportListener{
+public class BioLibTestActivity extends AppCompatActivity implements ReportsFragment.OnStartSleepReportListener, MonitorFragment.OnStartSleepReportListener{
 
 	@Override
 	public void onStartSleepReport(LocalDate clickedDate) {
@@ -175,6 +175,8 @@ public class BioLibTestActivity extends AppCompatActivity implements ReportsFrag
 	private ViewPager viewPager;
 	private BottomNavigationView bottomNav;
 
+
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -193,8 +195,9 @@ public class BioLibTestActivity extends AppCompatActivity implements ReportsFrag
 		viewPager.setCurrentItem(middleFragmentIndex);
 		bottomNav.setItemIconTintList(null);
 
-		DBHandler dbHandler = DBHandler.getInstance(BioLibTestActivity.this);
-		dbHandler.cleanDatabase();
+		DBHandler dbHandler;
+		dbHandler = DBHandler.getInstance(BioLibTestActivity.this);
+		//dbHandler.cleanDatabase();
 
 
 		Night night1 = new Night("2023-12-08","23:30" ,"7:22", 3);
@@ -204,11 +207,14 @@ public class BioLibTestActivity extends AppCompatActivity implements ReportsFrag
 		Night night5 = new Night("2023-12-22","23:30" ,"7:22", 0);
 		Night theNight = new Night("2023-12-12","22:51" ,"9:22");
 
+
+
 		dbHandler.addNight(night1);
 		dbHandler.addNight(night2);
 		dbHandler.addNight(night3);
 		dbHandler.addNight(night4);
 		dbHandler.addNight(night5);
+
 
 		events.add(new Event(90, "22:51:10", "2023-12-12"));
 		events.add(new Event(80, "22:52:10", "2023-12-12"));

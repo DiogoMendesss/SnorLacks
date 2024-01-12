@@ -33,6 +33,7 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -116,14 +117,18 @@ public class MonitorFragment extends Fragment {
     private String eventStartDate;
     private String nightEndTime;
 
-    private SimpleDateFormat sleepTimeFormat = new SimpleDateFormat("h:mm a");
+    private SimpleDateFormat sleepTimeFormat = new SimpleDateFormat("HH:mm");
     private SimpleDateFormat fullDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
     private SimpleDateFormat justDateFormat = new SimpleDateFormat("yyyy-MM-dd");
     private SimpleDateFormat eventDateFormat = new SimpleDateFormat("HH:mm:ss");
 
+    private DBHandler dbHandler;
+
     private Night night = new Night();
     private int lastNightID;
     private Event event = new Event();
+
+    private MonitorFragment.OnStartSleepReportListener onStartSleepReportListener;
 
     public MonitorFragment() {
         // Required empty public constructor
@@ -132,6 +137,12 @@ public class MonitorFragment extends Fragment {
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         fragmentContext = context;
+
+        if (context instanceof MonitorFragment.OnStartSleepReportListener) {
+            onStartSleepReportListener = (MonitorFragment.OnStartSleepReportListener) context;
+        } else {
+            throw new ClassCastException(context.toString() + " must implement OnStartSleepReportListener");
+        }
     }
     public static MonitorFragment newInstance(String param1, String param2) {
         return new MonitorFragment();
@@ -170,8 +181,8 @@ public class MonitorFragment extends Fragment {
                 ContextCompat.getDrawable(fragmentContext, R.drawable.sleep_background)});
 
         //  Database stuff
-        DBHandler dbHandler = DBHandler.getInstance(fragmentContext);
-        SQLiteDatabase db = dbHandler.getWritableDatabase();
+        dbHandler = DBHandler.getInstance(fragmentContext);
+        //SQLiteDatabase db = dbHandler.getWritableDatabase();
         textViewTestBPM.setText("Last night ID: " + dbHandler.getLastNightID());
 
         //  Sleep monitoring (start, stop, data)
@@ -186,7 +197,7 @@ public class MonitorFragment extends Fragment {
                     night.setEnd_time(nightEndTime);
                     night.calculateSleepTime();
                     //Toast.makeText(fragmentContext, "sleep time " + night.getSleep_time(), Toast.LENGTH_SHORT).show();
-                    night.reset();
+
 
                     // sleep to awake background animation
                     int sleepToAwakeTime = 1000;
@@ -220,10 +231,21 @@ public class MonitorFragment extends Fragment {
                         }
                         dbHandler.addNight(night);
 
+                        onStartSleepReportListener.onStartSleepReport(LocalDate.parse(nightStartDate));
+
                         Toast.makeText(fragmentContext, "Sleep monitoring stopped at " + nightEndTime, Toast.LENGTH_SHORT).show();
                     } else {
                         Toast.makeText(fragmentContext, "Empty array at time: " + sleepTimeFormat.format(endCalendar.getTime()), Toast.LENGTH_SHORT).show();
                     }
+                    night.reset();
+
+                    Night night6 = new Night("2024-01-10","22:51" ,"9:22");
+                    dbHandler.addNight(night6);
+
+
+
+
+
                 } else {    /* START MONITORING ACTION */
                     nightStartCalendar = Calendar.getInstance();
                     nightStartDate = justDateFormat.format(nightStartCalendar.getTime());
@@ -839,5 +861,9 @@ public class MonitorFragment extends Fragment {
                 fadeOut = AnimationUtils.loadAnimation(fragmentContext, R.anim.fade_out_fast);
         }
         view.startAnimation(fadeOut);
+    }
+
+    public interface OnStartSleepReportListener {
+        void onStartSleepReport(LocalDate clickedDate);
     }
 }

@@ -74,17 +74,25 @@ public class SearchDeviceActivity extends Activity {
                 if (mBluetoothAdapter.isEnabled()) {
                     // Listing paired devices
 
-                    if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                    // Check Bluetooth permissions
+                    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
                         Log.e("BluetoothConnection", "BT permission denied");
-                        ActivityCompat.requestPermissions(SearchDeviceActivity.this, new String[]{Manifest.permission.BLUETOOTH_SCAN}, 100);
-                        return;
-                    }
-
+                        ActivityCompat.requestPermissions(SearchDeviceActivity.this, new String[]{Manifest.permission.BLUETOOTH_CONNECT}, REQUEST_BLUETOOTH_PERMISSION);
+                    } else {
                         Log.e("BluetoothConnection", "BT permission granted");
-                        Set<BluetoothDevice> devices = mBluetoothAdapter.getBondedDevices();
-                        for (BluetoothDevice device : devices) {
-                            listAdapter.add(device.getAddress() + "   " + device.getName());
+
+                        // Continue with Bluetooth operations
+                        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+                        if (mBluetoothAdapter != null) {
+                            if (mBluetoothAdapter.isEnabled()) {
+                                // Listing paired devices
+                                Set<BluetoothDevice> devices = mBluetoothAdapter.getBondedDevices();
+                                for (BluetoothDevice device : devices) {
+                                    listAdapter.add(device.getAddress() + "   " + device.getName());
+                                }
+                            }
                         }
+                    }
 
 				}
 			}
@@ -107,6 +115,7 @@ public class SearchDeviceActivity extends Activity {
         }
         catch (Exception ex) {
             Toast.makeText(SearchDeviceActivity.this, "BT Device click exception", Toast.LENGTH_SHORT).show();
+            Log.e("BT error", String.valueOf(ex));
         }
     }
 

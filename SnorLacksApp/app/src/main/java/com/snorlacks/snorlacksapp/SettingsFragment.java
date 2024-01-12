@@ -73,8 +73,8 @@ public class SettingsFragment extends Fragment {
         ListView listView = view.findViewById(R.id.infoSettings);
 
         // Example data (replace this with your actual data)
-        String bulletOne = "1 • Turn on bluetooth (phone + vital jacket)";
-        String bulletTwo = "2 • Search and select the vital jacket in the bluetooth devices list (top left corner)";
+        String bulletOne = "1 • Pair smartphone with the vital jacket in android's bluetooth";
+        String bulletTwo = "2 • Search and select the vital jacket in the bluetooth devices list (top left button)";
         String bulletThree = "3 • Click on the vital jacket button to connect (green status means connected)";
         String bulletFour = "4 • Click on the main monitor button to start monitoring";
         String[] listItems = {bulletOne, bulletTwo, bulletThree, bulletFour};

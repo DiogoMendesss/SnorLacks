@@ -105,7 +105,7 @@ public class SleepReportActivity extends AppCompatActivity {
         // Check if events list is empty
         if (events.isEmpty()) {
             // If events list is empty, show a message in the first TextView
-            textViewApneaEvents.setText("No sleep events recorded for this night.");
+            textViewApneaEvents.setText("No sleep events recorded...");
             // Hide other UI components
             graphView.setVisibility(View.GONE);
             textViewSleepStamps.setVisibility(View.GONE);
@@ -230,12 +230,12 @@ public class SleepReportActivity extends AppCompatActivity {
             graphView.invalidate();
 
 
-            textViewApneaEvents.setText("No. suspected Apnea Events: " + numberApneaEvents);
+            textViewApneaEvents.setText("No. Apnea Events: " + numberApneaEvents);
 
-            textViewSleepStamps.setText("Sleep started at " + nightStartTime + " and ended at: " + nightEndTime);
+            //textViewSleepStamps.setText("Sleep started at " + nightStartTime + " and ended at: " + nightEndTime);
 
             if (numberApneaEvents == 0) {
-                textViewSleepQuality.setText("Looks like you had a night well rested!!");
+                textViewSleepQuality.setText("Feeling well rested?");
                 imageViewSleepQuality.setImageResource(R.drawable.drowsy_doodle);
                 constraintLayout.setBackgroundResource(R.drawable.good_sleep_report_background);
                 toolbar.setBackgroundResource(R.drawable.good_sleep_report_background);
@@ -243,7 +243,7 @@ public class SleepReportActivity extends AppCompatActivity {
                 textViewApneaEvents.setTextColor(getResources().getColor(R.color.goodSleepText));
                 textViewSleepQuality.setTextColor(getResources().getColor(R.color.goodSleepText));
             } else {
-                textViewSleepQuality.setText("It seems you had a rough nigh...");
+                textViewSleepQuality.setText("Had a rough night?");
                 imageViewSleepQuality.setImageResource(R.drawable.confuse_doodle);
                 constraintLayout.setBackgroundResource(R.drawable.bad_sleep_report_background);
                 toolbar.setBackgroundResource(R.drawable.bad_sleep_report_background);
@@ -263,6 +263,17 @@ public class SleepReportActivity extends AppCompatActivity {
 
 
     }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
 
     // Custom Date formatter for the x-axis
     private static class DateAsXAxisLabelFormatter extends DefaultLabelFormatter {

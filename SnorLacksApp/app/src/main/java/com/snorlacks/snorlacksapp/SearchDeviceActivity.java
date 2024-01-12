@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -75,14 +76,31 @@ public class SearchDeviceActivity extends Activity {
                     // Listing paired devices
 
 
-                    // Check Bluetooth permissions
-                    if (false){//ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                        Log.e("BluetoothConnection", "BT permission denied");
-                        ActivityCompat.requestPermissions(SearchDeviceActivity.this, new String[]{Manifest.permission.BLUETOOTH_CONNECT}, REQUEST_BLUETOOTH_PERMISSION);
-                    } else {
-                        Log.e("BluetoothConnection", "BT permission granted");
+                    // Check Bluetooth permissions (if device is running on Android 12 or higher, it shouldn´t ask permissions)
 
-                        // Continue with Bluetooth operations
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        // The device is running Android 12 (S) or later
+                        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                            Log.e("BluetoothConnection", "BT permission denied");
+                            ActivityCompat.requestPermissions(SearchDeviceActivity.this, new String[]{Manifest.permission.BLUETOOTH_CONNECT}, REQUEST_BLUETOOTH_PERMISSION);
+                        } else {
+                            Log.e("BluetoothConnection", "BT permission granted");
+
+                            // Continue with Bluetooth operations
+                            mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+                            if (mBluetoothAdapter != null) {
+                                if (mBluetoothAdapter.isEnabled()) {
+                                    // Listing paired devices
+                                    Set<BluetoothDevice> devices = mBluetoothAdapter.getBondedDevices();
+                                    for (BluetoothDevice device : devices) {
+                                        listAdapter.add(device.getAddress() + "   " + device.getName());
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        // The device is running an Android version earlier than Android 12
+                        // Continue with Bluetooth operations without permission check
                         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
                         if (mBluetoothAdapter != null) {
                             if (mBluetoothAdapter.isEnabled()) {

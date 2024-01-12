@@ -174,7 +174,7 @@ public class SleepReportActivity extends AppCompatActivity {
             apneaSeries.setSize(15);
             apneaSeries.setShape(PointsGraphSeries.Shape.POINT); // Set the shape to POINT
 
-            // Add each series to the graph
+
             awakeningSeries.setColor(getResources().getColor(R.color.colorAwakening));
             awakeningSeries.setThickness(4);
 
@@ -191,20 +191,10 @@ public class SleepReportActivity extends AppCompatActivity {
             String formattedDate = clickedDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
             graphView.setTitle("Sleep Report from " + formattedDate);
 
-            // on below line we are setting
-            // text color to our graph view.
-            //graphView.setTitleColor(R.color.purple_200);
 
             // on below line we are setting
             // our title text size.
             graphView.setTitleTextSize(40);
-
-            // on below line we are adding
-            // data series to our graph view.
-            //graphView.addSeries(series);
-
-            // Customize graph properties if needed
-            //graphView.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(this)); // Format X-axis as date
 
 
             graphView.getViewport().setYAxisBoundsManual(true);
@@ -213,20 +203,11 @@ public class SleepReportActivity extends AppCompatActivity {
             graphView.getViewport().setMinY(normalSeries.getLowestValueY()-10);
             graphView.getViewport().setMaxY(normalSeries.getHighestValueY()+20);
 
-            // Adjust the number of horizontal labels to display the x-values between each n samples
-            //int numLabels = Math.min(events.size(), 5); // Display labels for every n samples
-            //int numLabels = events.size()/4;
-            //graphView.getGridLabelRenderer().setNumHorizontalLabels(numLabels);
-
-
 
             // Show labels for each data point
             graphView.getGridLabelRenderer().setHumanRounding(false); // Disable rounding of labels
             graphView.getGridLabelRenderer().setHorizontalLabelsAngle(45); // Rotate labels for better visibility
             graphView.getGridLabelRenderer().setTextSize(30);
-
-            // Make the line thicker
-            //series.setThickness(8); // Adjust the thickness as needed
 
             // Refresh graph
             graphView.invalidate();
@@ -234,7 +215,6 @@ public class SleepReportActivity extends AppCompatActivity {
             graphView.getGridLabelRenderer().setHorizontalLabelsVisible(false);
             textViewApneaEvents.setText("Total Apnea Time: " + numberApneaEvents + " min");
 
-            //textViewSleepStamps.setText("Sleep started at " + nightStartTime + " and ended at: " + nightEndTime);
 
             if (numberApneaEvents == 0) {
                 textViewSleepQuality.setText("Feeling well rested?");
@@ -298,23 +278,6 @@ public class SleepReportActivity extends AppCompatActivity {
             }
         }
     }
-
-    // Method to get color based on event type
-    private int getColorForEventType(String eventType) {
-        switch (eventType) {
-            case "Falling asleep":
-                return getResources().getColor(R.color.colorFallingAsleep);
-            case "Awakening":
-                return getResources().getColor(R.color.colorAwakening);
-            case "Normal":
-                return getResources().getColor(R.color.colorNormal);
-            case "Apnea":
-                return getResources().getColor(R.color.colorApnea);
-            default:
-                return getResources().getColor(R.color.defaultColor);
-        }
-    }
-
 
     private int getFallAsleepTime (ArrayList<Event> events){
         int time = 0;

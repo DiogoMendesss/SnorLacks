@@ -51,21 +51,12 @@ public class SleepReportActivity extends AppCompatActivity {
     TextView textViewMedianBPM;
     TextView textViewMaxBPM;
 
-    SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMM d, ''yy");
-    SimpleDateFormat timeStampFormat = new SimpleDateFormat("h:mm a");
-
-    // Create a list to store DataPoint objects
-    ArrayList<DataPoint> bpmDataPoints = new ArrayList<>();
-    ArrayList<Calendar> timeStamps = new ArrayList<Calendar>();
-    ArrayList<Double> bpmList;
-
     String nightDate;
     String nightStartTime;
     String nightEndTime;
 
     private DBHandler dbHandler;
     private static SimpleDateFormat justDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-    private SimpleDateFormat nightTimeFormat = new SimpleDateFormat("h:mm a");
     int numberApneaEvents;
 
     ArrayList<Event> events;
@@ -180,7 +171,7 @@ public class SleepReportActivity extends AppCompatActivity {
             normalSeries.setThickness(4);
             apneaSeries.setColor(getResources().getColor(R.color.colorApnea));
 
-            apneaSeries.setSize(20);
+            apneaSeries.setSize(15);
             apneaSeries.setShape(PointsGraphSeries.Shape.POINT); // Set the shape to POINT
 
             // Add each series to the graph
@@ -219,8 +210,8 @@ public class SleepReportActivity extends AppCompatActivity {
             graphView.getViewport().setYAxisBoundsManual(true);
             graphView.getViewport().setMinX(normalSeries.getLowestValueX());
             graphView.getViewport().setMaxX(normalSeries.getHighestValueX());
-            graphView.getViewport().setMinY(30);
-            graphView.getViewport().setMaxY(180);
+            graphView.getViewport().setMinY(normalSeries.getLowestValueY()-10);
+            graphView.getViewport().setMaxY(normalSeries.getHighestValueY()+20);
 
             // Adjust the number of horizontal labels to display the x-values between each n samples
             //int numLabels = Math.min(events.size(), 5); // Display labels for every n samples
@@ -241,7 +232,7 @@ public class SleepReportActivity extends AppCompatActivity {
             graphView.invalidate();
 
             graphView.getGridLabelRenderer().setHorizontalLabelsVisible(false);
-            textViewApneaEvents.setText("No. Apnea Events: " + numberApneaEvents);
+            textViewApneaEvents.setText("Total Apnea Time: " + numberApneaEvents + " min");
 
             //textViewSleepStamps.setText("Sleep started at " + nightStartTime + " and ended at: " + nightEndTime);
 
@@ -264,7 +255,7 @@ public class SleepReportActivity extends AppCompatActivity {
             }
 
             textViewFallAsleepTime.setText(getFallAsleepTime(events) + " min");
-            textViewSleepTime.setText(getSleepTime(events) + " min");
+            textViewSleepTime.setText(getSleepTime(events) + "");
             textViewAwakeningTime.setText(getAwakeningTime(events) + " min");
             textViewMinBPM.setText(getMinBPM(events) + " bpm");
             textViewMedianBPM.setText((int) calculateEventBpmMedian(events) + " bpm");
@@ -324,11 +315,6 @@ public class SleepReportActivity extends AppCompatActivity {
         }
     }
 
-    // Method to get size based on event type
-    private int getSizeForEventType(String eventType) {
-        // Set a larger size for "Apnea" events, and a default size for others
-        return eventType.equals("Apnea") ? 10 : 5;
-    }
 
     private int getFallAsleepTime (ArrayList<Event> events){
         int time = 0;
@@ -357,7 +343,7 @@ public class SleepReportActivity extends AppCompatActivity {
         int minutes = totalMinutes % 60;
 
         // Format the time as HH:mm
-        return String.format("%02d:%02d", hours, minutes);
+        return String.format("%02dh%02d", hours, minutes);
     }
 
     private int getAwakeningTime (ArrayList<Event> events){
@@ -415,8 +401,5 @@ public class SleepReportActivity extends AppCompatActivity {
 
         return median;
     }
-
-
-
 }
 

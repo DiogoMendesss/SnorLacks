@@ -1,5 +1,9 @@
 package com.snorlacks.snorlacksapp;
 
+import static com.snorlacks.snorlacksapp.BioLibTestActivity.generateMockBPMData;
+import static com.snorlacks.snorlacksapp.MonitorFragment.checkApneaEvents;
+import static com.snorlacks.snorlacksapp.MonitorFragment.cropEventArray;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;

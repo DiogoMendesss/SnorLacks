@@ -68,94 +68,18 @@ public class BioLibTestActivity extends AppCompatActivity implements ReportsFrag
 	public static final String DEVICE_NAME = "device_name";
 	public static final String TOAST = "toast";
 
-	private TextView text;
-	private TextView textRTC;
-	private TextView textPUSH;
-	private TextView textPULSE;
-	private TextView textBAT;
-	private TextView textDataReceived;
-	private TextView textSDCARD;
-	private TextView textACC;
-	private TextView textHR;
-	private TextView textECG;
-	private TextView textDeviceId;
-	private TextView textRadioEvent;
-	private TextView textTimeSpan;
 	private TextView textViewTestBPM;
 
-
-	private Button buttonSearch;
 
 	//Battery icon
 	private ImageView iv_battery;
 	private TextView tv_battery;
-	Handler handler;
-	Runnable runnable;
+
 
 	private int BATTERY_LEVEL = 65;
-	private int PULSE = 0;
-	private Date DATETIME_PUSH_BUTTON = null;
-	private Date DATETIME_RTC = null;
-	private Date DATETIME_TIMESPAN = null;
-	private int SDCARD_STATE = 0;
-	private int numOfPushButton = 0;
-	private BioLib.DataACC dataACC = null;
-	private String deviceId = "";
-	private String firmwareVersion = "";
-	private byte accSensibility = 1;    // NOTE: 2G= 0, 4G= 1
-	private byte typeRadioEvent = 0;
-	private byte[] infoRadioEvent = null;
-	private short countEvent = 0;
 
-	private boolean isConn = false;
+	private int PULSE;
 
-	private byte[][] ecg = null;
-	private int nBytes = 0;
-
-	private String accConf = "";
-
-
-
-	private static final int APNEA_THRESHOLD = 20;
-	private static final int EVENT_SPAN = 10000; // duration of an event in ms
-	private int peak_number = 0; // variable to store how many beats happen in an event
-	private int event_span = 0; //variable to store the time of an event
-	private double meanBpm;
-	public ArrayList<Double> bpm = new ArrayList<Double>(); //array that stores bpm values
-	public ArrayList<Double> bpmMonitored = new ArrayList<Double>(); //array that stores bpm values
-	public ArrayList<Integer> eventBpmi = new ArrayList<Integer>(); //array that stores bpm values
-	public ArrayList<Event> events = new ArrayList<Event>(); //array that stores event instances
-	public ArrayList<Event> simevents = new ArrayList<Event>(); //array that stores event instances
-	public ArrayList<Event> simevents2 = new ArrayList<Event>(); //array that stores event instances
-
-
-	public ArrayList<Boolean> apneaEvents = new ArrayList<Boolean>();
-
-	private boolean isMonitoring = false;
-
-	private Button buttonGetSleepReport;
-	private Button buttonOpenCalendar;
-
-	private ToggleButton buttonMonitor;
-
-	private View clockBackground;
-
-	public Calendar startCalendar;
-	public Calendar nightStartCalendar;
-	public Calendar eventStartCalendar;
-	public Calendar endCalendar;
-
-	private String nightStartDate;
-	private String eventStartDate;
-	private String nightEndDate;
-
-	private SimpleDateFormat nightTimeFormat = new SimpleDateFormat("h:mm a");
-	private SimpleDateFormat fullDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-	private SimpleDateFormat eventDateFormat = new SimpleDateFormat("HH:mm:ss");
-
-    private Night night = new Night();
-	private int lastNightID;
-    private Event event = new Event();
 
 	private ViewPager viewPager;
 	private BottomNavigationView bottomNav;
@@ -188,10 +112,8 @@ public class BioLibTestActivity extends AppCompatActivity implements ReportsFrag
 		Night night1 = new Night("2023-12-08","23:30" ,"7:22", 3);
 		Night night2 = new Night("2023-12-14","23:30" ,"7:22", 4);
 		Night night3 = new Night("2023-12-20","23:30" ,"7:22", 0);
-		Night night4 = new Night("2024-02-05","23:30" ,"7:22", 69);
+		Night night4 = new Night("2024-02-05","23:30" ,"7:22", 65);
 		Night night5 = new Night("2023-12-22","23:30" ,"7:22", 0);
-		Night theNight = new Night("2023-12-12","22:51" ,"9:22");
-
 
 
 		dbHandler.addNight(night1);
@@ -200,26 +122,9 @@ public class BioLibTestActivity extends AppCompatActivity implements ReportsFrag
 		dbHandler.addNight(night4);
 		dbHandler.addNight(night5);
 
+		ArrayList<Event> simevents; //array that stores event instances
+		ArrayList<Event> simevents2; //array that stores event instances
 
-		events.add(new Event(90, "22:51:10", "2023-12-12"));
-		events.add(new Event(80, "22:52:10", "2023-12-12"));
-		events.add(new Event(70, "22:53:10", "2023-12-12"));
-		events.add(new Event(60, "22:54:10", "2023-12-12"));
-		events.add(new Event(56, "22:55:10", "2023-12-12"));
-		events.add(new Event(58, "22:56:10", "2023-12-12"));
-		events.add(new Event(64, "22:57:10", "2023-12-12"));
-		events.add(new Event(85, "22:58:10", "2023-12-12"));
-		events.add(new Event(63, "22:59:10", "2023-12-12"));
-		events.add(new Event(56, "23:00:10", "2023-12-12"));
-		events.add(new Event(60, "23:01:10", "2023-12-12"));
-		events.add(new Event(70, "23:02:10", "2023-12-12"));
-		events.add(new Event(85, "23:03:10", "2023-12-12"));
-
-		cropEventArray(events);
-		theNight.setApneaEventsNumber(checkApneaEvents(events, 20));
-
-		dbHandler.addNight(theNight);
-		dbHandler.addEvents(events);
 
 		Night simNight = new Night("2024-01-07","23:03" ,"8:03");
 		simevents = generateMockBPMData(6, "23:03:10", "2024-01-07");
@@ -237,7 +142,7 @@ public class BioLibTestActivity extends AppCompatActivity implements ReportsFrag
 
 
 
-		bpmMonitored = dbHandler.getBpmValuesForNight("2023-12-12");
+
 
 		//Battery icon
 		iv_battery = (ImageView) findViewById(R.id.iv_battery);

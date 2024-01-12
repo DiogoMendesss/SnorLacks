@@ -22,7 +22,7 @@
 
     <FrameLayout
         android:id="@+id/picHolder"
-        android:layout_width="270dp"
+        android:layout_width="290dp"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -173,7 +173,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
 
-                android:text="Sleep duration"
+                android:text="Sleep time"
                 android:textAlignment="center"
                 android:textColor="@color/badSleepText"
                 android:textSize="11sp"

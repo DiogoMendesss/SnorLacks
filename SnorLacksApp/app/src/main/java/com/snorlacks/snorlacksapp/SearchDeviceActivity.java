@@ -74,8 +74,9 @@ public class SearchDeviceActivity extends Activity {
                 if (mBluetoothAdapter.isEnabled()) {
                     // Listing paired devices
 
+
                     // Check Bluetooth permissions
-                    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                    if (false){//ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
                         Log.e("BluetoothConnection", "BT permission denied");
                         ActivityCompat.requestPermissions(SearchDeviceActivity.this, new String[]{Manifest.permission.BLUETOOTH_CONNECT}, REQUEST_BLUETOOTH_PERMISSION);
                     } else {

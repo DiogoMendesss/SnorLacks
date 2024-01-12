@@ -84,7 +84,7 @@ public class MonitorFragment extends Fragment {
 
     /** EDITED CODE STARTS HERE */
     private static final int APNEA_THRESHOLD = 20;
-    private static final int EVENT_SPAN = 10000; // duration of an event in ms
+    private static final int EVENT_SPAN = 5000; // duration of an event in ms
     private int peak_number = 0; // variable to store how many beats happen in an event
     private int event_span = 0; //variable to store the time of an event
     private double meanBpm;
@@ -125,7 +125,6 @@ public class MonitorFragment extends Fragment {
     private DBHandler dbHandler;
 
     private Night night = new Night();
-    private int lastNightID;
     private Event event = new Event();
 
     private MonitorFragment.OnStartSleepReportListener onStartSleepReportListener;
@@ -180,10 +179,9 @@ public class MonitorFragment extends Fragment {
                 ContextCompat.getDrawable(fragmentContext, R.drawable.awake_background),
                 ContextCompat.getDrawable(fragmentContext, R.drawable.sleep_background)});
 
-        //  Database stuff
+        //  Database handler
         dbHandler = DBHandler.getInstance(fragmentContext);
-        //SQLiteDatabase db = dbHandler.getWritableDatabase();
-        textViewTestBPM.setText("Last night ID: " + dbHandler.getLastNightID());
+
 
         //  Sleep monitoring (start, stop, data)
         buttonMonitor.setOnClickListener(new View.OnClickListener() {
@@ -196,7 +194,6 @@ public class MonitorFragment extends Fragment {
                     nightEndTime = sleepTimeFormat.format(endCalendar.getTime());
                     night.setEnd_time(nightEndTime);
                     night.calculateSleepTime();
-                    //Toast.makeText(fragmentContext, "sleep time " + night.getSleep_time(), Toast.LENGTH_SHORT).show();
 
 
                     // sleep to awake background animation
@@ -218,11 +215,6 @@ public class MonitorFragment extends Fragment {
                     buttonBluetooth.setEnabled(true);
 
                     if (!events.isEmpty()) {
-						/*
-						bpmMonitored = bpm;
-						cropBpmArray(bpmMonitored);
-						apneaEvents = checkApneaEvents(bpmMonitored, APNEA_THRESHOLD);
-						 */
                         cropEventArray(events);
                         night.setApneaEventsNumber(checkApneaEvents(events, 20));
 
@@ -234,25 +226,19 @@ public class MonitorFragment extends Fragment {
                         onStartSleepReportListener.onStartSleepReport(LocalDate.parse(nightStartDate));
 
                         Toast.makeText(fragmentContext, "Sleep monitoring stopped at " + nightEndTime, Toast.LENGTH_SHORT).show();
+
                     } else {
                         Toast.makeText(fragmentContext, "Empty array at time: " + sleepTimeFormat.format(endCalendar.getTime()), Toast.LENGTH_SHORT).show();
                     }
                     night.reset();
-
-                    Night night6 = new Night("2024-01-10","22:51" ,"9:22");
-                    dbHandler.addNight(night6);
-
-
-
-
-
                 } else {    /* START MONITORING ACTION */
+
                     nightStartCalendar = Calendar.getInstance();
                     nightStartDate = justDateFormat.format(nightStartCalendar.getTime());
                     nightStartTime = sleepTimeFormat.format(nightStartCalendar.getTime());
                     night.setStart_date(nightStartDate);
                     night.setStart_time(nightStartTime);
-                    lastNightID = dbHandler.getLastNightID();
+
 
                     // awake to sleep background animation
                     int awakeToSleepTime = 1500;
@@ -481,22 +467,6 @@ public class MonitorFragment extends Fragment {
 
                     break;
 
-                case BioLib.MESSAGE_PUSH_BUTTON:
-                    DATETIME_PUSH_BUTTON = (Date) msg.obj;
-                    numOfPushButton = msg.arg1;
-                    //textPUSH.setText("PUSH-BUTTON: [#" + numOfPushButton + "]" + DATETIME_PUSH_BUTTON.toString());
-                    break;
-
-                case BioLib.MESSAGE_RTC:
-                    DATETIME_RTC = (Date) msg.obj;
-                    //textRTC.setText("RTC: " + DATETIME_RTC.toString());
-                    break;
-
-                case BioLib.MESSAGE_TIMESPAN:
-                    DATETIME_TIMESPAN = (Date) msg.obj;
-                    //textTimeSpan.setText("SPAN: " + DATETIME_TIMESPAN.toString());
-                    break;
-
                 case BioLib.MESSAGE_DATA_UPDATED:
                     BioLib.Output out = (BioLib.Output) msg.obj;
                     BATTERY_LEVEL = out.battery;
@@ -505,83 +475,11 @@ public class MonitorFragment extends Fragment {
                     //textPULSE.setText("HR: " + PULSE + " bpm     Nb. Leads: " + lib.GetNumberOfChannels());
                     break;
 
-                case BioLib.MESSAGE_SDCARD_STATE:
-
-					/*
-	            	SDCARD_STATE = (int)msg.arg1;
-
-	            	if (SDCARD_STATE == 1)
-	            		textSDCARD.setText("SD CARD STATE: ON");
-	            	else
-	            		textSDCARD.setText("SD CARD STATE: OFF");
-
-					 */
-                    break;
-
-                case BioLib.MESSAGE_RADIO_EVENT:
-	            	/*textRadioEvent.setText("Radio-event: received ... ");
-
-	            	typeRadioEvent = (byte)msg.arg1;
-	            	infoRadioEvent = (byte[]) msg.obj;
-
-	            	String str = "";
-					try {
-						str = new String(infoRadioEvent, "UTF8");
-					} catch (UnsupportedEncodingException e) {
-						e.printStackTrace();
-					}
-	            	textRadioEvent.setText("Radio-event: " + typeRadioEvent + "[" + str + "]");
-
-	            	 */
-
-                    break;
-
-                case BioLib.MESSAGE_FIRMWARE_VERSION:
-
-					/*
-	            	// Show firmware version in device VitalJacket ...
-	            	firmwareVersion = (String)msg.obj;
-
-					 */
-                    break;
-
-                case BioLib.MESSAGE_DEVICE_ID:
-
-					/*
-	            	deviceId = (String)msg.obj;
-	            	textDeviceId.setText("Device Id: " + deviceId);
-
-					 */
-
-                    break;
-
-                case BioLib.MESSAGE_ACC_SENSIBILITY:
-
-					/*
-	            	accSensibility = (byte)msg.arg1;
-	            	accConf = "4G";
-	            	switch (accSensibility)
-	            	{
-	            		case 0:
-	            			accConf = "2G";
-	            			break;
-
-	            		case 1:
-	            			accConf = "4G";
-	            			break;
-	            	}
-
-	            	textACC.setText("ACC [" + accConf + "]:  X: " + dataACC.X + "  Y: " + dataACC.Y + "  Z: " + dataACC.Z);
-
-					 */
-
-                    break;
 
                 case BioLib.MESSAGE_PEAK_DETECTION:
                     BioLib.QRS qrs = (BioLib.QRS) msg.obj;
 
 
-                    /** EDITED CODE STARTS HERE */
                     if (event_span < EVENT_SPAN) { //checks if the duration of the event hasn't overcome the EVENT_SPAN
                         eventStartCalendar = Calendar.getInstance();
                         eventStartDate = eventDateFormat.format(eventStartCalendar.getTime());
@@ -590,55 +488,17 @@ public class MonitorFragment extends Fragment {
                         event_span += qrs.rr;
                     } else { //An event has completed and the mean bpm for that event is calculated (in minutes)
                         meanBpm = calculateMean(eventBpmi);
-                        bpm.add(meanBpm);
                         event_span = 0;
                         peak_number = 0;
                         eventBpmi.clear();
-                        Toast.makeText(fragmentContext, Double.toString(peak_number / (EVENT_SPAN * 1000.0 * 60)), Toast.LENGTH_SHORT).show();
 
                         event = new Event(meanBpm, eventStartDate, nightStartDate);
                         events.add(event);
                     }
-
-                    //textViewTestBPM.setText("Peak number: " + peak_number + "; Event duration: " + event_span);
-                    textViewTestBPM.setText("PEAK: " + qrs.position + "  BPMi: " + qrs.bpmi + " bpm  BPM: " + qrs.bpm +
-                            " bpm  R-R: " + qrs.rr + " ms; Array size: " + bpm.size());
-                    /** EDITED CODE ENDS HERE */
+                    //textViewTestBPM.setText("PEAK: " + qrs.position + "  BPMi: " + qrs.bpmi + " bpm  BPM: " + qrs.bpm +
+                            //" bpm  R-R: " + qrs.rr + " ms; Array size: " + events.size());
 
                     //textHR.setText("PEAK: " + qrs.position + "  BPMi: " + qrs.bpmi + " bpm  BPM: " + qrs.bpm + " bpm  R-R: " + qrs.rr + " ms");
-                    break;
-
-                case BioLib.MESSAGE_ACC_UPDATED:
-
-					/*
-	            	dataACC = (BioLib.DataACC)msg.obj;
-
-	            	if (accConf == "")
-	            		textACC.setText("ACC:  X: " + dataACC.X + "  Y: " + dataACC.Y + "  Z: " + dataACC.Z);
-	            	else
-	            		textACC.setText("ACC [" + accConf + "]:  X: " + dataACC.X + "  Y: " + dataACC.Y + "  Z: " + dataACC.Z);
-
-					 */
-                    break;
-
-                case BioLib.MESSAGE_ECG_STREAM:
-
-					/*
-	            	try
-	            	{
-	            		textECG.setText("ECG received");
-	            		ecg = (byte[][]) msg.obj;
-	            		int nLeads = ecg.length;
-	            		nBytes = ecg[0].length;
-	            		textECG.setText("ECG stream: OK   nBytes: " + nBytes + "   nLeads: " + nLeads);
-	            	}
-
-	            	catch (Exception ex)
-	            	{
-	            		textECG.setText("ERROR in ecg stream");
-	            	}
-
-					 */
                     break;
 
                 case BioLib.MESSAGE_TOAST:
@@ -704,21 +564,6 @@ public class MonitorFragment extends Fragment {
         }
         return apneaEventsNumber;
     }
-
-    public static void cropBpmArray(ArrayList<Double> bpmList) {
-
-        double median = calculateMedian(bpmList);
-
-        // Remove the first values until a sample is lesser than the median
-        while (!bpmList.isEmpty() && bpmList.get(0) >= median) {
-            bpmList.remove(0);
-        }
-
-        // Remove the last values until a sample is lesser than the median
-        while (!bpmList.isEmpty() && bpmList.get(bpmList.size() - 1) >= median) {
-            bpmList.remove(bpmList.size() - 1);
-        }
-    }
     public static void cropEventArray(ArrayList<Event> bpmList) {
 
         double median = calculateEventBpmMedian(bpmList);
@@ -748,31 +593,6 @@ public class MonitorFragment extends Fragment {
         }
 
         return (double) sum / arrayList.size();
-    }
-    public static double calculateMedian(ArrayList<Double> numbers) {
-        // Check for empty list
-        if (numbers == null || numbers.isEmpty()) {
-            throw new IllegalArgumentException("The list is empty");
-        }
-
-        // Sort the ArrayList
-        ArrayList<Double> sorted_numbers = new ArrayList<Double>(numbers);
-        Collections.sort(sorted_numbers);
-
-        int size = sorted_numbers.size();
-        double median;
-
-        if (size % 2 == 0) {
-            // If the size is even, average the two middle elements
-            double middle1 = sorted_numbers.get(size / 2 - 1);
-            double middle2 = sorted_numbers.get(size / 2);
-            median = (middle1 + middle2) / 2.0;
-        } else {
-            // If the size is odd, take the middle element
-            median = sorted_numbers.get(size / 2);
-        }
-
-        return median;
     }
     public static double calculateEventBpmMedian(ArrayList<Event> events) {
         // Check for empty list

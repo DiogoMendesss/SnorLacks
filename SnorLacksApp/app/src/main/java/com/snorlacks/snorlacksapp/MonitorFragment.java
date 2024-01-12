@@ -84,7 +84,7 @@ public class MonitorFragment extends Fragment {
 
     /** EDITED CODE STARTS HERE */
     private static final int APNEA_THRESHOLD = 20;
-    private static final int EVENT_SPAN = 5000; // duration of an event in ms
+    private static final int EVENT_SPAN = 60*1000; // duration of an event in ms (set to 1 minute)
     private int peak_number = 0; // variable to store how many beats happen in an event
     private int event_span = 0; //variable to store the time of an event
     private double meanBpm;

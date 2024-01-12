@@ -108,6 +108,8 @@ public class BioLibTestActivity extends AppCompatActivity implements ReportsFrag
 		dbHandler = DBHandler.getInstance(BioLibTestActivity.this);
 		//dbHandler.cleanDatabase();
 
+		/** SOME SAMPLES ARE ADDED JUST FOR EASIER TESTING AND DATABASE POPULATION
+		  */
 
 		Night night1 = new Night("2023-12-08","23:30" ,"7:22", 3);
 		Night night2 = new Night("2023-12-14","23:30" ,"7:22", 4);
@@ -139,6 +141,8 @@ public class BioLibTestActivity extends AppCompatActivity implements ReportsFrag
 		simNight2.setApneaEventsNumber(checkApneaEvents(simevents2, 20));
 		dbHandler.addNight(simNight2);
 		dbHandler.addEvents(simevents2);
+
+		/** TESTING SAMPLES ENDS HERE */
 
 
 

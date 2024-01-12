@@ -82,18 +82,15 @@ public class MonitorFragment extends Fragment {
 
     private String accConf = "";
 
-    /** EDITED CODE STARTS HERE */
+
     private static final int APNEA_THRESHOLD = 20;
     private static final int EVENT_SPAN = 5000; // duration of an event in ms
     private int peak_number = 0; // variable to store how many beats happen in an event
     private int event_span = 0; //variable to store the time of an event
     private double meanBpm;
     public ArrayList<Double> bpm = new ArrayList<Double>(); //array that stores bpm values
-    public ArrayList<Double> bpmMonitored = new ArrayList<Double>(); //array that stores bpm values
     public ArrayList<Integer> eventBpmi = new ArrayList<Integer>(); //array that stores bpm values
     public ArrayList<Event> events = new ArrayList<Event>(); //array that stores event instances
-
-    public ArrayList<Boolean> apneaEvents = new ArrayList<Boolean>();
 
     private boolean isMonitoring = false;
     private boolean isConnected = false;
